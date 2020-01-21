@@ -1,0 +1,641 @@
+%!TEX root =main.tex
+
+
+
+\newpage
+
+\section{Lower bounding the expressive power}
+
+In this paper we consider the following architectures. Below, $\sigma$ denotes a non-linear activation function such as sgn or ReLU. 
+
+\begin{definition}\label{def:label}
+Let $\mathbf{F}$ be a labeling defined by an $n\times q$-matrix. 
+We say that $\mathbf{F}$ is good with respect to another labeling $\mathbf{F}'$ if:
+\begin{enumerate}
+\item[(a)] \textit{row-independent modulo equality}, i.e., the unique row vectors in $\mathbf{F}$ are linearly independent; and
+\item[(b)] 
+% the vertex labelling induced by  $\mathbf{F}^{(t)}$ is \textit{equivalent} to the vertex labelling induced by  $\mathbf{c}^{(t)}$
+% obtained by applying 1-WL on the graph with vertex labelling induced by $\mathbf{F}^{(t-1)}$. (If $t=0$,
+The vertex labelling induced by $\mathbf{F}'$ is coarser than  $\mathbf{F}$.
+\end{enumerate}
+\end{definition}
+Most of the time we will use this definition for $\mathbf{F}' = \mathbf{D} \mathbf{1}_{n \times 1}$.
+\todo{Floris: What do you mean by this? What is $ \mathbf{D} \mathbf{1}_{n \times 1}$?}
+\paragraph*{Graph neural networks}
+A graph neural network (GNN) model consists of layers, where each layer specifies how to update the vertex labelling $\mathbf{F}$. A GNN with $k$ layers is defined by updates of $\mathbf{F}^{(t)}$ for $t = 0, \ldots,k$, which denotes the labelling obtained after $t$ layers. A new labelling $\mathbf{F}^{(t+1)}$ is obtained inductively by transformations defined on the previous labelling $\mathbf{F}^{(t)}$. An \emph{architecture} specifies what kind of transformations are allowed. In this paper we consider the following architectures. Below, $\sigma$ denotes a non-linear activation function such as sgn or ReLU. 
+% $$
+% \mathbf{F}^{(t+1)} = \sigma\left(\mathbf{A}(p,q)\mathbf{F}^{(t)}\mathbf{W}_1^{(t)}+ r\mathbf{B}(p,q)
+% \right)
+% $$
+% with 
+% $$
+% \mathbf{A}(p,q):=
+% \left((p+q)\mathbf{I}+(1-(p+q))\mathbf{D}\right)^{-1/2}(\mathbf{A}+q\mathbf{I})
+% $$
+
+\begin{itemize}
+ \item \emph{Basic architecture.} (See e.g.~\cite{hyl17})
+\begin{equation}\label{architecture:basic}
+  \mathbf{F}^{(t+1)} = \sigma\left(
+   \mathbf{AF}^{(t)}\mathbf{W}_1^{(t)} +
+    \mathbf{F}^{(t)}\mathbf{W}_2^{(t)} +
+    \mathbf{W}_3^{(t)}
+  \right),
+\end{equation}
+where $\mathbf{W}_1^{(t)}, \mathbf{W}_2^{(t)} \in \Rb^{(q \times q')}$ are weight matrices.
+% and $\sigma$ is a nonlinear function usually ReLU.
+\item \emph{Normalised architecture.} 
+\begin{equation}\label{architecture:normalised}
+  \mathbf{F}^{(t+1)} = \sigma\left(
+   \mathbf{D}^{-1/2}\mathbf{AD}^{-1/2}\mathbf{F}^{(t)}\mathbf{W}_1^{(t)} +
+    \mathbf{F}^{(t)}\mathbf{W}_2^{(t)} +
+    \mathbf{W}_3^{(t)}
+  \right),
+\end{equation}
+which differs from the basic architecture by normalising the adjacency matrix using the degree matrix $\mathbf{D}$.
+\item \emph{Kipf-Welling architecture.}
+\begin{equation}\label{architecture:kipf}
+  \mathbf{F}^{(t+1)} = \sigma\left(
+   \tilde{\mathbf{D}}^{-1/2}\tilde{\mathbf{A}}\tilde{\mathbf{D}}^{-1/2}\mathbf{F}^{(t)}\mathbf{W}_1^{(t)}
+  \right),
+\end{equation}
+where $\tilde{\mathbf{A}} = \mathbf{A} + \mathbf{I}$ and $\tilde{\mathbf{D}}$ is the diagonal matrix with degrees of $\tilde{\mathbf{A}}$.
+\item \emph{Kipf-Welling architecture with bias.}
+\begin{equation}\label{architecture:kipfbiased}
+  \mathbf{F}^{(t+1)} = \sigma\left(
+   \tilde{\mathbf{D}}^{-1/2}\tilde{\mathbf{A}}\tilde{\mathbf{D}}^{-1/2}\mathbf{F}^{(t)}\mathbf{W}_1^{(t)} +
+    \mathbf{W}_3^{(t)}
+  \right),
+\end{equation}
+which is the same as the Kipf-Welling architecture but extended with a bias $\mathbf{W}_3^{(t)}$.
+\item \emph{Symmetric normalisation.}
+\begin{equation}\label{architecture:symmetric}
+  \mathbf{F}^{(t+1)} = \sigma\left(
+   \frac{\mathbf{D}^{-1}\mathbf{A} + \mathbf{AD}^{-1}}{2} \mathbf{F}^{(t)}\mathbf{W}_1^{(t)} +
+    \mathbf{F}^{(t)}\mathbf{W}_2^{(t)} +
+    \mathbf{W}_3^{(t)}
+  \right),
+\end{equation}
+which is the same as normalised architecture, but the normalisation is achieved with $\frac{\mathbf{D}^{-1}\mathbf{A} + \mathbf{AD}^{-1}}{2}$. Notice that since $\mathbf{D}$ and $\mathbf{A}$ are both symmetric this always results in a symmetric matrix (whereas for example $\mathbf{D}^{-1}\mathbf{A}$ does not need to be symmetric).
+\item \emph{Linear architectures.} These are all variants of the previous architectures, where the nonlinear part $\sigma$ is removed.
+\end{itemize}
+
+q\todo{floris: This can be further complemented with random walk $\mathbf{D}^{-1}\mathbf{A}$, augmented random walks $\tilde{\mathbf{D}}^{-1}\tilde{\mathbf{A}}$ as in \cite{Wu2019}.}
+
+\todo{floris: also, aren't we missing ``the''architecture we want to put forward, i.e., the variation of Kipf with perturbed $\mathbf{I}$ and special bias??}
+Notice that~\eqref{architecture:kipf} is a particular case of~\eqref{architecture:kipfbiased} when $\mathbf{W}_3^{(t)}$ is a zero matrix. Otherwise, all architectures are probably incomparable.
+\todo{Filip: Do we want to formalise this last statement (is this even true)?}
+\todo{Guillermo: It is not really as important as knowing which architectures can simulate the 1WL. For now Kipf-Welling is the only one for which we do not have a positive answer but that implies nothing about how it compares to the others.}
+\todo{Filip: Hopefully we could write something like ``in practise they are different and give different results''. Otherwise we should come up with some justification for introducing all these architectures.}
+
+\paragraph*{Weisfeiler-Leman Algorithm}%there should be more about this here
+When executing 1-WL on $G$, we denote the corresponding vertex labelling in iteration $t$ by the $n\times 1$-matrix (column vector) 
+$\mathbf{c}^{(t)}$, i.e., the entry $\mathbf{c}^{(t)}_v$ is a number encoding the colour of vertex $v$ after $t$ iterations of 1-WL.
+\todo[inline]{Guillermo: the notion of a number encoding a color is vague here, I guess we want to have that the induced labelling is equivalent to the colouring.}
+\todo{Filip: once we write properly the WL paragraph I would just never talk about coloring, only about labelling. Or define coloring as labelling for $q = 1$.}
+
+\begin{definition}\label{def:gen+bias}
+Let $\mathbf{F}^{(0)}$ be a feature matrix satisfying Definition~\ref{def:label} for $\mathbf{F}' = \mathbf{c}^{(k)}_v$ for some given $k$.
+We say that an architecture is 1-WL strong if for every $t\geq 0$ there exist weight matrices $\mathbf{W}^{(t)}$
+% and constant $m^{(t)}$
+such that the vertex labelling induced by $\mathbf{F}^{(t)}$ defined in this architecture
+is equivalent to the vertex labelling after $k+t$ iterations of 1-WL, starting from a uniform vertex labelling.
+\end{definition}
+
+\section{Nodes labelled with respect to $1$-WL.}
+We first  consider unlabelled graphs, i.e., labelled graphs $(G,\mathbf{l})$ with $\mathbf{l}$ an $n\times 1$-vector, such that the
+vertex labelling induced by $\mathbf{l}$ assigns some labelling coarser than $\mathbf{c}^{(k)}_v$ for some $k$.
+% The GNNs which we will
+% consider are closely related to GNNs with update rules of the form (see also~\cite{hyl17}):
+% \begin{equation}\label{eqn:gnn2}
+%   \mathbf{F}^{(t+1)} = \sigma\left(
+%     \mathbf{F}^{(t)}\mathbf{W}_1^{(t)} +
+%     \mathbf{AF}^{(t)}\mathbf{W}_2^{(t)}
+%   \right),
+% \end{equation}
+% where $\mathbf{F}^{(t)}$ are the feature vectors, $\mathbf{A}$ is an adjacency matrix of
+% an undirected graph, and $\mathbf{W}_1^{(t)}$ and $\mathbf{W}_2^{(t)}$ are weight matrices
+% (which are to be learned).
+
+It was shown in~\cite{grohewl} that the basic architecture can perform as good as 1-WL.
+More specifically, that there is a sequence
+$(\mathbf{W}_1^{(t)})_{t\in\mathbb{N}}$ of weight matrices in $\Rb^{n\times n}$ such that
+the vertex labelling induced by
+\begin{equation}\label{eqn:grohegnn}
+  \mathbf{F}^{(t+1)} = \text{sign}\left(
+    \mathbf{A}\mathbf{F}^{(t)}\mathbf{W}_1^{(t)} - \mathbf{J}  \right)
+\end{equation}
+gives $\mathbf{F}^{(t)}$ equivalent to $\mathbf{c}^{(t)}$ for all $t$ (assuming that both $\mathbf{F}^{(0)}$ and $\mathbf{c}^{(0)}$ start with a labelling coarser than $\mathbf{c}^{(k)}_v$ for some $k$).
+% is equivalent to the vertex labelling induced by $\mathbf{c}^{(t+1)}$, computed by 1-WL, starting from the initial uniform vertex labelling $\mathbf{c}^{(0)}=\mathbf{l}$.
+This is a particular case of the basic architecture~\eqref{architecture:basic}, where the matrix $\mathbf{W}_2^{(t)}$ is not needed
+in any iteration, and $\mathbf{W}_3^{(t)} = -\mathbf{J}$ is fixed for all iterations (where $\mathbf{J}$ denotes the matrix consisting of entries all equal to one).
+Moreover, when $\sigma$ is taken to be ReLU, then the vertex labelling induced by  $\mathbf{F}^{(2t)}$ 
+is shown to correspond to the vertex labelling induced by $\mathbf{c}^{(t)}$, computed by 1-WL~\cite{grohewl}. The factor $2$ originates
+from a simulation of $\text{sign}(\cdot)$ by means of a two-fold application of ReLU.
+
+% \subsubsection{Grohe with some spice.}
+% We start by describing (and slightly  generalizing) the proof strategy used
+% in~\cite{grohewl}.
+
+In Sections~\ref{subsec:left} and~\ref{subsec:right} we will generalise the result of~\cite{grohewl} proving that the architectures~\eqref{architecture:normalised} and~\eqref{architecture:kipfbiased} also have these properties. For this we will introduce a uniform architecture that captures all architectures~\eqref{architecture:basic}, \eqref{architecture:normalised} and~\eqref{architecture:kipfbiased}. We do not know whether a similar result holds for the remaining architecture~\eqref{architecture:kipf}.
+But first, in Section~\ref{subsec:relu} we strengthen one of the results from~\cite{grohewl}.
+
+\subsection{ReLU}\label{subsec:relu}
+We show that instead of simulating the sign function by means of ReLU, one can directly
+use ReLU by means of a minor modification of the proof given in~\cite{grohewl}. 
+As a consequence, we avoid the factor $2$ in the correspondence between the 1-WL
+vertex labelling and the labelling induced by the feature vectors.
+An inspection of the proof given in~\cite{grohewl} shows that it suffices to re-establish Lemma 9 from~\cite{grohewl} for the ReLU function. \begin{lemma}\label{lem:relulemma9}
+  Let
+  $\mathbf{B}\in \Nb^{p\times q}$ be a matrix in which all
+  rows are pairwise disjoint and such that no row consists entirely
+  out of zeroes\footnote{Compared to Lemma 9,
+ we additionally require non-zero rows. This can be guaranteed provided that there are no isolated vertices}.
+%  \footnote{I believe that this can be
+%  guaranteed in 1-WL}).\todo{G: with our extended features we actually guarantee this for free by adding the 1 column; also, t as dimension is a bad choice\ldots}
+  Then there exists a matrix $\mathbf{X}$ and a constant $m$
+  such that $\text{\normalfont ReLU}(\mathbf{BX}-m\mathbf{J})$ is
+  non-singular.
+\end{lemma}
+\begin{proof}
+Let $M$ be the maximal entry in $\mathbf{B}$ and consider the column vector $\mathbf{z}=(1,M,M^2,\ldots,M^{q-1})^{\textsc{t}}$.
+Then each entry in $\mathbf{b}=\mathbf{B}\mathbf{z}$ is positive and they are all pairwise distinct. 
+Let $\mathbf{P}$ be a permutation matrix in $\Rb^{p\times p}$ such that $\mathbf{b}'=\mathbf{P}\mathbf{b}$ is such that  $\mathbf{b}'=(b_1',b_2',\ldots,b_p')^{\textsc{	t}}\in\Rb^{p\times 1}$ with $ b_1'> b_2'>\cdots > b_p'>0$. 
+Consider the $\mathbf{x}=\left(\frac{1}{b_1'},\ldots,\frac{1}{b_p'}\right)\in \Rb^{1\times p}$. Then, for $\mathbf{C}=\mathbf{b}'\mathbf{x}$
+$$
+\mathbf{C}_{ij}=\frac{b_i'}{b_j'}  \text{ and } \mathbf{C}_{ij}=\begin{cases}  1 & \text{if $i=j$}\\
+>1 & \text{if $i<j$}\\
+< 1 & \text{if $i>j$}.
+\end{cases}
+$$
+Let $m$ be the greatest value  in $\mathbf{C}$ smaller than $1$.
+% G: I think the m instantiated here is not correct
+%, i.e., $m=\frac{b_s}{b_1}$.
+Consider $\mathbf{E}=\mathbf{C}- m\mathbf{J}$.
+Then,
+$$
+\mathbf{E}_{ij}=\frac{b_i'}{b_j'}- m \text{ and } \mathbf{E}_{ij}=\begin{cases}  1-m & \text{if $i=j$} \\
+> 0 & \text{if $i<j$}\\
+\leq 0  & \text{if $i>j$}.
+\end{cases}
+$$
+As a consequence,
+$$
+\text{ReLU}(\mathbf{E})_{ij}=\begin{cases}  1-m & \text{if $i=j$}\\
+>0 & \text{if $i<j$}\\
+0  & \text{if $i>j$}.
+\end{cases}
+$$
+This is an upper triangular matrix with (nonzero) value $1-m$ on its diagonal. It is therefore non-singular. 
+We observe that $\mathbf{Q}\text{ReLU}(\mathbf{E})=\text{ReLU}(\mathbf{Q}\mathbf{E})$ for any row permutation $Q$. Furthermore, non-singularity is preserved under row permutations and $\mathbf{Q}\mathbf{J}=\mathbf{J}$. Hence, if we define $\mathbf{X}=\mathbf{z}\mathbf{x}$ and use the permutation matrix $\mathbf{P}$:
+\begin{align*}
+\mathbf{P}\text{ReLU}(\mathbf{B}\mathbf{X}-m\mathbf{J})&=
+\text{ReLU}(\mathbf{P}\mathbf{B}\mathbf{z}\mathbf{x}-m\mathbf{P}\mathbf{J})=\text{ReLU}(\mathbf{E}-m\mathbf{J}),
+\end{align*}
+we have that $\text{ReLU}(\mathbf{B}\mathbf{X}-m\mathbf{J})$ is non-singular, as desired.
+%So, the lemma is satisfied by taking $m$ as above and
+%%$m=b_s/b_1$ and % G: this still looks wrong
+%$\mathbf{X}=\mathbf{z}\mathbf{x}$.
+\end{proof}
+
+As a consequence of the argument presented above, we know that Lemma~\ref{lem:relulemma9} holds for all $m$ such that $m<1$ and such that
+$m$ is an upper bound on the elements smaller than $1$ in $$(\mathbf{B}\mathbf{z})^{\textsc{t}}\mathbf{x},$$
+with $\mathbf{z}=[1,M,M^2,\ldots,M^{q-1}]^{\textsc{t}}$ and $M$ an upper bound on the elements in $\mathbf{B}$, and where $\mathbf{x}$ consist of the reciprocals of the entries in $\mathbf{B}\mathbf{z}$. We will apply Lemma~\ref{lem:relulemma9} in each layer of our GNN architecture, i.e., to $\mathbf{B}^{(t)}$ for every $t\geq 0$. We next argue that we can fix $m$ uniformly across all these layers.
+
+We start by observing that elements in $\mathbf{B}^{(t)}$ can be upper bounded.
+\begin{lemma}\label{lemma:bound-B-unlabbeled}
+For all $t\geq 0$ and all $v,c$, $\mathbf{B}^{(t)}_{vc}\leq n$ where $n$ is the dimension of the adjacency matrix $\mathbf{A}$ of $G$.
+\end{lemma}
+\begin{proof}
+It suffices to note that $\mathbf{B}^{(t)}_{vc}$ is equal to the number of neighbors of $v$ of colours $c$. Clearly, there are at most $n$ neighbours.
+\todo{G: true, but at this point we have not defined/shown that $\mathbf{B}$ is really encoding that information}
+\end{proof}
+
+It follows from
+Lemma~\ref{lemma:bound-B-unlabbeled} and the choice of $m$ in the proof that, if we know
+a bound on the number of layers of the architecture 
+\todo{F. Do we need to know the number of layers?}
+\todo{G. I guess not, the bound on their dimensions should suffice}
+in advance and if we know
+the size of the parameter matrices too, then Proposition~\ref{pro:gen+bias} can
+be stated for a single constant $m$.
+\begin{proposition}\label{pro:fixed-m}
+    Let $(\mathbf{W}^{(i)})^t_{i=0}$ be a matrix sequence such that the dimensions
+    of all $\mathbf{W}^{(i)}$ are at most $q$ and set
+    \[
+        m := \frac{qn^{q+1} - 1}{qn^{q+1}}.
+    \]
+    Then, there exist matrices $(\mathbf{Z}^{(i)})_{i=0}^t$ such that $\mathrm{ReLU}(\mathbf{B}^{(i)}\mathbf{Z}^{(i)} - m\mathbf{J})$ consists of linearly independent rows for all $0 \leq i \leq t$.
+\end{proposition}
+\todo{F. Why use $\mathbf{W}$ instead $\mathbf{B}$. The upper bound $t$ (number of layers) does not pop up in the expression for $m$..}
+\todo{G. But the maximal dimension of $\mathbf{W}$ does pop up, so we need to make them explicit to mention the bound. I guess, B must also be made explicit for the proposition to make sense.}
+\begin{proof}
+\todo{F: Add argument outlined in Guillermo's email.}
+Let b/c be such that b,c <= U and 0 < b < c. Furthermore, b and c are integers. We want to prove that b/c <= (U-1)/U which holds iff bU <= cU – c. Note that, since b and c are integers and b < c it suffices to prove that (c-1)U <= c(U-1). The latter holds iff cU – U <= cU – c iff c <= U which holds by assumption.
+\end{proof}
+
+\subsection{Good-for-left-multiplication matrices.}\label{subsec:left}
+\begin{definition}\label{def:gfl}
+Let  $\mathbf{Y}^{(t)}$ be a positive diagonal $n\times n$-matrix. We say that $\mathbf{Y}^{(t)}$ is \emph{good-for-left-multiplication}, GFL for short, if for any $i,j\in[1,n]$
+\begin{equation}
+\mathbf{F}_{i\bullet}^{(t)}=\mathbf{F}_{j\bullet}^{(t)} \Longrightarrow \mathbf{Y}^{(t)}_{ii}=\mathbf{Y}^{(t)}_{jj}. \label{eq:cond1}
+\end{equation}
+\end{definition}
+
+In this section we prove that we can strengthen the results of~\eqref{eqn:grohegnn}\todo{G. The results of an equation?} as follows. For any sequence of GFL matrices $\mathbf{Y}^{(t)}$ and $\mathbf{F}^{(0)}$ satisfying Definition~\ref{def:label} there exist sequences of $\mathbf{W}^{(t)}$ and $m^{(t)}$ such that
+\begin{equation}
+\mathbf{F}^{(t+1)}:=\sigma(\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{J})
+\end{equation}
+is equivalent to 1-WL.
+
+Let $U\subseteq V$ denote  a set of, say $p$,  vertices corresponding to the unique rows in $\mathbf{F}^{(t)}$ and define
+ $\widetilde{\mathbf{F}^{(t)}}$ as the $p\times q$-matrix consisting of  the row vectors $\mathbf{F}^{(t)}_{v\bullet}$, for $v\in U$.
+\begin{lemma}\label{lem:gfl}
+  Let $\mathbf{F}^{(t)} \in \mathbb{R}^{n \times q}$ satisfy Definition~\ref{def:label} and let $\mathbf{Y}^{(t)}$
+  be a $n\times n$ GFL matrix. Then, $\mathbf{Y}^{(t)}\mathbf{F}^{(t)}$ also satisfies Definition~\ref{def:label}, and furthermore the labelings induced by $\mathbf{Y}^{(t)}\mathbf{F}^{(t)}$ and $\mathbf{F}^{(t)}$ are equivalent.
+\end{lemma}
+\begin{proof}
+	Let $U$ be a set of $p$ vertices identifying unique rows in $\mathbf{F}^{(t)}$, as described above.
+We claim  that $\widetilde{\mathbf{Y}^{(t)}\mathbf{F}^{(t)}}$, the matrix consisting of the unique
+rows in $\mathbf{Y}^{(t)}\mathbf{F}^{(t)}$, is the $p\times q$-matrix consisting of vectors $\mathbf{Y}^{(t)}_{vv}\mathbf{F}^{(t)}_{v\bullet}$, for $v\in U$.  Indeed, we first observe that 
+$$\mathbf{Y}^{(t)}_{vv}\mathbf{F}^{(t)}_{v\bullet}\neq \mathbf{Y}^{(t)}_{ww}\mathbf{F}^{(t)}_{w\bullet}$$
+ for any $v, w\in U$ such that $v\neq w$. Indeed, otherwise $\mathbf{F}^{(t)}_{v\bullet}$ and $\mathbf{F}^{(t)}_{w\bullet}$ would
+ be distinct rows in $\mathbf{F}^{(t)}$ which are linearly dependent. This contradicts our assumption that $\mathbf{F}^{(t)}$ satisfies condition (a).
+Hence, $\widetilde{\mathbf{Y}^{(t)}\mathbf{F}^{(t)}}$ surely contains the row vectors $\mathbf{Y}^{(t)}_{vv}\mathbf{F}^{(t)}_{v\bullet}$ for all $v\in U$. Since~(\ref{eq:cond1}) implies that the same rows in $\mathbf{F}^{(t)}$ get scaled in the same way, no other unique rows can exist in $\mathbf{Y}^{(t)}\mathbf{F}^{(t)}$. We also note that the rows in $\widetilde{\mathbf{Y}^{(t)}\mathbf{F}^{(t)}}$ are linearly
+independent as well. In other words, condition (a) continues to hold for $\mathbf{Y}^{(t)}\mathbf{F}^{(t)}$. In fact, we have just shown that 
+$$\mathbf{F}_{v\bullet}^{(t)}=\mathbf{F}_{w\bullet}^{(t)} \Longleftrightarrow \mathbf{Y}^{(t)}_{vv}\mathbf{F}_{v\bullet}^{(t)}=\mathbf{Y}^{(t)}_{ww}\mathbf{F}_{w\bullet}^{(t)}.$$
+In other words, the vertex labelling induced by $\mathbf{Y}^{(t)}\mathbf{F}^{(t)}$
+is equivalent to the vertex labelling induced by $\mathbf{F}^{(t)}$. Thus, because of condition (b), it is also equivalent to the labelling induced by $\mathbf{c}^{(t)}$ obtained by applying $1$-WL on $\mathbf{F}^{(t-1)}$. So condition (b) holds as well for $\mathbf{Y}^{(t)}\mathbf{F}^{(t)}$.
+\end{proof}
+
+\paragraph{Constructing $\mathbf{F}^{(t+1)}$.}
+The independence of the vectors in $\widetilde{\mathbf{Y}^{(t)}\mathbf{F}^{(t)}}$ guarantees the existence of 
+a $q\times p$-matrix $\mathbf{M}^{(t)}$ satisfying
+$$
+\widetilde{\mathbf{Y}^{(t)}\mathbf{F}^{(t)}}\mathbf{M}^{(t)}=\mathbf{I}_{p\times p},
+$$
+where $\mathbf{I}_{p\times p}$ denotes the $p\times p$ identity matrix. Indeed, we can let 
+$$
+\mathbf{M}^{(t)}=(\widetilde{\mathbf{Y}^{(t)}\mathbf{F}^{(t)}})^{\textsc{t}}\bigl(\widetilde{\mathbf{Y}^{(t)}\mathbf{F}^{(t)}}(\widetilde{\mathbf{Y}^{(t)}\mathbf{F}^{(t)}})^{\textsc{t}}\bigr)^{-1},
+$$
+where the invertibility of $\widetilde{\mathbf{Y}^{(t)}\mathbf{F}^{(t)}}(\widetilde{\mathbf{Y}^{(t)}\mathbf{F}^{(t)}})^{\textsc{t}}$ is guaranteed because of row-independence of $\widetilde{\mathbf{Y}^{(t)}\mathbf{F}^{(t)}}$. We next consider
+$\mathbf{B}^{(t)}=\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{M}^{(t)}$ and observe that
+\begin{equation}\label{eqn:counting-neighbors}
+(\mathbf{B}^{(t)})_{vc}=(\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{M}^{(t)})_{vc}=\sum_{w} \mathbf{A}_{vw} \delta_{w,c}
+\end{equation}
+where $\delta_{w,c}=1$ if $(\mathbf{Y}^{(t)}\mathbf{F}^{(t)})_{w\bullet}=(\mathbf{Y}^{(t)}\mathbf{F}^{(t)})_{c\bullet}$
+and $\delta_{w,c}=0$ otherwise. In other words, $\mathbf{B}^{(t)}_{vc}$ is the number of vertices adjacent to $v$ which are assigned, in the vertex labelling induced by 
+$ \mathbf{Y}^{(t)}\mathbf{F}^{(t)}$, the label $(\mathbf{Y}^{(t)}\mathbf{F}^{(t)})_{c\bullet}$.
+If we consider one-step of 1-WL, starting from the vertex labelling induced by $\mathbf{F}^{(t)}$, then
+the obtained vertex labelling is equivalent to the vertex labelling induced by $\mathbf{B}^{(t)}$.
+
+It will be useful later for us to have an upper bound on the entries of $\mathbf{B}^{(t)}$. The following bound follows directly from Equation~\eqref{eqn:counting-neighbors}.
+\begin{lemma}\label{lem:bound-B}
+    For all $t \in \mathbb{N}$ and all $v,c$, we have that $(\mathbf{B}^{(t)})_{vc} \leq n$ where $n$ is the size of $G$
+    so that $\mathbf{A}$ is an $n \times n$ matrix.
+\end{lemma}
+
+Let $C'$ be an index set containing the, say $r$, unique rows of $\mathbf{B}^{(t)}$.
+As before, let $\widetilde{\mathbf{B}^{(t)}}$ consist of the rows $\mathbf{B}^{(t)}_{c'\bullet}$, $c'\in C'$.
+
+It is shown in~\cite{grohewl} that:
+\begin{lemma}[Lemma 9 in~\cite{grohewl}]
+There exists a matrix $\mathbf{Z}^{(t)}$ such that $\text{sign}(\widetilde{\mathbf{B}^{(t)}}\mathbf{Z}^{(t)}-\mathbf{J})$ consists of linearly independent rows.\qed
+\end{lemma}
+We complement this (below) by 
+\begin{lemma}
+If $\mathbf{B}$ does not contain a row consisting of zeroes, then
+there exists a matrix $\mathbf{Z}^{(t)}$ and constant $m^{(t)}$ such that $\text{\normalfont ReLU}(\widetilde{\mathbf{B}^{(t)}}\mathbf{Z}^{(t)}-m^{(t)}\mathbf{J})$ consists of linearly independent rows.\qed
+\end{lemma}
+\todo{G: we should argue that some initial condition on F guarantees we never get 0 rows. }
+\todo{F: I propose to assume that \textbf{no isolated vertices are present}. Then, by construction of the
+feature vectors neither sign nor relu will create all zero rows. This should be checked inductively.}
+These lemmas imply that 
+\begin{equation}
+\sigma(\mathbf{B}^{(t)}\mathbf{Z}^{(t)}- m^{(t)}\mathbf{J}) \label{eq:upd}
+\end{equation}
+is row-independent modulo equality when $\sigma$ is either sign or ReLU. Furthermore, since the vertex labelling induced by $\mathbf{B}^{(t)}$ was shown to be equivalent to the vertex labelling induced by 1-WL on $\mathbf{F}^{(t)}$, we have that the vertex labelling induced by~(\ref{eq:upd}) also has this property. Hence, looking back at the construction of $\mathbf{B}^{(t)}$ (which involved the matrix $\mathbf{M}^{(t)}$), we define $\mathbf{W}^{(t)}$ to be 
+$\mathbf{M}^{(t)}\mathbf{Z}^{(t)}$. In other words,
+\begin{equation}
+\mathbf{F}^{(t+1)}:=\sigma(\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{J}) \label{eq:finalupd}
+\end{equation}
+is again a feature matrix satisfying conditions (a) and (b).
+ 
+% \subsection{Multiplying from the right} 
+\subsection{Multiplying from both sides.}\label{subsec:right}
+\begin{definition}\label{def:rightmult}
+Consider another diagonal non-negative $n\times n$ matrix $\mathbf{X}^{(t)}$  satisfying,
+for any $i,j\in[1,n]$:
+\begin{equation}
+\mathbf{F}_{i\bullet}^{(t+1)}=\mathbf{F}_{j\bullet}^{(t+1)} \Longrightarrow \mathbf{X}^{(t)}_{ii}=\mathbf{X}^{(t)}_{jj}. \label{eq:cond2}
+\end{equation}
+\end{definition}
+
+Lemma~\ref{lem:gfl} then implies that $\mathbf{X}^{(t)}\mathbf{F}^{(t+1)}$ also satisfies conditions (a) and (b). Indeed, we have shown that the vertex labelling induced by $\mathbf{F}^{(t)}$ and $\mathbf{F}^{(t+1)}$ correspond to the 1-WL labelings $\ell^{(t)}$ and $\ell^{(t+1)}$, respectively.
+Since $\ell^{(t+1)}$ is a refinement of $\ell^{(t)}$, this implies that $\mathbf{F}_{i\bullet}^{(t+1)}=\mathbf{F}_{j\bullet}^{(t+1)} \implies \mathbf{F}_{i\bullet}^{(t)}=\mathbf{F}_{j\bullet}^{(t)}$. Hence, we can indeed use Lemma~\ref{lem:gfl}.
+We note that
+$$
+\mathbf{X}^{(t)}\mathbf{F}^{(t+1)}=\mathbf{X}^{(t)}\sigma(\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{J})=\sigma(\mathbf{X}^{(t)}\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{X}^{(t)}\mathbf{J}),
+$$
+when $\sigma$ is either sign or ReLU. In other words, if we consider the update rule
+\begin{equation}
+\mathbf{F}^{(t+1)}:=\sigma(\mathbf{X}^{(t)}\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{X}^{(t)}\mathbf{J}) \label{eq:realfinalupd}
+\end{equation}
+then this is again a feature matrix satisfying Definition~\ref{def:label}.
+
+We thus have shown how to, starting from $\mathbf{F}^{(t)}$, generate $\mathbf{F}^{(t+1)}$ whilst preserving Definition~\ref{def:label}. We kick-start by using $\mathbf{F}^{(0)}$, a $n\times q$-matrix which is row-independent modulo equality and
+such that its induced vertex labelling is equivalent to the vertex labelling after $k$ iterations of 1-WL on a uniform labelling of vertices. Hence,
+
+\begin{proposition}\label{pro:gen+bias}
+Every architecture that allows for updates of the form
+$$\mathbf{F}^{(t+1)}:=\sigma(\mathbf{X}^{(t)}\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{X}^{(t)}\mathbf{J}) $$
+satisfies Definition~\ref{def:gen+bias}.
+Here, $\mathbf{X}^{(t)}$ and $\mathbf{Y}^{(t)}$ are positive diagonal matrices satisfying Definitions~\ref{def:rightmult} and~\ref{def:gfl}, respectively. 
+\end{proposition}
+
+
+\paragraph{Applications.}
+In particular, when $\mathbf{X}^{(t)}=\mathbf{Y}^{(t)}=\mathbf{I}_{n\times n}$, then this proposition reduces to the statement in~\cite{grohewl}. Another choice is $\mathbf{X}^{(t)}=\mathbf{Y}^{(t)}=\mathbf{D}_{n\times n}^{-1/2}$, where
+$\mathbf{D}$ is the degree matrix of $\mathbf{A}$. Assuming that no isolated vertices are present, this indeed results in positive diagonal matrices. Furthermore, condition~(\ref{eq:cond1}) is satisfied provided that the vertex labelling of  $\mathbf{F}^{(0)}$ is equivalent to the vertex labelling after one iteration of 1-WL on a uniform labelling of vertices.
+Indeed, after one such iteration of 1-WL, the corresponding vertex labelling has incorporated degree information, and hence vertices with same label cannot have distinct degrees. Consequently, vertices with the same rows in $\mathbf{F}^{(0)}$ cannot have distinct degrees. Hence,  condition~(\ref{eq:cond1}) is satisfied.
+
+% \begin{proposition}\label{pro:kipf}
+% Let $\mathbf{F}^{(0)}$ be a feature matrix which is row-independent modulo equality and
+% such that its induced vertex labelling is equivalent to the vertex labelling after $1$ iteration of 1-WL on a uniform labelling of vertices. Then, for  every $t\geq 0$ there exists a weight matrix $\mathbf{W}^{(t)}$ and constant $m^{(t)}$ such that the vertex labelling induced by 
+% $$\mathbf{F}^{(t+1)}:=\sigma(\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{D}^{-1/2}\mathbf{J}) $$
+% is equivalent to the vertex labelling after $t+1$ iterations of 1-WL, starting from a uniform vertex labelling. 
+% \end{proposition}
+
+\begin{corollary}\label{cor:normalised}
+The normalised architecture satisfies Definition~\ref{def:gen+bias}
+\end{corollary}
+
+\subsection{Labelled graphs}\label{sec:labelled-graphs}
+We next consider the case when $G$ is a labeled graphs in which the initial vertex labelling is not necessarily uniform.
+To accommodate for such initial labelings, we introduce a new (learnable) weight vector $\mathbf{w}^{(t)}$ and put it on the diagonal of a matrix, i.e., $\text{diag}(\mathbf{w}^{(t)})$, and
+consider GNNs of the form:
+$$\mathbf{F}^{(t+1)}:=\sigma(\mathbf{X}^{(t)}(\mathbf{A}+\text{diag}(\mathbf{w}^{(t)}))\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{X}^{(t)}\mathbf{J}).$$
+
+If we inductively assume that vertex labelling induced by $\mathbf{F}^{(t)}$ is equivalent to the one induced by 1-WL, starting from the initial (not necessarily uniform) labelling $\ell$ of $G$, then if we inspect the proof for the unlabelled case, we only need to ensure that the vertex labelling induced by
+\begin{equation}
+\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{M}^{(t)} + \text{diag}(\mathbf{w}^{(t)})\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{M}^{(t)} \label{eq:labeled}
+\end{equation}
+corresponds again to one step of 1-WL (on labeled graphs) starting from $\mathbf{F}^{(t)}$. We note, however, that 
+$$
+(\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{M}^{(t)})_{v,c}=\begin{cases} 1 & \text{if $v$ has colour $c$}\\
+0 &\text{otherwise}
+\end{cases}
+$$
+and recall  that $\mathbf{B}^{(t)}=\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{M}^{(t)}$ and
+$$
+(\mathbf{B}^{(t)})_{v,c}=\text{number of neighbours with colour $c$}.
+$$
+The 1-WL update rule, however, does not only take the colours of neighbours (and the number of neighbours of the same colour) into account. It also requires
+to incorporate the initial labels (or, equivalently, the current colour).  This information is not necessarily reflected in $\mathbf{B}^{(t)}$. That is, there may be two equal rows in $\mathbf{B}^{(t)}$ that correspond to vertices with a different
+initial label. 
+\todo{F: Counter example two disjoint edges with nodes colours red-red, red-green.}
+Define
+$$
+\delta=\min_{v,w,c}\{ | \mathbf{B}^{(t)}_{v,c}-\mathbf{B}^{(t)}_{w,c}\mid \mathbf{B}^{(t)}_{v,c}\neq \mathbf{B}^{(t)}_{w,c}\},
+$$
+i.e., the smallest non-zero difference between entries in $\mathbf{B}^{(t)}$.
+Let $\epsilon<\delta$. Note $\delta\geq 1$. So, choosing $\epsilon$ close to $1$ will be fine.
+%Let the current colours be $c_1,\ldots,c_K$ and define
+%$\epsilon_{c_i}=i\times \epsilon$. 
+We define
+$$
+\mathbf{w}^{(t)}_v=\epsilon.
+$$
+%if $v$ its current  colour is $c_i$.
+%
+%We deal with this, as follows. Let $[n]=I_1\uplus I_2\uplus\cdot\uplus I_k$ be a partition of the rows $\mathbf{B}^{(t)}$ according
+%to row-equality. That is, for any $v,w\in I_i$, $(\mathbf{B}^{(t)})_{v,\bullet}=(\mathbf{B}^{(t)})_{w,\bullet}$. We distinguish between the following cases:
+%\begin{itemize}
+%\item If all vertices in $I_i$ have the same initial labelling, then we set $\mathbf{w}^{(t)}_v=\epsilon_i=0$
+%for all $v\in I_i$, i.e., no correction to $(\mathbf{B}^{(t)})_{v\bullet}$ is needed. 
+%\item Otherwise, we further partition $I_i$ into
+%$I_i=I_{i1}\uplus\cdots\uplus I_{ik_i}$ induced by the initial labelling. More precisely, $v,w\in I_{ij}$ if $v$ and $w$ have the same initial label and $(\mathbf{B}^{(t)})_{v,\bullet}=(\mathbf{B}^{(t)})_{w,\bullet}$.
+%We set $\mathbf{w}^{(t)}_v=\epsilon_j$
+%of all $v\in I_{ij}$, $j\in[1,k_i]$, where all $\epsilon_j$ are different.
+%\end{itemize}
+Hence, $(\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{M}^{(t)})_{v,c} + (\text{diag}(\mathbf{w}^{(t)})\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{M}^{(t)})_{v,c}$
+is equal to
+\begin{equation}\label{eqn:count+epsilon}
+\text{number of neighbours with colour $c$} +  \begin{cases} \epsilon & \text{if $v$ has colour $c$.}\\0 &\text{otherwise}
+\end{cases}
+\end{equation}
+We note that the choice of $\epsilon$'s guarantee that adding the $\epsilon$
+to some elements in $\mathbf{B}^{(t)}$ will never cause two distinct rows in
+$\mathbf{B}^{(t)}$ to become equal. Indeed, let $\mathbf{B}_{v,\bullet}$ and
+$\mathbf{B}_{w,\bullet}$ be two distinct rows. Suppose that $\epsilon$ is
+added to the $i$th entry of  $\mathbf{B}_{v,\bullet}$  and $\epsilon$ to the
+$j$the entry of $\mathbf{B}_{w,\bullet}$ (note that only one such column is
+incremented since every vertex is labelled by exactly one colour).
+Suppose that after these
+additions the rows become equal. Suppose that $i\neq j$. Then this implies
+that $j$th entry of $\mathbf{B}_{v,\bullet}$ was equal to $j$th entry of
+$\mathbf{B}_{w,\bullet}$ minus $\epsilon$. This, however, is impossible since
+$\epsilon<\delta$. If $i=j$, and $v$ and $w$ have the colour and the same
+epsilon values is added to the $i$th entry of $\mathbf{B}_{v,\bullet}$ and
+$\mathbf{B}_{w,\bullet}$. If these rows would be the same, then $i$the entry
+of $\mathbf{B}_{v,\bullet}$ and $\mathbf{B}_{w,\bullet}$  were equal already.
+Since we assumed  $\mathbf{B}_{v,\bullet}$ and $\mathbf{B}_{w,\bullet}$ to be
+distinct and no other entries (than the $i$th entry) in these vectors is
+incremented, they will remain distinct. So, distinct rows remain distinct.
+% Finally, if $i=j$ but $v$ and $w$ have different initial labels, then $i$the entry of 
+%$\mathbf{B}_{v,\bullet}$ and $\mathbf{B}_{w,\bullet}$ would be $|\epsilon_1-\epsilon_2|$ apart (if they would have become equal after being incremented). Since $|\epsilon_1-\epsilon_2|$ is a multiple $L\times \epsilon$ with $L\leq K$ we have that $|\epsilon_1-\epsilon_2|<\delta$. This contradicts that $\delta$ is the smallest distance between elements in $\mathbf{B}^{(t)}$.
+
+To see what happens when  $\mathbf{B}_{v,\bullet}$ and $\mathbf{B}_{w,\bullet}$ are equal. If $v$ and $w$ have different colours, then, $\epsilon$ is added to these rows in different entries   in $\mathbf{B}_{v,\bullet}$ and $\mathbf{B}_{w,\bullet}$. Hence, the
+increments make these two rows distinct. The argument above shows that these new rows will not coincide with any other distinct row. 
+Finally, if $v$ and $w$ have the same colour, then $\epsilon$ is added to the same column in $\mathbf{B}_{v,\bullet}$ and $\mathbf{B}_{w,\bullet}$, so these
+rows remain the same. So, rows that that were equal remain equal when the corresponding vertices have the same colour, and are made different when they have a different colour.
+
+In summary, by considering
+$(\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{M}^{(t)}+ \epsilon
+\mathbf{I}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{M}^{(t)})$ we ensure that each
+unique row corresponds to 
+the vertex labelling induced by 1-WL. We then proceed as before, i.e., by constructing the weight matrix and bias. We thus have that there exists for each $t>0$, there exists a weight matrix $\mathbf{W}^{(t)}$
+and constants $\epsilon^{(t)}$ and $m^{(t)}$ such that 
+$$\mathbf{F}^{(t+1)}:=\sigma(\mathbf{X}^{(t)}(\mathbf{A}+\epsilon^{(t)}
+\mathbf{I})\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{X}^{(t)}\mathbf{J}).$$
+corresponds to the vertex labelling induced by 1-WL and where the feature vectors are independent modulo row-equality.
+
+\subsubsection{Modifications to obtain a fixed m}
+We would now like to claim that Proposition~\ref{pro:fixed-m} still holds for
+the present context. Although Lemma~\ref{lem:bound-B} is no longer valid, since
+we have modified the architecture, the following analogue does hold and
+follows from Equation~\eqref{eqn:count+epsilon}.
+\begin{lemma}\label{lem:bound-B}
+    For all $t \in \mathbb{N}$ and all $v,c$, we have that
+    $(\mathbf{B}^{(t)})_{vc} \leq n + \epsilon$ where $n$ is the size of $G$ so that
+    $\mathbf{A}$ is an $n \times n$ matrix.
+\end{lemma}
+
+Using the above lemma and following the suggestion of fixing $\epsilon < 1$ we
+obtain our new version of Proposition~\ref{pro:fixed-m} for labelled graphs.
+\begin{proposition}
+    Let $(\mathbf{W}^{(i)})^t_{i=0}$ be a matrix sequence such that the dimensions
+    of all $\mathbf{W}^{(i)}$ are at most $q$, $1 > \epsilon = \frac{a}{b}$, and set
+    \[
+      m := \frac{q(n+1)^{q+1} + \frac{b-1}{b} - 1}{q(n+1)^{q+1}}.
+    \]
+    Then, there exist matrices $(\mathbf{Z}^{(i)})_{i=0}^t$ such that $\mathrm{ReLU}(\mathbf{B}^{(i)}\mathbf{Z}^{(i)} - m\mathbf{J})$ consists of linearly independent rows for all $0 \leq i \leq t$.
+\end{proposition}
+\todo{F. Same comment as before: why not use $\mathbf{B}$? Why do you need the upper bound $t$?}
+
+\section{An upper bound for the Kipf+bias architecture}
+Recall the architecture from Proposition~\ref{pro:gen+bias}
+and observe the following.
+\begin{align}
+    \mathbf{F}^{(t+1)}_{i\bullet} &= \sigma(
+        \mathbf{X}^{(t)}_{ii} \mathbf{A}_{i\bullet}
+        \mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{W}^{(t)}
+        -m^{(t)}\mathbf{X}_{ii}^{(t)}\mathbf{J})\\
+    &= \sigma \left(
+        \mathbf{X}^{(t)}_{ii}
+        \begin{bmatrix}
+        \mathbf{A}^{(t)}_{i1} \mathbf{Y}^{(t)}_{11} &
+        \cdots & \mathbf{A}^{(t)}_{ij} \mathbf{Y}^{(t)}_{jj} & \cdots
+        \end{bmatrix}
+        \mathbf{F}^{(t)}\mathbf{W}^{(t)}
+        -m^{(t)}\mathbf{X}_{ii}^{(t)}\mathbf{J})
+        \right)\\
+    &= \sigma \left(
+        \mathbf{X}^{(t)}_{ii}
+        \begin{bmatrix}
+        \cdots &
+        \sum_{k}\mathbf{A}^{(t)}_{ik} \mathbf{Y}^{(t)}_{kk} \mathbf{F}^{(t)}_{k j}  & \cdots
+        \end{bmatrix}
+        \mathbf{W}^{(t)}
+        -m^{(t)}\mathbf{X}_{ii}^{(t)}\mathbf{J})
+        \right)\\
+    &= \sigma \left(
+        \mathbf{X}^{(t)}_{ii}
+        \begin{bmatrix}
+        \cdots & \sum_{k \in N_G(i)} \mathbf{Y}^{(t)}_{kk} \mathbf{F}^{(t)}_{k j} & \cdots
+        \end{bmatrix}
+        \mathbf{W}^{(t)}
+        -m^{(t)}\mathbf{X}_{ii}^{(t)}\mathbf{J})
+        \right)\label{eq:fkn-indices}
+\end{align}
+
+Let us denote by $\mathbf{B}^{(t,i)}$ the row vector $[
+\cdots \sum_{k \in N_G(i)} \mathbf{Y}^{(t)}_{kk} \mathbf{F}^{(t)}_{k j} \cdots]$ and by $M_i$ the feature-vector multiset $\ldbl \mathbf{F}^{(t)}_{k\bullet} \st k \in N_G(i) \rdbl$. The following
+observation will be useful.
+\begin{lemma}\label{lem:dumb-obs}
+    If $M_i = M_{j}$ and
+    condition~\eqref{eq:cond1} holds
+    then $\mathbf{B}^{(t,i)} = \mathbf{B}^{(t,j)}$.
+\end{lemma}
+
+%A labelling $\ell'$ is said to be coarser than the
+%labelling $\ell$ if and only if $\ell(u) = \ell(v)
+%\implies \ell'(u) = \ell'(v)$. 
+We will now argue that 
+our architecture always yields coarser updates than the
+one used in the $1$-WL algorithm.
+\begin{proposition}\label{pro:upper-bound}
+Let $\mathbf{F}^{(0)}$ be a feature matrix which is row-independent modulo equality and
+such that its induced vertex labelling is equivalent to the vertex labelling after $k\geq 1$ iterations of 1-WL on a uniform labelling of vertices. Then, for every $t\geq 0$, for all weight matrices $\mathbf{W}^{(t)}$ and all constants $m^{(t)}$, the vertex labelling induced by 
+$$\mathbf{F}^{(t+1)}:=\sigma(\mathbf{X}^{(t)}\mathbf{A}\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{X}^{(t)}\mathbf{J}) $$
+is coarser to the vertex labelling after $k+t$ iterations of 1-WL. Here, $\mathbf{X}^{(t)}$ and $\mathbf{Y}^{(t)}$ are positive diagonal matrices satisfying the conditions~\eqref{eq:cond1} and~\eqref{eq:cond2}, respectively. 
+\end{proposition}
+\begin{proof}
+    We argue that for all $t \geq 0$ it holds that $\ell^{(k+t)}(i) = \ell^{(k+t)}(j)
+    \implies \mathbf{F}^{(k+t)}_{i\bullet}
+    = \mathbf{F}^{(k+t)}_{j\bullet}$. The
+    claim holds trivially for $t=0$ so we have a base case.
+    
+    For the inductive step, let $i,j$ be 
+    arbitrary vertex indices such that
+    $\ell^{(t+k+1)}(i)=\ell^{(t+k+1)}(j)$.
+    From the definition of the $1$-WL
+    update, we know that
+    \[
+        \ldbl \ell^{(k+t)}(i') \st i' \in N_G(i) \rdbl
+        =
+        \ldbl \ell^{(k+t)}(j') \st j' \in N_G(j) \rdbl,
+    \]
+    hence $M_i = M_j$ by induction hypothesis.
+    Since we have assumed $\mathbf{Y}^{(t)}$
+    satisfies condition~\eqref{eq:cond1}, it follows from Lemma~\ref{lem:dumb-obs} that $\mathbf{B}^{(k+t+1,i)} = \mathbf{B}^{(k+t+1,j)}$. To conclude, we
+    note that since we have further assumed condition~\eqref{eq:cond2} holds, Equation~\eqref{eq:fkn-indices} gives us
+    the desired result.
+\end{proof}
+
+\subsection{Modifications for the labelled case}
+We now focus on the following architecture suggested
+in Section~\ref{sec:labelled-graphs}. We observe the following.
+\begin{align}
+    \mathbf{F}^{(t+1)}_{i\bullet} &= \sigma(
+        \mathbf{X}^{(t)}_{ii} (\mathbf{A} + \epsilon^{(t)}\mathbf{I})_{i\bullet}
+        \mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{W}^{(t)}
+        -m^{(t)}\mathbf{X}_{ii}^{(t)}\mathbf{J})\\
+    &= \sigma \left(
+        \mathbf{X}^{(t)}_{ii}
+        \begin{bmatrix}
+        \cdots & \left(\sum_{k \in N_G(i)} \mathbf{Y}^{(t)}_{kk} \mathbf{F}^{(t)}_{k j}\right) + \epsilon^{(t)}\mathbf{Y}^{(t)}_{ii}\mathbf{F}^{(t)}_{ij} & \cdots
+        \end{bmatrix}
+        \mathbf{W}^{(t)}
+        -m^{(t)}\mathbf{X}_{ii}^{(t)}\mathbf{J})
+        \right)
+\end{align}
+
+Similarly to our previous argument, we now
+denote by $\mathbf{C}^{(t,i)}$ the row vector 
+\[
+    \begin{bmatrix}
+        \cdots & \left(\sum_{k \in N_G(i)} \mathbf{Y}^{(t)}_{kk} \mathbf{F}^{(t)}_{k j}\right) + \epsilon^{(t)}\mathbf{Y}^{(t)}_{ii}\mathbf{F}^{(t)}_{ij} & \cdots
+    \end{bmatrix}
+\]
+and by $M_i$ the feature-vector multiset $\ldbl \mathbf{F}^{(t)}_{k\bullet} \st k \in N_G(i) \rdbl$. We 
+will need the following analogue of Lemma~\ref{lem:dumb-obs}.
+\begin{lemma}
+    If $M_i = M_{j}$,
+    condition~\eqref{eq:cond1} holds, and $\mathbf{F}^{(t)}_{i\bullet} = \mathbf{F}^{(t)}_{j\bullet}$,
+    then $\mathbf{C}^{(t,i)} = \mathbf{C}^{(t,j)}$.
+\end{lemma}
+
+For all $t,k$ the $1$-WL algorithm not only
+gives us that
+\[
+    \ldbl \ell^{(k+t)}(i') \st i' \in N_G(i) \rdbl
+    =
+    \ldbl \ell^{(k+t)}(j') \st j' \in N_G(j) \rdbl,
+\]
+if $\ell^{(t+k+1)}(i)=\ell^{(t+k+1)}(j)$, but also that
+$\ell^{(k+t)}(i) = \ell^{(k+t)}(j)$. Hence, using the above lemma, we can repeat the argument used to prove Proposition~\ref{pro:upper-bound} to obtain the following.
+
+
+\begin{proposition}
+Let $\mathbf{F}^{(0)}$ be a feature matrix which is row-independent modulo equality and
+such that its induced vertex labelling is equivalent to the vertex labelling after $k\geq 1$ iterations of 1-WL on a uniform labelling of vertices. Then, for every $t\geq 0$, for all weight matrices $\mathbf{W}^{(t)}$ and all constants $m^{(t)}$, $\epsilon^{(t)}$, the vertex labelling induced by 
+$$\mathbf{F}^{(t+1)}:=\sigma(\mathbf{X}^{(t)}(\mathbf{A} + \epsilon^{(t)}\mathbf{I})\mathbf{Y}^{(t)}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{X}^{(t)}\mathbf{J}) $$
+is coarser to the vertex labelling after $k+t$ iterations of 1-WL. Here, $\mathbf{X}^{(t)}$ and $\mathbf{Y}^{(t)}$ are positive diagonal matrices satisfying the conditions~\eqref{eq:cond1} and~\eqref{eq:cond2}, respectively.
+\end{proposition}
+
+
+\section{Architecture}
+It is often reported that the expressive power of GNN architectures is bounded by the one-dimensional Weisfeiler-Lehman algorithm (or 1-WL for short). That is, when two vertices
+are assigned the same label by 1-WL, then also the feature vectors computed by GNNs of these vertices will be the same. Intuitively, this means that the distinguishing power of vertices of GNNs is weaker than that of 1-WL. The connection between the GNN architectures mentioned above and the 1-WL algorithm has, to our knowledge, not been made precise. We next formally describe this connection by providing both lower and upper bounds of the existing architectures and the architecture of the form~(\ref{eq:architecture}).
+
+\section{Upper bounding the expressive power}
+We start by investigateing the limit of the expressive power of the GNN architecture~(\ref{eq:architecture}).
+%\begin{equation}
+%\mathbf{F}^{(t+1)}:=\sigma\left(\mathbf{L}(\mathbf{A}+p\mathbf{I})\mathbf{R}\mathbf{F}^{(t)}\mathbf{W}^{(t)} + q\mathbf{B}\right), \label{eq:architecture}
+%\end{equation}
+%where $\mathbf{L}$ and $\mathbf{R}$ are non-negative diagonal matrices,  $\mathbf{B}$ is a bias matrix, $\mathbf{I}$ is the identity matrix,  $p$ and $q$ are learnable parameters in $[0,1]$, 
+%$\mathbf{W}^{(t)}$ is a learnable weight matrix, and $\sigma$ is a non-linear activation function such as sgn or ReLU. 
+
+
+% We first assume that the following conditions are satisfied for all $t\geq 0$:
+% \begin{equation}
+% \mathbf{F}^{(t)}\sqsubseteq\mathbf{L},\quad
+% \mathbf{F}^{(t)}\sqsubseteq\mathbf{R},\text{ and }
+% \mathbf{F}^{(t)}\sqsubseteq\mathbf{B}. \label{eq:conditions}
+% \end{equation}
+% In other words, the vertex labellings induced by the matrices $\mathbf{L}$, $\mathbf{R}$ and
+% $\mathbf{B}$ are coarser than the vertex labelling induced by $\mathbf{F}^{(t)}$.
+
+
+

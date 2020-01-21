@@ -1,0 +1,90 @@
+\documentclass[a4paper]{article}
+
+\usepackage{arxiv}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{multirow}      % microtypography
+
+% Our own Macros
+\usepackage{amssymb,amsthm,amsmath}
+\usepackage[textsize=small]{todonotes}
+\presetkeys{todonotes}{inline}{}
+
+%commentshttps://www.overleaf.com/7481143292gkhcfhbrmxyw
+\newcommand{\filip}[1]{\todo[inline, color=green!10]{{\bf Filip:} #1}}
+\newcommand{\openprob}[1]{\todo[inline, color=red!10]{{\bf Open problem}: #1}}
+\newcommand{\floris}[1]{\todo[inline, color=blue!10]{{\bf Floris:} #1}}
+
+\newcommand{\hash}{\textsc{Hash}}
+\providecommand{\st}{}
+\renewcommand{\st}{\mathrel{\mid}}
+\newcommand{\ldbl}{\{\!\!\{}
+\newcommand{\rdbl}{\}\!\!\}}
+\newcommand{\Rb}{\mathbb{R}}
+\newcommand{\Nb}{\mathbb{N}}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{example}{Example}
+
+\title{Loosely Stated, Formally Proved: Kipf and Wellington's GCNs
+are Almost 1WL Powerful}
+
+\author{
+  Floris Geerts\\
+  University of Antwerp\\
+  \texttt{floris.geerts@uantwerpen.be}
+  \And
+  Filip Mazowiecki\\
+  Max Planck Institute for Software Sciences\\
+  \texttt{filipm@mpi-sws.org}
+  \And
+  Guillermo A. P\'erez\\
+  University of Antwerp\\
+  \texttt{guillermoalberto.perez@uantwerpen.be}
+  \And
+  Adri\'an Soto\\
+  Pontificia Universidad Cat\'olica de Chile\\
+  \texttt{assoto@uc.cl}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  We adapt ideas from~\cite{grohewl} on the equivalent power of graph neural
+  networks and the Weisfeiler-Lehman algorithm.  Then, we leverage the latter
+  to provide a rigurous proof that Kipf and Welling's graph convolutional
+  networks are indeed Weisfeiler-Leman powerful (and not just loosely speaking
+  so).
+\end{abstract}
+
+\input{intro}
+\input{prelim}
+\input{GNN}
+\input{upperb}
+\input{lowerb}
+\input{weakwl}
+
+
+\bibliographystyle{apalike}
+\bibliography{refs}
+
+% \input{body}
+\input{sec-appendix}
+\end{document}
+
+% \clearpage
+% \appendix

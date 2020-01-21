@@ -1,0 +1,103 @@
+%!TEX root =main.tex
+\section{GNNs without self}
+\floris{The following needs to be developed in more detail.}
+\floris{The idea in this section is to reconsider GNNs without $\mathbf{I}$. The lower bound proof shows that having $\mathbf{I}$ is required to encode the labels of the vertices themselves. So, when absent, we should be able to upper and lower bound using a variation of WL in which only neighbor labels are accounted for. In some sense, this is a generalization of the unlabeled case by~\cite{grohewl} but lifted to labeled graphs. It will allow us to seperate some  more architectures.}
+
+We have seen in Example~\ref{example:piszero} that GNN architectures in which $p=0$ are not necessarily WL-strong, starting from $\hat{\pmb{\ell}}$. Intuitively, the reason is that when $p=0$, the only features that are propagated relate to neighborhoods of vertices and not the features of the vertices themselves. In this section we investigate the expressive power of architectures of the form:
+\begin{equation}
+\mathbf{F}^{(t)}:=\sigma\left(\mathbf{L}\mathbf{A}\mathbf{R}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)} + q\mathbf{J}\right). \label{eq:architecture_noid}
+\end{equation}
+In a nutshell, we will upper and lower bound such architectures by 
+ considering a \textit{weaker variant of WL}  which only takes neighborhood information into account.
+ %  Indeed,
+% in GNN architectures of the form~\ref{eq:architecture_noid}, the absence of the identity has a consequence that features are updated based on adjacency information alone. We make this now more precise.
+
+We define the \textit{neighbor-only WL}, NWL for short, process as follows. Let $G=(V,\pmb{\mu})$ be a labeled graph and let $\Sigma$ be a set of labels. Initially, let $\pmb{\mu}^{(0)}:=\pmb{\mu}$. 
+Then, the NWL procedure computes a labeling $\pmb{\mu}^{(t)}$, for $t> 0$, as follows: 
+$$
+\pmb{\mu}^{(t)}_v:=\textsc{Hash}\bigl(\ldbl \pmb{\mu}_u^{(t-1)} \st u \in N_G(v) \rdbl\bigr),
+$$
+where $\textsc{Hash}$ bijectively maps the multi-set $\ldbl \pmb{\mu}_u^{(t-1)} \st u \in N_G(v) \rdbl$ of labels of $v$'s neighbors to a unique label in $\Sigma$, which has not been used in previous iterations. When the number of distinct labels in $\pmb{\mu}^{(t)}$ and $\pmb{\mu}^{(t-1)}$ is the same, the NWL algorithm terminates.
+Termination is guaranteed in at most $n$ steps. We refer to the resulting labeling as the \textit{NWL labeling of $(G,\pmb{\mu})$}. 
+
+As before, given matrices $\mathbf{L}$ and $\mathbf{R}$ we define the set of 
+extended labels as $\hat{\Sigma}=\Sigma\cup (\Sigma\times L\times R)$ with
+$L:=\{\mathbf{L}_{vv}\mid v\in V\}$ and $R:=\{\mathbf{R}_{vv}\mid v\in V\}$.
+The following counterpart of Theorem~\ref{thm:generalbound} is now easily verified.
+
+\begin{theorem}\label{thm:generalbound_noid}
+GNN architectures of the form~(\ref{eq:architecture_noid}) for which 
+$\pmb{\mu}^{(1)}\sqsubseteq \hat{\pmb{\mu}}$ holds for any labeled graph $(G,\pmb{\mu})$, are bounded by NWL on $(G,\hat{\pmb{\ell}})$.
+\end{theorem}
+Compared to Theorem~\ref{thm:generalbound} the extra condition involving $\pmb{\mu}^{(1)}\sqsubseteq \hat{\pmb{\mu}}$ is needed to ensure that the values in $\mathbf{L}$ are functionally determined by degree information of the vertices.
+
+\begin{proof}
+We show the upper bound by NWL by induction on the number of iterations. For $t=0$, we have, by assumption, that 
+$\pmb{\ell}\sqsubseteq \mathbf{F}^{(0)}$. Clearly,
+$\hat{\pmb{\mu}}{}^{(0)}\sqsubseteq \pmb{\ell}$ and hence also 
+$\hat{\pmb{\mu}}{}^{(0)}\sqsubseteq\mathbf{F}^{(0)}$. We next assume that the induction hypothesis holds for $t\geq 0$ and consider $t+1$. We need to show that 
+$\hat{\pmb{\mu}}{}^{(t+1)}_v=\hat{\pmb{\mu}}{}^{(t+1)}_w$ implies that $\mathbf{F}^{(t+1)}_{v\bullet}=\mathbf{F}^{(t+1)}_{w\bullet}$. By definition,
+$\hat{\pmb{\mu}}{}^{(t+1)}_v=\hat{\pmb{\mu}}{}^{(t+1)}_w$ implies
+$$
+\ldbl \hat{\pmb{\mu}}{}^{(t)}_u \st u \in N_G(v) \rdbl=
+ \ldbl \hat{\pmb{\mu}}{}^{(t)}_u \st u \in N_G(w) \rdbl.$$
+ Since $\hat{\pmb{\mu}}{}^{(t)}\sqsubseteq \hat{\pmb{\mu}}{}^{(t-1)}\sqsubseteq \cdots\sqsubseteq \hat{\pmb{\mu}}{}^{(0)}$, this implies that  there is a bijection $b:N_G(v)\to N_G(w):u\mapsto u'$ such that $\hat{\pmb{\mu}}{}^{(t)}_u=\hat{\pmb{\mu}}{}^{(t)}_{u'}$ and hence also 
+ $\hat{\pmb{\mu}}{}^{(0)}_u=\hat{\pmb{\mu}}{}^{(0)}_{u'}$.
+From the definition of $\hat{\pmb{\mu}}{}^{(0)}$, this implies that for every $u\in N_G(v)$ and corresponding $u'\in N_G(w)$, $\mathbf{L}_{uu}=\mathbf{L}_{u'u'}$ and $\mathbf{R}_{uu}=\mathbf{R}_{u'u'}$. By the assumption that on $\mathbf{L}$ we further have that
+$\mathbf{L}_{vv}=\mathbf{L}_{ww}$.
+By the induction hypothesis we also for every $u\in N_G(v)$
+   and corresponding $u'\in N_G(w)$, $\mathbf{F}^{(t)}_{u\bullet}=\mathbf{F}^{(t)}_{u'\bullet}$. It now suffices to observe that
+  \begin{align*}
+	  \mathbf{F}^{(t+1)}_{v\bullet}&=\sigma\Biggl(\mathbf{L}_{vv}\Bigl(\sum_{u\in N_G(v)} \mathbf{R}_{uu}\mathbf{F}^{(t)}_{u\bullet}\Bigr)\mathbf{W}^{(t)}+ q\mathbf{J}_{v\bullet}\Biggr)\\
+	 & =\sigma\Biggl(\mathbf{L}_{ww}\Bigl(\!\!\sum_{u'\in N_G(w)}\!\! \mathbf{R}_{u'u'}\mathbf{F}^{(t)}_{u'\bullet}\Bigr)\mathbf{W}^{(t)}+ q\mathbf{J}_{w\bullet}\Biggr)\\
+	  &=\mathbf{F}^{(t+1)}_{w\bullet},
+\end{align*}
+as desired.
+\end{proof}
+
+We can also show that GNN architectures of the form~(\ref{eq:architecture_noid}) 
+are NWL-strong, starting from $\hat{\pmb{\mu}}$.
+\begin{proposition}
+The class of GNN architectures of the form~(\ref{eq:architecture_noid}) for which 
+	$\pmb{\mu}^{(1)}\sqsubseteq \hat{\pmb{\mu}}$ holds for any labeled graph $(G,\pmb{\mu})$, are NWL-strong, starting from $\hat{\pmb{\mu}}$.
+\end{proposition}
+\begin{proof}
+We closely follow the proof of Theorem~\ref{thm:lowerb_general}.
+ By assumption, $\mathbf{F}^{(0)}\equiv \hat{\pmb{\mu}}$ and $\mathbf{F}^{(0)}$
+ row independent modulo equality. Consider $t>0$ and assume that $\mathbf{F}^{(t-1)}$ is good for $\hat{\pmb{\mu}}$. It is easily verified that the proof of Lemma~\ref{lem:rightgood} also works here. Hence, $\mathbf{R}\mathbf{F}^{(t-1)}$ is also good for  $\hat{\pmb{\mu}}$. We can also use first part of the proof of Lemma~\ref{lem:findingp}. Using the notation in that proof, we know that there exists a matrix $M^{(t-1)}$ such that for every $v\in V$ and $c\in\Sigma^{(t-1)}$:
+ $$
+ (\mathbf{A}\mathbf{R}\mathbf{F}^{(t-1)}\mathbf{M}^{(t-1)})_{vc}=|u\in N_G(v)| \mathbf{R}\mathbf{F}_{u\bullet}^{(t-1)}\sim c\}|
+ $$
+
+\floris{To be worked out further.... }
+\end{proof}
+
+Clearly, the two architectures without $\mathbf{I}$, RW-GNN and NA-GNN satisfy the conditions in the Theorem. The same holds for the following architecture:
+\begin{description}
+ \item[\textit{Adjacency} (A-GNN):]
+% $\mathbf{L}=\mathbf{R}:=\mathbf{I}$, $p=q:=0$. Hence,
+$
+\mathbf{F}^{(t)}:=\sigma\left(\mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}^{(t)}\right)
+$
+\end{description}
+which was shown to be bounded by WL and WL-strong on unlabeled graphs in ~\cite{grohewl}.
+\floris{We need to make the connection with the unlabelled case more precise.}
+
+\subsection{Special cases}
+\openprob{All what follows needs to be shown (if we want ;-)}
+\begin{corollary}
+The A-GNN,  NA-GNN  and RW-GNN architectures are bounded by WWL, starting from $(G,\pmb{\mu})$.	
+\end{corollary}
+Since $\hat{\pmb{\ell}}{}^{(k)}\sqsubseteq \hat{\pmb{\mu}}{}^{(k)}$, this corollary provides a stronger upper bound than Corollary. Indeed, it says that these architecture cannot classify vertices in a finer way than the weak version of WL. 
+
+We can again zoom in on these three architectures and show that these architecture can be bounded by
+$\pmb{\mu}^{(t)}$ rather than $\hat{\pmb{\mu}}^{(t)}$. 
+\begin{corollary}
+The A-GNN  and RW-GNN architectures are bounded by WWL, starting from $(G,\pmb{\ell})$.
+The NA-GNN architecture is bounded by WWL, starting from $(G,\pmb{\mu}{}^{(1)})$.
+\end{corollary}
+
+\subsection{Lower bounds}
+
+\openprob{We can tell, I believe, the same story as before but now for WWL. It should allow us to separate classes with $\mathbf{I}$.}
+

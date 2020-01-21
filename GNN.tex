@@ -1,0 +1,176 @@
+%!TEX root =main.tex
+
+
+\section{Graph neural networks}
+\floris{This section needs a pass.}
+In general, a graph neural network, or GNN for short, consists of a number of layers. In each layer, feature vectors of vertices are computed based on the features from the previous layer.
+What makes GNN stand out from other neural network architectures is the use of adjacency information in graphs. More specifically, given a graph $G=(V,E)$, a GNN computes for each vertex $v\in V$ a feature vector $\mathbf{F}^{(t)}_{v\bullet}$  in layer $t$ by combining:
+\begin{itemize}
+	\item[] (i)~the feature vector $\mathbf{F}^{(t-1)}_{v\bullet}$ of $v$ from the previous layer; and
+	\item[] (ii)~the multi-set of features from the previous layer  of $v$'s neighbors, i.e., the multi-set $\ldbl \mathbf{F}^{(t-1)}_{u\bullet} \st u \in N_G(v) \rdbl$.
+\end{itemize}
+One typically parametrizes GNNs by how this combination is achieved. We here follow~\cite{grohewl,DBLP:conf/iclr/XuHLJ19}  in which combination and aggregation functions for each layer $t$ are considered, denoted by
+$f_{\textsl{comb}}^{(t)}$ and
+$f_{\textsl{agg}}^{(t)}$, respectively, and features are updated as follows.  For each vertex $v\in V$ and layer $t$:
+\begin{equation}
+\mathbf{F}^{(t)}_{v\bullet}:=
+f_{\textsl{comb}}^{(t)}\Bigl(
+\mathbf{F}_{v\bullet}^{(t-1)},f_{\textsl{aggr}}^{(t)}\bigl(\ldbl \mathbf{F}^{(t-1)}_{u\bullet} \st u \in N_G(v) \rdbl\bigr)
+\Bigr), \label{lab:generalGNN}
+\end{equation}
+ Finally, if a GNN consists of $L$ layers then
+$\mathbf{F}^{(L)}$ is used to classify the vertices in $G$ different classes. More precisely, vertices $v$ and $w$ will belong to the same class if and only if 
+$\mathbf{F}^{(L)}_{v\bullet}=\mathbf{F}^{(L)}_{w\bullet}$, i.e., when their feature vectors are equal.
+
+The way that GNNs update feature vectors is clearly reminiscent of how the WL procedure works. The relationship between vertex classification by GNNs of the form~(\ref{lab:generalGNN}) and vertex classification by WL can be made precise~\cite{grohewl,DBLP:conf/iclr/XuHLJ19}. To state this relation formally, we define the notions of being \textit{bounded by WL}, for upper bounding the classification power of GNNs, and being \textit{WL-strong}, for lower bounding the classification power of GNNs~\cite{grohewl}. 
+
+\begin{definition}[Bounded by WL]\normalfont\label{def:wlupper}
+Let $(G,\pmb{\ell})$ be a labeled graph and let $\pmb{\ell}^{(0)}:=\pmb{\ell}$. Furthermore, denote by 
+$\pmb{\ell}^{(t)}$ the vertex labeling obtained after $t$ iterations of the WL procedure, starting from $\pmb{\ell}^{(0)}$. Let $\mathbf{F}^{(t)}$ be feature matrices computed using a GNN of the form ~(\ref{lab:generalGNN}), for $t\geq 0$. Then, given $\mathbf{F}^{(0)}$ such that $\pmb{\ell}^{(0)}\sqsubseteq \mathbf{F}^{(0)}$ holds, one says that the GNN  is \textit{bounded by WL} if for all $t\geq 0$, 
+$\pmb{\ell}^{(t)}\sqsubseteq \mathbf{F}^{(t)}$.
+% That is, the vertex labeling induced by $\mathbf{F}^{(t)}$ is always coarser than the vertex labeling $\pmb{\ell}^{(t)}$  obtained by WL after $t$ iterations.
+\end{definition}
+In terms of vertex classification this implies that when a GNN is bounded by WL, then 
+for every $t$, when WL classifies two vertices as the same in step $t$, then so does the GNN. 
+
+The boundedness property holds for \textit{any} GNN of the form~(\ref{lab:generalGNN}):
+\begin{proposition}[~\cite{grohewl,DBLP:conf/iclr/XuHLJ19}]\label{prop:upperboundgeneral}
+% Let $(G,\pmb{\ell})$ be a labeled graph and let $\mathbf{F}^{(0)}$ consist of feature vectors such that $\pmb{\ell}^{(0)}\sqsubseteq \mathbf{F}^{(0)}$. Then, $\pmb{\ell}^{(t)}\sqsubseteq \mathbf{F}^{(t)}$ for every $t>0$, where $\mathbf{F}^{(t)}$ is computed by a
+Any GNN of the form~(\ref{lab:generalGNN}) is bounded by WL.
+\end{proposition}
+
+
+When the combination and aggregation functions are assumed to be all injective one can further show that GNNs of the form~(\ref{lab:generalGNN}) are also as powerful as WL~\cite{DBLP:conf/iclr/XuHLJ19}. That is, when two vertices are classified as the same by the GNN then they are also classified the same by WL. 
+We can phrase this more generally in terms of \textit{classes} of GNNs. Here, a class of GNNs is simply a collection of GNNs of the form~(\ref{lab:generalGNN}) in which the allowed aggregation and combination functions are restricted to belong to some class. For example, one could consider the class of injective functions for the combination and aggregation functions.
+
+\begin{definition}[WL-strong]\normalfont\label{def:wlstrong}
+A \textit{class} of GNNs of the form~(\ref{lab:generalGNN}) is \textit{WL-strong} if for any given labeled graph
+	$(G,\pmb{\ell})$, there exist instantiations of the combination and aggregation functions in that class such that for all $t\geq 0$, $\mathbf{F}^{(t)}\sqsubseteq \pmb{\ell}{}^{(t)}$.
+\end{definition}
+
+Clearly, for classes of GNNs of the form~(\ref{lab:generalGNN}) that are WL-strong, 
+Proposition~\ref{prop:upperboundgeneral} implies that for every labeled graph $(G,\pmb{\ell})$ there
+exist instantiations of the combination and aggregation functions in that class such that
+for all $t\geq 0$, $\mathbf{F}^{(t)}\equiv \pmb{\ell}{}^{(t)}$. That is, there is at least one particular instantiation of the GNNs in the class that is equivalent to WL in terms of vertex classification.
+
+A specific class of GNNs which is known to be WL-strong~\cite{grohewl} is given by:
+\begin{equation}
+\mathbf{F}^{(t)}:=\sigma\Bigl(\mathbf{F}^{(t-1)}\mathbf{W}_1^{(t)}+ \mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t)} + \mathbf{B}^{(t)}\Bigr), \label{eq:groheGNN}
+\end{equation}
+where $\mathbf{W}_1^{(t)}$, $\mathbf{W}_2^{(t)}$  are weight matrices, $\mathbf{B}^{(t)}$ are 
+constant\footnote{A constant matrix is matrix which is a multiple of the all-ones matrix $\mathbf{J}$.} bias matrices, and $\sigma$ is the sign function. It is readily verified that GNNs of the form~(\ref{eq:groheGNN}) can be seen as  GNNs of the form~(\ref{lab:generalGNN}). Hence, GNNs of the form~(\ref{eq:groheGNN}) are also bounded by WL by Proposition~\ref{prop:upperboundgeneral}.
+
+More specifically, it was shown in~\cite{grohewl} that even the class of GNNs of the form
+\begin{equation}
+\mathbf{F}^{(t)}:=\sigma\Bigl(\mathbf{F}^{(t-1)}\mathbf{W}_1^{(t)}+ \mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t)} - \mathbf{J}\Bigr), \label{eq:groheGNNwithJ}
+\end{equation}
+is WL-strong. That is, compared to class of GNNs of the form~(\ref{eq:groheGNN}), the bias matrices $\mathbf{B}^{(t)}$ is now chosen uniformly (for all layers) to be $-\mathbf{J}$.
+
+
+\openprob{Although the result reported in~\cite{grohewl} is correct, it is not entirely clear how their construction translates into an architecture of the form~\ref{eq:groheGNN}. Their construction fits, however, in an architecture of the
+form $\mathbf{F}^{(t)}:=\Bigl(\mathbf{F}^{(0)},\sigma\bigl(\mathbf{F}^{(t-1)}\mathbf{W}_1^{(t)}+ \mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t)} -\mathbf{J}\bigr)\Bigr)$ which is not exactly in the form of ~\ref{eq:groheGNN}. We will recover the WL-strongness result from ~(\ref{eq:groheGNN}) as a side result of our analysis, however. {\bf BUT: is it true that their update rule cannot be expressed as they claim??}}.
+
+In~\cite{grohewl}, also GNNs of the form~\ref{eq:groheGNNwithJ} where considered in which the activation function $\sigma$ is the ReLU function. In this case, the relationship
+$\mathbf{F}^{(2t)}\sqsubseteq \pmb{\ell}^{(t)}$ holds, for every $t\geq 0$~\cite{grohewl}.
+Strictly speaking this architecture is not WL strong in the sense of Definition~\ref{def:wlstrong}. Later in the paper we show that the factor two can be avoided, however, by allowing a bias matrix of the form $-q\mathbf{J}$ for some parameter $q$.
+In fact, we establish WL-strongness for
+an even more restricted class of GNNs of the form:
+\begin{align}
+\mathbf{F}^{(t)}&:=\sigma\Bigl(p\mathbf{F}^{(t-1)}\mathbf{W}^{(t)}+ \mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}^{(t)} - q\mathbf{J}\Bigr), \label{eq:GNN}\\
+&:=\sigma\Bigl((\mathbf{A}+p\mathbf{I})\mathbf{F}^{(t-1)}\mathbf{W}^{(t)} - q\mathbf{J}\Bigr), \label{eq:GNN2}
+\end{align}
+for parameters $p, q$ such that $0< p,q<1$ is WL-strong, where $\sigma$ is either the sign or ReLU activation function. Here, $\mathbf{I}$ is the identity matrix of appropriate dimension.
+Compared to~(\ref{eq:groheGNNwithJ}) we only have one weight matrix $\mathbf{W}^{(t)}$ in each layer and have two additional parameters $p$ and $q$\footnote{A technical condition for obtaining WL-strongness is that  the initial feature matrix $\mathbf{F}^{(0)}$ satisfies $\mathbf{F}^{(t)}\equiv \pmb{\ell}^{(0)}$  and that
+the unique rows in $\mathbf{F}^{(0)}$ are linearly independent. It will become clear later why this assumption is needed.}
+
+
+
+%
+% \todo{I believe that this lower bound indeed holds, but the proof given in ~\cite{grohewl} is not correct. I do not see how their approach for the labeled case can be squeezed in the above form. I emailed Martin about this (I keep you in the loop when I get some response.). Why does it hold, because we show later that
+% $$
+% \mathbf{F}^{(t)}:=\sigma\Bigl((\mathbf{A}+p\mathbf{I})\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t)} +\mathbf{W}_3^{(t)}\Bigr),
+% $$
+% is WL-strong for $p<1$, which is an instance of that more general architecture.
+% }
+
+% \todo{Argue that the normalized adjacency and augmented adjacency (Kipf) do not fit in this framework, whereas the others do but are not WL strong. This motivates to look at a small unifying architecture and study its expressive power.
+% }
+% A graph neural network (GNN) model consists of layers, where each layer specifies how to update a vertex labeling $\mathbf{F}$. A GNN with $k$ layers is defined by updates of $\mathbf{F}^{(t)}$ for $t = 0, \ldots,k$, which denotes the labeling obtained after $t$ layers. A new labeling $\mathbf{F}^{(t+1)}$ is obtained inductively by transformations defined on the previous labeling $\mathbf{F}^{(t)}$. An \emph{architecture} specifies what kind of transformations are allowed.
+
+
+Although GNN architectures of the form~(\ref{eq:groheGNN}) or~(\ref{eq:GNN}) are quite general,  they do not capture some common GNN architectures used in the literature:
+%
+\floris{We may want to add references to the architectures below. This requires some googling around. Also, not entirely happy with the acronym's.
+Better suggestions are welcome!}
+% Well-known GNN architectures can be obtained from~(\ref{eq:architecture}) by varying $\mathbf{L}$ and $\mathbf{R}$, $p$ and $q$, as follows:
+\begin{description}
+% \item[\textit{Adjacency}:]
+% % $\mathbf{L}=\mathbf{R}:=\mathbf{I}$, $p=q:=0$. Hence,
+% $
+% \mathbf{F}^{(t+1)}:=\sigma\left(\mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)}\right)
+% $
+\item[\textit{Random walk (RW-GNN)}:] 
+% $\mathbf{L}:=\mathbf{D}^{-1}$ with $\mathbf{D}$ the degree matrix of $\mathbf{A}$, $\mathbf{R}:=\mathbf{I}$, $p=q:=0$. Hence,
+$$
+\mathbf{F}^{(t)}:=\sigma\left(\mathbf{D}^{-1}\mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right);$$
+\item[\textit{Normalized adjacency (NA-GNN)}:] 
+% $\mathbf{L}=\mathbf{R}:=\mathbf{D}^{-1/2}$, $p=q:=0$. Hence,
+$$
+\mathbf{F}^{(t)}:=\sigma\left(\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right)
+;$$
+\item[\textit{$1$st Order GCN (1-GCN)}:]
+$$
+\mathbf{F}^{(t)}:=\sigma\left(\mathbf{F}^{(t-1)}\mathbf{W}_1^{(t-1)}+\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t-1)}\right);$$
+
+\item[\textit{Simplified $1$st Order GCN (1-GCNs)}:]
+$$
+\mathbf{F}^{(t)}:=\sigma\left((\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}+\mathbf{I})\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t-1)}\right);$$
+\item[\textit{Augmented random walk (RW-GNN+)}:] 
+% $\mathbf{L}:=\tilde{\mathbf{D}}^{-1}$ with $\tilde{\mathbf{D}}$ the degree matrix of $\mathbf{A}+\mathbf{I}$, $\mathbf{R}:=\mathbf{I}$, $p:=1$, $q:=0$. Hence,
+$$
+\mathbf{F}^{(t)}:=\sigma\left(\tilde{\mathbf{D}}^{-1}(\mathbf{A}+\mathbf{I})\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right),$$
+with $\tilde{\mathbf{D}}$ the degree matrix of $\mathbf{A}+\mathbf{I}$; and
+\item[\textit{Augmented adjacency (NA-GNN+)}~\cite{kipf-loose}:] % $\mathbf{L}=\mathbf{R}:=\tilde{\mathbf{D}}^{-1/2}$, $p:=1$, $q:=0$. Hence,
+$$
+\mathbf{F}^{(t)}:=\sigma\left(\tilde{\mathbf{D}}^{-1/2}(\mathbf{A}+\mathbf{I})\tilde{\mathbf{D}}^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right);
+$$
+\item[\textit{Weighted augmented adjacency (NA-GNN++)}~\cite{DBLP:journals/corr/abs-1905-03046}:]
+$$\mathbf{F}^{(t)}:=\sigma\left((r\mathbf{I}+(1-r)\tilde{\mathbf{D}})^{-1/2}(\mathbf{A}+p\mathbf{I})(r\mathbf{I}+(1-r)\mathbf{D})^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right),
+$$
+which underlies the PiNet architecture.
+\end{description}
+% Bias can be added to all previous architectures by setting $q\neq 0$.
+This begs the question how these architectures relate to WL. This question is of particular importance for the augmented adjacency architecture which is often regarded as a continuous version of WL~\cite{kipf-loose}
+\floris{We may want to sell the connection with Kipf a bit more, especially as it served as our motivation to look in all. this.}
+Indeed, it is mentioned in ~\cite{kipf-loose} that the augmented adjacency architecture can be interpreted -- loosely speaking -- as differentiable and parameterized WL process on graphs. This claim has, to our knowledge, not been made formal.
+
+
+% \todo{I believe that we separate these architectures based on:
+% \begin{itemize}
+% 	\item Presence/absence of $\mathbf{I}$: This relates to labeled vs unlabeled graphs.
+% 	\item Presence/absence of $\mathbf{R}$: This relates to being one-step ahead compared to WL.
+% 	\item Presence/absence of $\mathbf{L}$: ??
+% 	\item parameter $p<1$: this is crucial for being WL-strong.
+% \end{itemize}}
+To analyze the expressive power of all these GNN architectures we therefore consider a general GNN architecture of the form:
+% We consider a GNN architecture which generalises commonly used GNN architectures. Given a labeled
+% graph $(G,\pmb{\ell})$ with $G=(V,E)$, we denote by $\mathbf{F}^{(t)}$ the feature matrix assigning to each vertex $v\in V$ a feature vector $\mathbf{F}_{v\bullet}$. In layer $t$ of the the GNN architecture, $\mathbf{F}^{(t)}$ is updated as follows:
+\begin{equation}
+\mathbf{F}^{(t)}:=\sigma\left(\mathbf{F}^{(t-1)}\mathbf{W}_1^{(t-1)}+\mathbf{L}(\mathbf{A}+p\mathbf{I})\mathbf{R}\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t-1)} + q\mathbf{J}\right), \label{eq:architecture}
+\end{equation}
+where $\mathbf{L}$ and $\mathbf{R}$ positive diagonal matrices, $p$ and $q$ are  learnable parameters in $[0,1]$, and $\mathbf{W}_1^{(t-1)}$ and $\mathbf{W}_2^{(t-1)}$  are learnable weight matrices, and finally, $\sigma$ is a non-linear activation function such as sign or ReLU. It should be clear that by choosing 
+$\mathbf{L}$, $\mathbf{R}$, $p$ and $q$  in an appropriate way, one can obtain all  GNN architectures mentioned so far.
+
+In the remainder of the paper we investigate the expressive power of GNNs of the form~(\ref{eq:architecture}) in detail. We remark that our proof techniques are similar to those used in~\cite{grohewl} but with some minor twists.
+
+% above. Furthermore, we see that~(\ref{eq:architecture}) also encompasses the architecture~(\ref{eq:GNN2}).
+% Our analysis also works for the even more general setting
+% \begin{equation}
+% \mathbf{F}^{(t+1)}:=\sigma\left(\mathbf{F}^{(t)}\mathbf{W_1}+\mathbf{L}(\mathbf{A}+p\mathbf{I})\mathbf{R}\mathbf{F}^{(t)}\mathbf{W}_2^{(t)} + \mathbf{W_3}\right), \label{eq:architecture}
+% \end{equation}
+% \todo{Perhaps we should use this general version. It does not make a difference of the upper bound, and we do not need $\mathbf{F}^{(t)}\mathbf{W_1}$ to show it is WL strong in our modified sense.}
+
+% \section{Expressive Power}
+% It is common to measure the expressive power of GNN architectures in comparison with the 1-WL algorithm~\cite{grohewl,DBLP:conf/iclr/2019}.  Complementary, if for \textit{any} given labeled graph
+% $(G,\pmb{\ell})$, there exists learnable parameters of the GNN architecture such that for all $t\geq 0$, $\pmb{\ell}{}^{(t)}\equiv \mathbf{F}^{(t)}$, then one says that the GNN architecture is \textit{1-WL strong}. We next investigate these properties for GNN architectures of the form~(\ref{eq:architecture}).
+

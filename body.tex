@@ -1,0 +1,479 @@
+\section{Introduction}
+\begin{itemize}
+  \item After going through Kipf's code, I did not find any sign of bias being
+    used in the activation-function calls. In fact, it seems to me that they
+    explicitly set it to 0 (see 
+    https://github.com/tkipf/gcn).
+    \item Interestingly, in~\cite{xhlj19} they claim to have shown Kipf's
+      architecture is strictly less powerful than the 1-WL algorithm!
+      (However, in his website, Kipf observes that they assume ``mean
+      pooling''.)
+   \item In~\cite{Wu2019}, it is said "We hypothesize that the nonlinearity
+     between GCN layers is not critical - but that the majority of the
+     benefit arises from the local averaging." This worth making more
+     precise or even invalidate it theoretically.
+   \item In~\cite{hyl17} they have a paragraph on Relation to the Weisfeiler-Lehman
+     Isomorphism Test which makes more sense than Kipf. They clarify that
+     isomorphism is not the end goal!
+\end{itemize}
+
+\section{Preliminaries}
+Let $M = \ldbl m_0, m_1, \dots \rdbl$ denote a \emph{multiset} and $M(x)$
+stand for the \emph{multiplicity} of the element $x$ within $M$.
+
+\paragraph{Graphs.}
+An \emph{(undirected) graph} $G$ is a pair $(V,E)$ where $V$ is a finite set
+of \emph{vertices} and $E \subseteq \{\{u,v\} \st (u,v) \in V \times V, u \neq
+v\}$ is a finite set of \emph{edges}. Let $V(G)$ and $E(G)$ denote the set of
+vertices and edges of $G$ respectively. Let $N_G(u)$ denote the
+\emph{neighbourhood} of vertex $u$ in $G$. That is to say, $N_G(u) := \{v \in V(G)
+\st \{u,v\} \in E(G)\}$.
+
+We will mostly work with the \emph{adjacency matrix} $\mathbf{A}$ of the
+graph $G$. That is, $\mathbf{A}$ is the square $|V(G)| \times |V(G)|$ matrix
+such that the entry $\mathbf{A}_{ij}$ is $1$ if $\{i,j\} \in E(G)$ and $0$
+otherwise.
+
+A \emph{vertex labelling} is a function $\ell: V(G) \to \Lambda$ with an
+arbitrary co-domain $\Lambda$ of \emph{labels} and a \emph{labelled
+graph} is a pair $(G,\ell)$ where $G$ is a graph and $\ell : V(G) \to \Lambda$
+is a vertex-labelling function. A \emph{label class} $Q \subseteq V(G)$, with
+respect to a vertex labelling $\ell$, is a maximal subset of $V(G)$ such that
+$\ell(u) = \ell(v)$ for all $u,v \in Q$.
+
+Let $\ell,\ell' : V(G) \to \Lambda$ be vertex labellings.
+We say that $\ell$ \emph{refines} $\ell'$, written $\ell \sqsubseteq \ell'$,
+if and only if for all $u,v \in V(G)$ we have
+\[
+    \ell(u) = \ell(v) \implies \ell'(u) = \ell'(v).
+\]
+Furthermore, we say that $\ell$ and $\ell'$ are \emph{equivalent}, written
+$\ell \equiv \ell'$, if and only if $\ell \sqsubseteq \ell'$
+and $\ell' \sqsubseteq \ell$. 
+
+\todo{F. We should clarity what an unlabeled graph is.}
+\paragraph{Isomorphism.}
+We say two labelled graphs $(G,\ell_G)$ and $(H,\ell_H)$ are \emph{isomorphic}
+if there exists an edge-preserving label-consistent bijection $\beta : V(G)
+\to V(H)$. That is, $\beta$ is such that 
+\begin{itemize}
+    \item $\{u,v\} \in E(G)$ if and only if $\{\beta(u),\beta(v)\} \in E(H)$ and
+    \item $\ell_G(u) = \ell_G(v)$
+      if and only if $\ell_H(\beta(u)) = \ell_H(\beta(v))$.
+\end{itemize}
+
+
+
+\subsection{The Weisfeiler-Leman algorithm}
+Let $(G,\ell)$ be a labelled graph. The $1$-WL algorithm computes, in each
+iteration $t \geq 0$, a vertex labelling $\ell^{(t)} : V(G) \to \Lambda$ which
+depends on the labelling from the previous iteration. Initially, we set
+$\ell^{(0)} := \ell$. For $t > 0$ we set
+\[
+   \ell^{(t)}(u) := 
+    \hash\left(\ell^{(t-1)}(u), \ldbl \ell^{(t-1)}(v) \st v \in N_G(u) \rdbl\right)
+\]
+where $\hash$ bijectively maps pairs of labels and label-multisets to a label
+from $\Lambda$.  The algorithm terminates when a \emph{stable labelling} is
+reached, i.e. when $\ell^{(t+1)} \equiv \ell^{(t)}$. Observe that
+$\ell^{(t+1)} \sqsubseteq \ell^{(t)}$ for all $t \geq 0$ and that termination
+is therefore guaranteed after at most $|V(G)|$ iterations.
+
+\paragraph{Isomorphism heuristic.} 
+If the stable labellings of two labelled graphs $(G,\ell_G)$ and $(H,\ell_H)$
+have a different number of vertices labelled $\lambda$, for some label
+$\lambda \in \Lambda$, the algorithm correctly concludes that they are not
+isomorphic.
+
+\subsection{Graph neural networks}
+Consider a labelled graph $(G,\ell)$ with $\ell : V(G) \to \mathbb{R}^{1
+\times a_0}$.  This, intuitively, means that every vertex $v$ is annotated
+with a \emph{feature vector} $\ell(v) \in \mathbb{R}^{1 \times a_0}$.
+
+A graph neural network (GNN, for short) is composed of layers which aggregate
+the labels of the neighbours of a vertex, as computed by the previous layer,
+and feed this aggregated information to the next layer.  A basic GNN model can
+be implemented by setting $f^{(0)} := \ell$ and having each layer $t \geq 0$
+compute a new feature vector $f^{(t+1)}(v) \in \mathbb{R}^{1 \times a_{t+1}}$ as
+follows
+\[
+  \sigma\left(
+    f^{(t)}(v) \mathbf{W}_1^{(t)} +
+    \sum_{w \in N_G(v)} f^{(t)}(w) \mathbf{W}_2^{(t)}
+  \right)
+\]
+where $\mathbf{W}_1^{(t)}, \mathbf{W}_2^{(t)} \in \mathbb{R}^{a_t \times
+a_{t+1}}$ are parameter matrices and $\sigma$ denotes a non-linear activation
+function such as the rectified linear unit (ReLU for short).\footnote{For ease
+of comparison with the work of Kipf and Welling~\shortcite{kipf-loose} we do
+not use a \emph{bias}.}
+Note that the feature-vector update can be re-written in matrix
+form as
+\begin{equation}\label{eqn:gnn}
+  \mathbf{F}^{(t+1)} = \sigma\left(
+    \mathbf{F}^{(t)}\mathbf{W}_1^{(t)} +
+    \mathbf{AF}^{(t)}\mathbf{W}_2^{(t)}
+  \right)
+\end{equation}
+where $\mathbf{F}^{(t)}$ is the $|V(G)| \times a_t$ matrix such that $i$th row 
+$\mathbf{F}^{(t)}_{i\bullet}$ of  $\mathbf{F}^{(t)}$ is the row vector $f^{(t)}(i)$ and $\mathbf{A}$ is the
+adjacency matrix of $G$.
+
+\subsubsection{GNNs are Weisfeiler-Leman powerful}
+It has been shown that GNNs are as powerful as the $1$-WL
+algorithm~\cite{grohewl}, a formal statement follows. For a labelled graph
+$(G, \ell)$, let us write $\ell \equiv \lambda$ if $\ell$ maps every vertex of
+$G$ to the same label $\lambda$.
+\begin{proposition}[Corollary 12 from~\cite{grohewl}]\label{pro:grohe}
+  Let $(G,\ell)$ be a labelled graph such that $\ell \equiv \lambda$. Then
+  there exists a sequence of matrices such that for all $t \in \mathbb{N}$ and
+  for $f^{(t)}$, as defined by Equation~\eqref{eqn:gnn} with $f^{(0)} = \ell$
+  and $\sigma$ being ReLU, we have $f^{(t)} \equiv \ell^{(t)}$.
+\end{proposition}
+\todo{F. What is the $\lambda$ here?}
+
+\subsection{GNNs and Kipf and Welling}
+In~\cite{kipf-loose}, the following notion of GNNs was proposed.
+Let $\mathbf{D}$ be the \emph{degree matrix} of $G$, that is $\mathbf{D}$
+is the diagonal matrix such that $
+    \mathbf{D}_{ii} = |N_G(i)|$,
+ and the feature update rule used has the following form:
+\begin{equation}\label{eqn:kipf-update}
+    \mathbf{F}^{(t+1)} = \sigma\left(
+        \mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}
+        \mathbf{F}^{(t)}\mathbf{W}^{(t)}
+    \right),
+\end{equation}
+where $\mathbf{D}^{-1/2}$
+is the diagonal matrix with
+$\mathbf{D}^{-1/2}_{ii} =
+\frac{1}{\sqrt{\mathbf{D}_{ii}}}$. Compared with~(\ref{eqn:gnn}) this
+is simpler update rule. It is remarked in~\cite{kipf-loose} that this update
+rule is ``loosely speaking'' 1-WL. In this paper, we want to make this connection 
+precise. More precisely, we show that
+\begin{theorem}\label{pro:grohe}
+  Let $(G,\ell)$ be a labelled graph. Then there exists a sequence of matrices such that for all $t \in \mathbb{N}$ and
+  for $f^{(t)}$, as defined by Equation~\eqref{eqn:kipf-update} with $f^{(0)} = \ell$
+  and $\sigma$ being ReLU, we have $f^{(t)} \equiv \ell^{(t)}$.
+\end{theorem}
+In other words, the GNNs by Kipf and Welling are as powerful as 1-WL.
+\todo{F. Can we say anything about the upper bound of their expressive power.
+I guess this follows from Grohe's paper?}
+
+\subsection{Assumptions}
+For notational convenience, we assume that all vertices have a non-empty
+neighbourhood. This can be achieved, for instance, by introducing a new
+vertex with a fresh new label and connecting all vertices without neighbours
+to it.
+
+\section{A linear-update architecture for unlabelled graphs}
+Our first result is to ``simplify'' Proposition~\ref{pro:grohe} by simulating
+their affine-update architecture using a linear update instead thus allowing
+us to work with a single parameter matrix---at the price of having to extend
+the feature vectors. We state below the formal claim.
+
+\subsection{Look ma, one matrix}
+Let us re-define the basic GNN we deal with. In each
+layer $t \geq 0$, we compute a new feature vector
+\[
+    f^{(t+1)}(v) = \sigma\left(
+        \sum_{w \in N_G(v)} f^{(t)}(w) \mathbf{W}^{(t)}
+    \right)
+\]
+in $\mathbb{R}^{1 \times a_{t+1}}$ for $u$ where $\mathbf{W}^{(t)}$ is a
+parameter matrix from $\mathbb{R}^{a_t \times a_{t+1}}$ and $\sigma$
+is the ReLU activation function. Once more, we work with the matrix
+form of the update:
+\begin{equation}\label{eqn:gnn-linear}
+    \mathbf{F}^{(t+1)} = \sigma\left(\mathbf{AF}^{(t)}\mathbf{W}^{(t)}\right).
+\end{equation}
+
+We will show that, if we set $f^{(t)}(v) := (\ell(v), 1)$ for all vertices
+$v$, then GNNs with this architecture are also as
+powerful as the $1$-WL algorithm.
+
+\begin{proposition}
+  Let $(G,\ell)$ be a labelled graph such that $\ell \equiv \lambda$. Then
+  there exists a sequence of matrices such that for all $t \in \mathbb{N}$ and
+  for $f^{(t)}$, as defined by Equation~\eqref{eqn:gnn-linear} with
+  $f^{(0)}(v) = (\lambda, 1)$, for all $v \in V(G)$, and $\sigma$ being ReLU,
+  we have $f^{(t)} \equiv \ell^{(t)}$.
+\end{proposition}
+
+\todo{G: I am up to here with cleaning a bit}
+
+As a starting point, we re-establish Lemma 9
+from~\cite{grohewl} for the ReLU function.
+\begin{lemma}
+  Let
+  $\mathbf{B}\in \Nb^{s\times t}$ be a matrix in which all
+  rows are pairwise disjoint (and no row consists entirely
+  out of zeroes\footnote{I believe that this can be
+  guaranteed in 1-WL}).\todo{G: with our extended features we actually guarantee this for free by adding the 1 column; also, t as dimension is a bad choice\ldots}
+  Then there exists a matrix $\mathbf{X}$ and a constant $m$
+  such that $\textsf{ReLU}(\mathbf{BX}-m\mathbf{J})$ is
+  non-singular.
+\end{lemma}
+\begin{proof}
+Let $M$ be the maximal entry in $\mathbf{B}$ and consider the column vector $\mathbf{z}=(1,M,M^2,\ldots,M^{t-1})^{\textsc{t}}$.
+Then each entry in $\mathbf{b}=\mathbf{B}\mathbf{z}$ is positive and they are all pairwise distinct. Assume that $\mathbf{b}=(b_1,b_2,\ldots,b_t)^{\textsc{t}}\in\Rb^{s\times 1}$
+such that $0< b_1< b_2<\cdots < b_s$. Consider the row vector $\mathbf{x}=\left(\frac{1}{b_1},\ldots,\frac{1}{b_s}\right)\in \Rb^{1\times s}$. Then, for $\mathbf{C}=\mathbf{b}\mathbf{x}$
+$$
+(\mathbf{C})_{ij}=\frac{b_i}{b_j}  \text{ and } (\mathbf{C})_{ij}=\begin{cases}  1 & \text{if $i=j$}\\
+< 1 & \text{if $i<j$}\\
+> 1 & \text{if $i>j$}.
+\end{cases}
+$$
+Let $m$ be the greatest value  in $\mathbf{C}$ smaller than $1$.
+% G: I think the m instantiated here is not correct
+%, i.e., $m=\frac{b_s}{b_1}$.
+Consider $\mathbf{D}=\mathbf{C}- m\mathbf{J}$.
+Then,
+$$
+\mathbf{D}_{ij}=\frac{b_i}{b_j}- m \text{ and } (\mathbf{D})_{ij}=\begin{cases}  1-m & \text{if $i=j$} \\
+\leq 0 & \text{if $i<j$}\\
+>0  & \text{if $i>j$}.
+\end{cases}
+$$
+As a consequence,
+$$
+\textsf{ReLU}(\mathbf{D})_{ij}=\begin{cases}  1-m & \text{if $i=j$}\\
+0 & \text{if $i<j$}\\
+>0  & \text{if $i>j$}.
+\end{cases}
+$$
+This is an upper triangular matrix with (nonzero) value $1-m$ on its diagonal. It is therefore non-singular. So, the lemma is satisfied by taking $m$ as above and
+%$m=b_s/b_1$ and % G: this still looks wrong
+$\mathbf{X}=\mathbf{z}\mathbf{x}$.
+\end{proof}
+
+It is now easy to see that we can define weight matrices such that
+\[
+    \mathbf{F}^{(t+1)} = \textsf{ReLU}\left(\mathbf{AF}^{(t)}\mathbf{W}^{(t)}-m^{(t)}\mathbf{J}\right).
+\]
+is again equivalent to $c_\ell^{(t+1)}$.  We show that we modify $\mathbf{F}^{(t)}$ and $\mathbf{W}^{(t)}$
+such that can rewrite the update rule in Kipf form.
+
+Let $\mathbf{d}^{(t)}:=\mathbf{A}^{t}\mathbf{1}^\textsc{t}$. That is, $\mathbf{d}^{(t)}_v$ counts the paths from vertex $v$ of length $t$. We note that for undirected graphs $\mathbf{d}^{(t)}$ holds non-negative entries\footnote{For directed graphs, we may consider $I+A$ instead.}
+We now use a similar construction of $\mathbf{W'}^{(t)}$ in the proof of Theorem~\ref{thm:simpler-grohe}, i.e.,
+\[
+\mathbf{W'}^{(t)}=\begin{pmatrix}
+\mathbf{W}^{(t)} & \mathbf{0}_{d\times 1}\\
+\left(-\frac{m^{(t)}}{d_1^{(t+1)}},\ldots,-\frac{m^{(t)}}{d_n^{(t+1)}}\right) & 1
+\end{pmatrix}.
+\]
+and we replace $\mathbf{F}$ by $\mathbf{F'}=[\mathbf{F},\mathbf{1}]$. Then,
+\begin{align}
+    \mathbf{F'}^{(t+1)} 
+        &=\textsf{ReLU}(\mathbf{A}\mathbf{F'}\mathbf{W'}^{(t)}) \nonumber \\
+        &=[\textsf{ReLU}(\mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)}-m^{(t)}\mathbf{J}),\textsf{ReLU}(\mathbf{d}^{(t+1)})]. \nonumber \\
+        &=[\mathbf{F}^{(t+1)}, \mathbf{d}^{(t+1)}] \label{eq:Fc}
+\end{align}
+It now suffices to show that $\mathbf{F'}^{(t)}$ is equivalent to $c_\ell^{(t)}$. Since $\mathbf{F}^{(t)} \equiv c_\ell^{(t)}$ and by~\eqref{eq:Fc} $\mathbf{F'}^{(t+1)} \sqsubseteq \mathbf{F}^{(t+1)}$ it suffices to prove that $c_\ell^{(t)} \sqsubseteq \mathbf{F'}^{(t)}$.
+This boils down to the following lemma.
+
+\begin{lemma}\label{lem:deg-in-WL}
+    Let $(G,c)$ be a labeled graph.
+    Then for all $t \geq 0$ we have that 
+    $c_\ell^{(t)} \sqsubseteq \mathbf{d}^{(t)}$. \filip{I think it's a bit ugly that $c$ is a function and $d$ is a vector but I find this statement better. Maybe we should define $c$ in bold (as a vector)?}
+%     \[
+%         c^{(t)}(u) = c^{(t)}(v) \implies d^{(t)}_u = d^{(t)}_v.
+%     \]
+\end{lemma}
+\begin{proof}
+Since $c_\ell^{(0)}$ assigns every vertex the same label, and $\mathbf{d}^{(0)}=\mathbf{1}^t$, our hypothesis holds for the base case.
+%Filip: I started modifying here
+For the induction step suppose that $c_\ell^{(t-1)}(v)=c_\ell^{(t-1)}(w)$ implies $\mathbf{d}^{(t-1)}_v=\mathbf{d}^{(t-1)}_w$.
+Given a label $c$ we will use the notation $\mathbf{d}^{(t-1)}_c$, which is equal to $\mathbf{d}^{(t-1)}_v$ for any $v$ such that $c_\ell^{(t-1)} = c$. By the induction assumption this definition does not depend on the choice of $v$.
+
+Take two vertices $v$ and $w$ such that $c_\ell^{(t)}(v)=c_\ell^{(t)}(w)$. By definition of the 1-WL algorithm 
+$$
+|N_G(v)\cap (c_\ell^{(t-1)})^{-1}(c)|=|N_G(w)\cap (c_\ell^{(t-1)})^{-1}(c)|
+$$
+for any label $c$ in ${\cal C}^{(t-1)}$ (i.e., the image of $c_\ell^{(t-1)}(V)$). Then
+\begin{align*}
+\mathbf{d}^{(t)}_v&=\sum_{x\in N_G(v)} \mathbf{d}^{(t-1)}_{x}\\
+&=\sum_{c\in{\cal C}^{(t-1)}} |N_G(v)\cap (c_\ell^{(t-1)})^{-1}(c)|\mathbf{d}^{(t-1)}_{c}\\
+&=\sum_{c\in{\cal C}^{(t-1)}} |N_G(w)\cap (c_\ell^{(t-1)})^{-1}(c)|\mathbf{d}^{(t-1)}_{c}\\
+&=\sum_{y\in N_G(w)} \mathbf{d}^{(t-1)}_{y}\\
+&=\mathbf{d}^{(t)}_w,
+\end{align*}
+as required.
+%Floris' old stuff
+% Suppose that $c_\ell^{(t-1)}(v)=c_\ell^{(t-1)}(w)$ implies that $\mathbf{d}^{(t-1)}_v=\mathbf{d}^{(t-1)}_w$.
+% Take two vertices $v$ and $w$ such that $c_\ell^{(t)}(v)=c_\ell^{(t)}(w)$. This implies that for any label $c$ in ${\cal C}^{(t-1)}$ (i.e., the image of $c_\ell^{(t-1)}(V)$), 
+% $$|N_G(v)\cap (c_\ell^{(t-1)})^{-1}(c)|=|N_G(w)\cap (c_\ell^{(t-1)})^{-1}(c)|.$$
+% By induction, we know that for any two vertices $x$ and $y$ in $N_G(v)\cap (c_\ell^{(t-1)})^{-1}(c)$,
+% $\mathbf{d}^{(t-1)}_{x}=\mathbf{d}^{(t-1)}_{y}$. Let us denote by $x_c$ an arbitrary vertex in 
+% $N_G(v)\cap (c_\ell^{(t-1)})^{-1}(c)$. Then,
+% \begin{align*}
+% \mathbf{d}^{(t)}_v&=\sum_{x\in N_G(v)} \mathbf{d}^{(t-1)}_{x}\\
+% &=\sum_{c\in{\cal C}^{(t-1)}} |N_G(v)\cap (c_\ell^{(t-1)})^{-1}(c)|\mathbf{d}^{(t-1)}_{x_c}\\
+% &=\sum_{c\in{\cal C}^{(t-1)}} |N_G(w)\cap (c_\ell^{(t-1)})^{-1}(c)|\mathbf{d}^{(t-1)}_{x_c}\\
+% &=\sum_{c\in{\cal C}^{(t-1)}} |N_G(w)\cap (c_\ell^{(t-1)})^{-1}(c)|\mathbf{d}^{(t-1)}_{y_c}\\
+% &=\sum_{y\in N_G(w)} \mathbf{d}^{(t-1)}_{y}\\
+% &=\mathbf{d}^{(t)}_w,
+% \end{align*}
+% where $y_c$ denotes an arbitrary vertex in  $N_G(w)\cap (c_\ell^{(t-1)})^{-1}(c)$ and hence, by induction,
+% $\mathbf{d}^{(t-1)}_{x_c}=\mathbf{d}^{(t-1)}_{y_c}$.
+\end{proof}
+
+\begin{theorem}\label{thm:denorm-kipf}
+    Theorem~\ref{thm:simpler-grohe} holds as well 
+    %(modulo, perhaps, additional layers needed) 
+    if $\sigma$ is the ReLU
+    activation function.
+\end{theorem}
+
+\section{Labelled graphs}
+\todo{G: we need to argue that what we worked out in the previous section
+works for labelled graphs too (even if only for ReLU...)}
+
+
+\section{Normalized convolutional architecture}
+Theorem~\ref{thm:denorm-kipf}
+can be seen as a
+``denormalized'' version of the update rule introduced
+in~\cite{kipf-loose}.
+
+Let $\mathbf{D}$ be the \emph{degree matrix} of $G$, that is $\mathbf{D}$
+is the diagonal matrix such that
+\[
+    \mathbf{D}_{ii} = |N_G(i)|.
+\]
+In this section we consider the following update rule
+\begin{equation}
+    \mathbf{H}^{(t+1)} = \sigma\left(
+        \mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}
+        \mathbf{H}^{(t)}\mathbf{W}^{(t)}
+    \right),
+\end{equation}
+where $\mathbf{D}^{-1/2}$
+is the diagonal matrix with
+$\mathbf{D}^{-1/2}_{ii} =
+\frac{1}{\sqrt{\mathbf{D}_{ii}}}$.
+
+\subsection{(Right-)half Kipf}
+We will repeat the argument leading to Theorem~\ref{thm:denorm-kipf} in order
+to prove that we can modify $\mathbf{F}^{(t)}$ and $\mathbf{W}^{(t)}$
+such that
+\begin{equation}\label{eqn:half-kipf}
+    \mathbf{F}^{(t+1)} \equiv
+    \mathbf{F'}^{(t+1)} :=
+    \textsf{ReLU}\left(\mathbf{AD}^{-1/2}\mathbf{F'}^{(t)}\mathbf{W'}^{(t)}\right).
+\end{equation}
+Once more, we let $\mathbf{F'}^{(0)} = [\mathbf{F}^{(0)},
+\mathbf{1}^\textsc{T}]$. For the weight matrices, we define
+\[
+    \mathbf{W'}^{(t)}=
+    \begin{pmatrix}
+        \mathbf{W}^{(t)} & \mathbf{0}_{d\times 1}\\
+        \left(
+            -\frac{m^{(t)}\sqrt{d_1^{(1)}}}{d_1^{(t+1)}},
+            \ldots,
+            -\frac{m^{(t)}\sqrt{d_n^{(1)}}}{d_n^{(t+1)}}
+        \right) & 1
+    \end{pmatrix}.
+\]
+It is easy to verify that
+\begin{align}
+    \mathbf{F'}^{(t+1)} = [\textsf{ReLU}(\mathbf{AF}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{J}),
+    \mathbf{d'}^{(t+1)}] \nonumber \\
+    = [\mathbf{F}^{(t+1)},\mathbf{d'}^{(t+1)}] \label{eq:FF'}
+\end{align}
+where $\mathbf{d'}^{(t+1)}$ is the column vector with
+\[
+    d'^{(t+1)}_i = \frac{d^{(t+1)}_i}{\sqrt{d^{(1)}_i}}.
+\]
+By~\eqref{eq:FF'} we have $\mathbf{F'}^{(t+1)} \sqsubseteq \mathbf{F}^{(t+1)} \equiv c_\ell^{(t+1)}$. To prove~\eqref{eqn:half-kipf} it only remains to prove that $c_\ell^{(t+1)} \sqsubseteq \mathbf{F'}^{(t+1)}$.
+By Lemma~\ref{lem:deg-in-WL} we know that $c_\ell^{(t+1)} \sqsubseteq d^{(t+1)}$. The proof follows since $d^{(t)}$ is a sequence of refinements and thus $d^{(t+1)}_i \sqsubseteq d^{(1)}_i$.
+
+\subsection{The full Kipf}
+Let $h^{(t)}$ be a vertex labelling obtained by applying
+the update rule from Equation~\eqref{eqn:kipf-update}. We will
+presently 
+make use of Equation~\eqref{eqn:half-kipf} to prove the following
+claim.
+
+\begin{theorem}
+    Let $(G,\ell)$ be a labelled graph and $h^{(0)}$ be equivalent
+    to $c_\ell^{(0)}$. Then for all $t \geq 0$
+    there exists a sequence of weights $\mathbf{W}^{(t)}$ such that
+    $h^{(t)}$, as defined by Equation~\eqref{eqn:kipf-update},
+    is equivalent to $c^{(t)}$.
+\end{theorem}
+\begin{proof}
+  Let $\mathbf{M}$ be the matrix $\mathbf{AD}^{-1/2}\mathbf{F'}^{(t)}\mathbf{W'}^{(t)}$
+  and recall that $\mathbf{M}$ is row independent modulo equality.
+  \todo{G. row independence modulo equality is not yet explicit about $AFW-mJ$
+  right? I seem to need it here}
+  Since $\mathbf{D}^{-1/2}$ is a diagonal matrix with positive entries, we
+  have that an entry of $\mathbf{D}^{-1/2}\mathbf{M}$ is negative if and only
+  if it is negative in $\mathbf{M}$. Hence, by the definition of
+  $\mathsf{ReLU}$ and Equation~\eqref{eqn:half-kipf}, to prove the desired
+  claim it suffices to argue that any two rows in
+  $\mathbf{N} := \mathbf{D}^{-1/2}\mathbf{M}$ are equal if and only if they
+  are also equal in $\mathbf{M}$.
+  
+  Note that if $\mathbf{D}_{ii} = \mathbf{D}_{jj}$ then $\mathbf{N}_i =
+  \mathbf{N_j}$ if and only if $\mathbf{M}_i = \mathbf{M}_j$. From (the
+  contrapositive of) Lemma~\ref{lem:deg-in-WL} we know that if
+  $\mathbf{D}_{ii} \neq \mathbf{D}_{jj}$ then the rows are not equal in
+  $\mathbf{M}$. Further, if
+  \[
+    \mathbf{N}_{i} = d_i \mathbf{M}_i = d_j \mathbf{M}_j = \mathbf{N}_j
+  \]
+  then, since $d_i,d_j > 0$, we know that $\mathbf{M}$ is not row independent
+  modulo equality. The latter contradicts our initial assumptions.
+  \filip{I think we need to add to Lemma~1 that the constructed matrix is upper-triangular. Then we are using here the fact that an upper triangular matrix is non-singular iff the elements on its diagonal are nonzero. BTW I still don't understand the last paragraph in this proof.}
+\end{proof}
+
+\subsection{Beyond Kipf}
+This begs the
+following questions:
+\begin{itemize}
+    \item can we show an analogue of Grohe's theorem 1 for GCNs? i.e. are they always at most as powerful as the 1-WL algorithm? 
+    \item can one define $k$-tuple graph convolutional networks (GCNs) and show
+they are as powerful as the $k$-WL algorithm
+following~\cite[Proposition 4]{grohewl}?
+    \item can we show that Kipf's architecture is not 1-WL powerful without
+      extending the feature vectors? this would mean that they are crucially
+      lacking the bias!
+\end{itemize}
+
+
+\section{Other Questions}
+The $k$-GNN implementation from~\cite{grohewl} uses the \emph{negative log-likelihood} loss function.\footnote{See
+\url{https://github.com/chrsmrrs/k-gnn/blob/master/examples/1-2-3-imdb.py\#L118}.} On
+the other hand, the GCN proposal by Kipf and Welling uses a semi-supervised
+loss function.
+\begin{quote}
+    Is one of these loss functions guaranteeing that sufficient training
+    will almost surely lead to learning a NN version of the WL algorithm?
+\end{quote}
+
+How do things change when considering \emph{directed} graphs? What is even
+the proper notion of $1$-WL on such graphs.
+
+\paragraph{Initial musings on the NLL.}
+Using the negative log-likelihood loss function should guarantee that
+training with ever larger data-sets labelled according to the $1$-WL
+gets us ever closer to a NN version of the $1$-WL algorithm. 
+\begin{quote}
+    What if the
+    data is more precisely labelled than what the $1$-WL
+    algorithm yields? Do we
+    lose convergence?
+\end{quote}
+
+\begin{quote}
+\begin{itemize}
+    \item Is it possible to express 1-WL with only linear transformations?
+    \item Is it true that $u,v$ have the same color after k-steps in 1-WL iff for every $i \le k$ and every node $x \in G$ the number of paths from $u$ to $x$ is the same as the number of paths from $v$ to $x$ (this shouldn't be the same $x$ but some $\rho(x)$ for some permuation of vertices $\rho$.
+    \item What if we replace $D^{-1/2}AD^{-1/2}$ with a Jordanian
+      mutiplication? I.e. $A \circ D^{-1} = (AD^{-1} + D^{-1}A)/2$
+\end{itemize}{}
+\end{quote}
+
+\section*{Acknowledgements}
+Funding acks go here

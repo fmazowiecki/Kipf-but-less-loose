@@ -1,0 +1,372 @@
+\section{OLD STUFF}
+
+We can now use this lemma and continue in the same way as in~\cite{grohewl}:
+\begin{theorem}\label{thm:relu}
+Let $G$ be an unlabeled graph without isolated vertices and represented by adjacency matrix $\mathbf{A}$. Then there exist weight matrices $\mathbf{W}^{(t)}$
+and constants $m^{(t)}$ such that the vertex labelling induced by 
+\begin{equation}
+  \mathbf{F}^{(t+1)} = \text{\normalfont ReLU}\left(
+    \mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{J}  \right)
+\end{equation}
+is equivalent to the vertex labelling $\ell^{(t+1)}$ induced by 1-WL.
+\end{theorem}
+\todo{G: so then here we are missing a self-contained proof of the claim,
+following Grohe, right?}
+\todo{F: I was thinking that we could give an overview of the proof at the start of the appendix, highlighting
+what is needed to make the argument go through (row-independences, preservation of equivalence of 
+1-WL at each iteration, Lemma 9, ...). Alternatively, we write down the proofs for each case over and over again.}
+In other words, GNNs of the form   $\mathbf{F}^{(t+1)} = \sigma\left(
+    \mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{J}  \right)$
+are as powerful as 1-WL, when $\sigma$ is either sign or ReLU, on unlabeled graphs.
+
+\paragraph{Kipf+bias}
+We next consider GNNs based on~\cite{kipf-loose}. Let $\mathbf{D}$ be the \emph{degree matrix} of $G$, that is $\mathbf{D}$
+is the diagonal matrix such that
+$    \mathbf{D}_{ii} = |N_G(i)|$. We will now consider GNNs of the form
+\begin{equation}\label{GNN:Kipf}
+    \mathbf{F}^{(t+1)} = \sigma\left(
+        \mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}
+        \mathbf{F}^{(t)}\mathbf{W}^{(t)} + m^{(t)}\mathbf{J}
+    \right),
+\end{equation}
+where $\mathbf{D}^{-1/2}$
+is the diagonal matrix with
+$\mathbf{D}^{-1/2}_{ii} =
+\frac{1}{\sqrt{\mathbf{D}_{ii}}}$ and $m^{(t)}$ is a bias factor\footnote{No bias was consider in~\cite{kipf-loose}. Kipf uses $\mathbf{A}+\mathbf{I}$ instead of $\mathbf{A}$.}.
+We show that GNNs of this form are also as powerful as 1-WL. This connection was mentioned in~\cite{kipf-loose} but not made precise. We do not know whether it holds when no bias is allowed.
+
+To show that GNNs of the form~(\ref{GNN:Kipf}) are as powerful as 1-WL,
+we first show that GNNs
+of the form 
+\begin{equation}\label{eq:halfkipf}
+    \mathbf{F}^{(t+1)} = \sigma\left(
+        \mathbf{A}\mathbf{D}^{-1/2}
+        \mathbf{F}^{(t)}\mathbf{W}^{(t)} + m^{(t)}\mathbf{J}
+    \right),
+\end{equation}
+are as powerful as 1-WL.  To see why this holds,   we write~(\ref{eq:halfkipf}) as:
+\begin{align*}
+\mathbf{G}^{(t)} &= \mathbf{D}^{-1/2}\mathbf{F}^{(t)}\\
+\mathbf{F}^{(t+1)} &= \sigma\left(
+    \mathbf{A}\mathbf{G}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{J}  \right),
+\end{align*}    
+and argue that the construction of weight matrices as given in~\cite{grohewl} for the sign function and Theorem~\ref{thm:relu} for the ReLU function can be used to simulate 1-WL.
+
+We first observe that $\mathbf{G}^{(0)}=\mathbf{D}^{-1/2}\mathbf{F}^{(0)}=\mathbf{D}^{-1/2}\mathbf{J}$. \todo{G: here we seem to be assuming a specific encoding of the initial labelling into the feature vectors, right?}
+\todo{Floris: this is the unlabeled case, so the initial feature vector will be all ones.}
+Hence, we see that 
+the vertex labelling induced by $\mathbf{G}^{(0)}$ corresponds to $\ell^{(1)}$, i.e., the vertex labelling of 1-WL after one iteration. A crucial property underlying the construction of the weight matrices $\mathbf{W}^{(t)}$ to simulate 1-WL is that the feature vectors are row-independent modulo equality. That is, the \textit{set} of all row vectors  are linearly independent. 
+Clearly, $\mathbf{G}^{(0)}$ satisfies this property. Furthermore, when $\mathbf{G}^{(t)}$ is row-independent modulo equality, then the 
+construction of the weight matrices and bias, ensure that $\mathbf{F}^{(t+1)}$ is also row-independent modulo equality. We next argue that
+also $\mathbf{G}^{(t+1)}$ has this property. Indeed, $\mathbf{G}^{(t+1)}_{i\bullet}=\frac{1}{\sqrt{\mathbf{D}_{ii}}} \mathbf{F}^{(t+1)}_{i\bullet}$ and thus $\mathbf{G}^{(t+1)}$ consists of scalar multiples of $\mathbf{F}^{(t+1)}$.
+
+We next show correctness, i.e., the vertex labelling induced by $\mathbf{F}^{(t+1)}$  is equivalent to the vertex labelling $\ell^{(t+1)}$ induced by 1-WL.
+For the base, $t=0$, since the vertex labelling induced by  $\mathbf{G}^{(0)}$ corresponds to $\ell^{(1)}$, then $\mathbf{F}^{(1)}$ corresponds to $\ell^{(2)}$. For $t>0$, assume that the vertex labelling induced by $\mathbf{F}^{(t)}$ is equivalent to $\ell^{(t+1)}$. It suffices to show that 
+$\mathbf{G}^{(t)}$ is also equivalent to $\ell^{(t+1)}$. Then, the construction of weight matrices given in~\cite{grohewl} (for sign) and Theorem~\ref{thm:relu} (for ReLU) ensure that the vertex labelling induced by $\mathbf{F}^{(t+1)}$ is equivalent to $\ell^{(t+2)}$.
+
+So, assume that  $\mathbf{F}^{(t)}$ is equivalent to $\ell^{(t+1)}$. We observe that vertices with different degrees will be labelled differently by 1-WL in each iterations. Hence,  if $\mathbf{F}^{(t)}_{i\bullet}=\mathbf{F}^{(t)}_{j\bullet}$ then $\mathbf{D}_{ii}=\mathbf{D}_{jj}$ and hence, $\mathbf{G}^{(t)}_{i\bullet}=\mathbf{G}^{(t)}_{j\bullet}$. Furthermore, assume that $\mathbf{G}^{(t)}_{i\bullet}= \mathbf{G}^{(t)}_{j\bullet}$ but $\mathbf{F}^{(t)}_{i\bullet}\neq \mathbf{F}^{(t)}_{j\bullet}$. Then this implies that  $\mathbf{F}^{(t)}_{i\bullet}$ and $\mathbf{F}^{(t)}_{j\bullet}$ are scalar multiples of each other. This contradicts that  $\mathbf{F}^{(t)}$ is row-independent modulo equality. As a consequence, the vertex labellings induced by  $\mathbf{F}^{(t)}$ and $\mathbf{G}^{(t)}$ are equivalent, and hence equivalent to $\ell^{(t+1)}$.  It remains to verify that $\mathbf{F}^{(t)}_{i\bullet}=\mathbf{F}^{(t)}_{j\bullet}$ implies $\mathbf{D}_{ii}=\mathbf{D}_{jj}$, or equivalently, that 
+    $\ell^{(t+1)}_i=\ell^{(t+1)}_j$ implies $\mathbf{D}_{ii}=\mathbf{D}_{jj}$. This clearly holds because the degree information is already encoded in $\ell^{(1)}$ in 1-WL and hence also in vertex labelling in further iterations of 1-WL.
+
+\begin{proposition}
+Let $G$ be an unlabeled graph without isolated vertices and represented by adjacency matrix $\mathbf{A}$. Then there exist weight matrices $\mathbf{W}^{(t)}$
+and constants $m^{(t)}$ such that the  vertex labelling induced by 
+\begin{equation}
+  \mathbf{F}^{(t+1)} = \sigma\left(
+    \mathbf{A}\mathbf{D}^{-1/2}\mathbf{F}^{(t)}\mathbf{W}^{(t)} - m^{(t)}\mathbf{J}  \right)
+\end{equation}
+is equivalent to the vertex labelling $\ell^{(t+2)}$ induced by 1-WL.
+\end{proposition}
+
+We next consider GNNs of the form 
+\begin{equation}
+    \mathbf{F}^{(t+1)} = \sigma\left(
+        \mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}
+        \mathbf{F}^{(t)}\mathbf{W}^{(t)} + m^{(t)}\mathbf{J}
+    \right),
+\end{equation}
+
+We show that Lemma 9 from~\cite{grohewl} (for sign) and Lemma~\ref{lem:relulemma9} (for ReLU) can be extended to
+this case. Without the initial factor  $\mathbf{D}^{-1/2}$,  the input matrix $\mathbf{B}$ in these lemmas consist of $\widetilde{\mathbf{A}\mathbf{D}^{-1/2} \mathbf{F}^{(t)}}$, the matrix obtained from $\mathbf{A}\mathbf{D}^{-1/2} \mathbf{F}^{(t)}$ by only considering its  unique rows. Let us denote  $\mathbf{A}\mathbf{D}^{-1/2} \mathbf{F}^{(t)}$ by $\mathbf{Z}^{(t)}$. 
+We have seen above that $(\mathbf{Z}^{(t)})_{i\bullet}=(\mathbf{Z}^{(t)})_{j\bullet}$ implies that $D_{ii}=D_{jj}$. 
+Furthermore, the unique rows in $\mathbf{Z}$ are linearly independent. So, when  $(\mathbf{Z}^{(t)})_{i\bullet}\neq (\mathbf{Z}^{(t)})_{j\bullet}$ then there are no scalars $c$ and $d$ such that $c(\mathbf{Z}^{(t)})_{i\bullet}= d(\mathbf{Z}^{(t)})_{j\bullet}$.
+This implies that the only effect that the initial factor $\mathbf{D}^{-1/2}$ has rescales rows whilst preserving row-equality. 
+In other words, $\widetilde{\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2} \mathbf{F}^{(t)}}$ will consist of the rows in 
+$\widetilde{\mathbf{A}\mathbf{D}^{-1/2} \mathbf{F}^{(t)}}$ scaled with the appropriate $1/{\sqrt{D_{ii}}}$. And, the same rows in 
+$\mathbf{A}\mathbf{D}^{-1/2} \mathbf{F}^{(t)}$ will be rescaled with same factor. So, we end up with  $\widetilde{\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2} \mathbf{F}^{(t)}}$ being row-independent modulo equality.... again show it provides a correct vertex labelling??
+
+\todo{It feels that these arguments are too repetitive. What we should try to have is some key lemmas that when valid, guarantee correctness.}
+    
+
+\paragraph{Including self-loops}
+In Kipf, $\mathbf{A}+\mathbf{I}$ is used instead of $\mathbf{A}$. We can either just argue that this is just 1-WL but now for graphs with self-loops. Alternatively, papers make a fuzz about this ``normalisation trick''. Can we say something more about this?
+
+
+\subsection{Labeled graphs}
+
+
+\newpage
+
+
+
+
+\subsection{Old stuff}
+
+
+%
+%
+%
+%It is now easy to see that we can define weight matrices such that
+%\[
+%    \mathbf{F}^{(t+1)} = \textsf{ReLU}\left(\mathbf{AF}^{(t)}\mathbf{W}^{(t)}-m^{(t)}\mathbf{J}\right).
+%\]
+%is again equivalent to $c_\ell^{(t+1)}$.  We show that we modify $\mathbf{F}^{(t)}$ and $\mathbf{W}^{(t)}$
+%such that can rewrite the update rule in Kipf form.
+%
+%Let $\mathbf{d}^{(t)}:=\mathbf{A}^{t}\mathbf{1}^\textsc{t}$. That is, $\mathbf{d}^{(t)}_v$ counts the paths from vertex $v$ of length $t$. We note that for undirected graphs $\mathbf{d}^{(t)}$ holds non-negative entries\footnote{For directed graphs, we may consider $I+A$ instead.}
+%We now use a similar construction of $\mathbf{W'}^{(t)}$ in the proof of Theorem~\ref{thm:simpler-grohe}, i.e.,
+%\[
+%\mathbf{W'}^{(t)}=\begin{pmatrix}
+%\mathbf{W}^{(t)} & \mathbf{0}_{d\times 1}\\
+%\left(-\frac{m^{(t)}}{d_1^{(t+1)}},\ldots,-\frac{m^{(t)}}{d_n^{(t+1)}}\right) & 1
+%\end{pmatrix}.
+%\]
+%and we replace $\mathbf{F}$ by $\mathbf{F'}=[\mathbf{F},\mathbf{1}]$. Then,
+%\begin{align}
+%    \mathbf{F'}^{(t+1)} 
+%        &=\textsf{ReLU}(\mathbf{A}\mathbf{F'}\mathbf{W'}^{(t)}) \nonumber \\
+%        &=[\textsf{ReLU}(\mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)}-m^{(t)}\mathbf{J}),\textsf{ReLU}(\mathbf{d}^{(t+1)})]. \nonumber \\
+%        &=[\mathbf{F}^{(t+1)}, \mathbf{d}^{(t+1)}] \label{eq:Fc}
+%\end{align}
+%It now suffices to show that $\mathbf{F'}^{(t)}$ is equivalent to $c_\ell^{(t)}$. Since $\mathbf{F}^{(t)} \equiv c_\ell^{(t)}$ and by~\eqref{eq:Fc} $\mathbf{F'}^{(t+1)} \sqsubseteq \mathbf{F}^{(t+1)}$ it suffices to prove that $c_\ell^{(t)} \sqsubseteq \mathbf{F'}^{(t)}$.
+%This boils down to the following lemma.
+%
+%\begin{lemma}\label{lem:deg-in-WL}
+%    Let $(G,c)$ be a labeled graph.
+%    Then for all $t \geq 0$ we have that 
+%    $c_\ell^{(t)} \sqsubseteq \mathbf{d}^{(t)}$. \filip{I think it's a bit ugly that $c$ is a function and $d$ is a vector but I find this statement better. Maybe we should define $c$ in bold (as a vector)?}
+%%     \[
+%%         c^{(t)}(u) = c^{(t)}(v) \implies d^{(t)}_u = d^{(t)}_v.
+%%     \]
+%\end{lemma}
+%\begin{proof}
+%Since $c_\ell^{(0)}$ assigns every vertex the same label, and $\mathbf{d}^{(0)}=\mathbf{1}^t$, our hypothesis holds for the base case.
+%%Filip: I started modifying here
+%For the induction step suppose that $c_\ell^{(t-1)}(v)=c_\ell^{(t-1)}(w)$ implies $\mathbf{d}^{(t-1)}_v=\mathbf{d}^{(t-1)}_w$.
+%Given a label $c$ we will use the notation $\mathbf{d}^{(t-1)}_c$, which is equal to $\mathbf{d}^{(t-1)}_v$ for any $v$ such that $c_\ell^{(t-1)} = c$. By the induction assumption this definition does not depend on the choice of $v$.
+%
+%Take two vertices $v$ and $w$ such that $c_\ell^{(t)}(v)=c_\ell^{(t)}(w)$. By definition of the 1-WL algorithm 
+%$$
+%|N_G(v)\cap (c_\ell^{(t-1)})^{-1}(c)|=|N_G(w)\cap (c_\ell^{(t-1)})^{-1}(c)|
+%$$
+%for any label $c$ in ${\cal C}^{(t-1)}$ (i.e., the image of $c_\ell^{(t-1)}(V)$). Then
+%\begin{align*}
+%\mathbf{d}^{(t)}_v&=\sum_{x\in N_G(v)} \mathbf{d}^{(t-1)}_{x}\\
+%&=\sum_{c\in{\cal C}^{(t-1)}} |N_G(v)\cap (c_\ell^{(t-1)})^{-1}(c)|\mathbf{d}^{(t-1)}_{c}\\
+%&=\sum_{c\in{\cal C}^{(t-1)}} |N_G(w)\cap (c_\ell^{(t-1)})^{-1}(c)|\mathbf{d}^{(t-1)}_{c}\\
+%&=\sum_{y\in N_G(w)} \mathbf{d}^{(t-1)}_{y}\\
+%&=\mathbf{d}^{(t)}_w,
+%\end{align*}
+%as required.
+%Floris' old stuff
+% Suppose that $c_\ell^{(t-1)}(v)=c_\ell^{(t-1)}(w)$ implies that $\mathbf{d}^{(t-1)}_v=\mathbf{d}^{(t-1)}_w$.
+% Take two vertices $v$ and $w$ such that $c_\ell^{(t)}(v)=c_\ell^{(t)}(w)$. This implies that for any label $c$ in ${\cal C}^{(t-1)}$ (i.e., the image of $c_\ell^{(t-1)}(V)$), 
+% $$|N_G(v)\cap (c_\ell^{(t-1)})^{-1}(c)|=|N_G(w)\cap (c_\ell^{(t-1)})^{-1}(c)|.$$
+% By induction, we know that for any two vertices $x$ and $y$ in $N_G(v)\cap (c_\ell^{(t-1)})^{-1}(c)$,
+% $\mathbf{d}^{(t-1)}_{x}=\mathbf{d}^{(t-1)}_{y}$. Let us denote by $x_c$ an arbitrary vertex in 
+% $N_G(v)\cap (c_\ell^{(t-1)})^{-1}(c)$. Then,
+% \begin{align*}
+% \mathbf{d}^{(t)}_v&=\sum_{x\in N_G(v)} \mathbf{d}^{(t-1)}_{x}\\
+% &=\sum_{c\in{\cal C}^{(t-1)}} |N_G(v)\cap (c_\ell^{(t-1)})^{-1}(c)|\mathbf{d}^{(t-1)}_{x_c}\\
+% &=\sum_{c\in{\cal C}^{(t-1)}} |N_G(w)\cap (c_\ell^{(t-1)})^{-1}(c)|\mathbf{d}^{(t-1)}_{x_c}\\
+% &=\sum_{c\in{\cal C}^{(t-1)}} |N_G(w)\cap (c_\ell^{(t-1)})^{-1}(c)|\mathbf{d}^{(t-1)}_{y_c}\\
+% &=\sum_{y\in N_G(w)} \mathbf{d}^{(t-1)}_{y}\\
+% &=\mathbf{d}^{(t)}_w,
+% \end{align*}
+% where $y_c$ denotes an arbitrary vertex in  $N_G(w)\cap (c_\ell^{(t-1)})^{-1}(c)$ and hence, by induction,
+% $\mathbf{d}^{(t-1)}_{x_c}=\mathbf{d}^{(t-1)}_{y_c}$.
+%\end{proof}
+
+%\begin{theorem}\label{thm:denorm-kipf}
+%    Theorem~\ref{thm:simpler-grohe} holds as well 
+%    %(modulo, perhaps, additional layers needed) 
+%    if $\sigma$ is the ReLU
+%    activation function.
+%\end{theorem}
+
+%We will show the following:
+%\begin{itemize}
+%%\item[(a)] The bias $-J$ can be avoided; and
+%\item[(b)] Instead of simulating the sign function by means of ReLU, one can directly
+%use ReLU by means of a minor modification of the proof given in~\cite{grohewl}. 
+%As a consequence, we avoid the factor $2$ in the correspondence between the 1-WL
+%vertex labelling and the labelling induced by the vector vectors.
+%\end{itemize}
+
+We first show (a). From now on, we assume that there are no isolated vertices in $G$.
+\todo{G. Yes, this is where we start assuming this \ldots do we also assume all
+vertices have self-loops?}
+\todo{F. I believe we can argue that these can be eliminated in a preprocessing step.
+1-WL will assign these a special label anyways, which will not changed in further iteration.}
+Under this assumption, we show that  the 1-WL vertex labelling $\ell^{(t)}$ can be made to correspond to
+the vertex labelling induced by 
+\begin{equation}\label{eqn:grohegnn}
+  \mathbf{F}^{(t+1)} = \text{sign}\left(
+    \mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)}   \right),
+\end{equation}
+hereby eliminating the bias term $-J$.
+To this aim, we first augment $\mathbf{F}^{(t)}$ with a
+column vector $\mathbf{1}^{t}$ consisting of all ones. In other words,
+for every vertex $v$, we extend its feature row vector $\mathbf{F}^{(t)}_{v\bullet}$ with a $1$.
+Let us denote the resulting feature matrix by
+$\mathbf{F'}^{(t)}$.
+Consider the following $(d+1)\times (n+1)$ weight matrix
+\[
+    \mathbf{W'}^{(t)}=\begin{pmatrix}
+    \mathbf{W}^{(t)} & \mathbf{0}_{d\times 1}\\
+    \left(-\frac{1}{d_1},\ldots,-\frac{1}{d_n}\right) & 1
+    \end{pmatrix}
+\]
+where $\mathbf{0}_{d\times 1}$ denotes the zero column vector of dimension $d\times 1$ and $d_i$ denotes the degree of vertex $i$ in $G$. The weight matrices $\mathbf{W}^{(t)}$ are those used in~(\ref{eqn:grohegnn}). We note that $\frac{1}{d_i}$ is well-defined since we assume that there are no isolated vertices, i.e., $d_i\neq 0$ for every $i$.
+It is now readily verified that
+$$
+    \mathbf{A}\mathbf{F'}^{(t)}\mathbf{W'}^{(t)}=
+    [\mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)}-\mathbf{J},\mathbf{d}^t]
+$$
+where $\mathbf{d}^t=\mathbf{A}\mathbf{1}^t$ is the column degree vector.
+\todo{F. Never write ``readily verified'' :-)} I don't think the trick works. Isn't $\mathbf{A}\mathbf{1}^t(\frac{-1}{d_1},\ldots, \frac{-1}{d_n})=\begin{pmatrix}
+-1 & \frac{-d_1}{d_2} & \cdots & \frac{-d_1}{d_n}\\
+\frac{-d_2}{d_1} & -1  & \cdots & \frac{-d_2}{d_n}\\
+\vdots & \vdots & \ddots & \vdots\\
+\frac{-d_n}{d_1} & \frac{-d_n}{d_2} & \cdots & -1
+\end{pmatrix}
+$ instead of $-J$??
+\todo{G: yes, that looks like a real bug, but do we really need -J? I'll take a look at Grohe to see which properties we really need}
+
+
+ 
+Then,
+\begin{align*}
+    \mathbf{F'}^{(t+1)} &=
+    \sigma(
+    \mathbf{A}\mathbf{F'}^{(t)}\mathbf{W'}^{(t)}
+    )\\
+    & =
+    [\sigma(\mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)}-
+    \mathbf{J}),\mathbf{1}^t]
+\end{align*}
+since $\sigma(\mathbf{d}^t)=\mathbf{1}^t$. This is indeed a feature matrix equivalent with the labelling $c_\ell^{(t+1)}$ because we have that $(f')^{(t+1)}(u)=[f^{(t+1)}(u),1]$
+for all vertices $u$.
+
+
+\subsection{Labeled graphs}
+
+\section{Kipf GNNs}
+
+
+
+\section{Sign results}
+Our first result is to re-prove``simplify''~\cite[Theorem 2]{grohewl} by simulating
+their affine-update architecture using a linear update instead---at the price
+of having to extend the feature vectors.  We state below the formal
+claim.\todo{F:We need to be careful with this claim. For sign activation
+function Grohe needs in some sense also one weight matrix, as the other one
+used in $J$. In fact, we double the dimension of the weight matrix to
+accommodate for the labeled case, so no gain may be obtained in the number of
+parameters. For ReLU we may have more benefit.}
+
+\subsection{Look ma' with one matrix only}
+
+First, let us re-define
+the basic graph neural network (GNN) we deal with. In each layer $t \geq 0$, we compute a new feature
+\begin{equation}\label{eqn:update-rule}
+    f^{(t+1)}(u) = \sigma\left(
+        \sum_{v \in N_G(u)} f^{(t)}(v)\, \mathbf{W}^{(t)}
+    \right)
+\end{equation}
+in $\mathbb{R}^{1 \times e}$ for $u$ where $W^{(t)}$ is a
+parameter matrix from $\mathbb{R}^{d \times e}$ and $\sigma$
+is the \emph{sgn} activation function.
+
+Note that Equation~\eqref{eqn:update-rule} can be re-written in matrix
+form as
+\begin{equation}\label{eqn:update-rule-matrix}
+    \mathbf{F}^{(t+1)} = \sigma\left(\mathbf{AF}^{(t)}\mathbf{W}^{(t)}\right)
+\end{equation}
+where $\mathbf{F}^{(t)}$ is the matrix with rows $f^{(t)}(u)$ for all $u$,
+$\mathbf{A}$ is the adjacency matrix of $G$, and $\mathbf{W}^{(t)}$ is as
+before.\footnote{Indeed, from here onward we assume
+there is some
+arbitrary total order on the vertices of the graphs.}
+
+
+
+%We slightly modify this notion by adding an additional requirement:
+%\begin{itemize}
+%    \item $f^{(t)}(u) = (\dots, 1)$, that is all the feature
+%        vectors have a value $1$ as their final component.
+%\end{itemize}
+%This purely for technical reasons. Feature
+%vectors consistent in the Grohe sense can be
+%made consistent in our sense by adding a
+%value one at the end, and conversely,
+%removing the last element one from each
+%feature vector preserves consistency.
+
+
+\begin{theorem}\label{thm:simpler-grohe}
+    Let $(G,\ell)$ be a labelled graph and $f^{(0)}$ be equivalent
+    to $c_\ell^{(0)}$. Then for all $t \geq 0$
+    there exists a sequence of weight matrices $\mathbf{W}^{(t)}$ such that
+    $f^{(t)}_\ell$, as defined by Equation~\eqref{eqn:update-rule}, is equivalent
+    to $c^{(t)}$.
+\end{theorem}\todo{G: the claim makes it look like any feature matrix would work, should we make it explicit that the last column must be 1's?}
+\begin{proof}
+In~\cite[Theorem 2]{grohewl} it was shown
+that the theorem holds for an update rule of
+the form 
+\[
+    \mathbf{F}^{(t+1)} = \sigma\left(\mathbf{AF}^{(t)}\mathbf{W}^{(t)}-J\right).
+\]
+\todo{G: we need to be careful here too,
+we seem to claim this works for labeled
+graphs but then we need to modify the 
+feature vectors to double the dimension right?
+maybe we can just do this explicitly in appendix}
+We next argue that this can be rewritten in the form of Equation~\eqref{eqn:update-rule-matrix}.
+
+
+To this aim, we first augment $\mathbf{F}^{(t)}$ with a
+column
+vector $\mathbf{1}^{t}$ consisting of all ones.
+Let us denote the resulting feature matrix by
+$\mathbf{F'}^{(t)}$.
+Consider the following $(d+1)\times (n+1)$ weight matrix
+\[
+    \mathbf{W'}^{(t)}=\begin{pmatrix}
+    \mathbf{W}^{(t)} & \mathbf{0}_{d\times 1}\\
+    \left(-\frac{1}{d_1},\ldots,-\frac{1}{d_n}\right) & 1
+    \end{pmatrix}
+\]
+where $\mathbf{0}_{d\times 1}$ denotes the zero column vector of dimension $d\times 1$ and $d_i$ denotes the degree of vertex $i$ in $G$. 
+We assume that there are no isolated vertices so $d_i> 0$ for all vertices.
+\todo{G. Yes, this is where we start assuming this\ldots do we also assume all
+vertices have self-loops?}
+It is now readily verified that
+$$
+    \mathbf{A}\mathbf{F'}^{(t)}\mathbf{W'}^{(t)}=
+    [\mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)}-\mathbf{J},\mathbf{d}^t]
+$$
+where $\mathbf{d}^t=\mathbf{A}\mathbf{1}^t$ is the column degree vector. 
+Then,
+\begin{align*}
+    \mathbf{F'}^{(t+1)} &=
+    \sigma(
+    \mathbf{A}\mathbf{F'}^{(t)}\mathbf{W'}^{(t)}
+    )\\
+    & =
+    [\sigma(\mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)}-
+    \mathbf{J}),\mathbf{1}^t]
+\end{align*}
+since $\sigma(\mathbf{d}^t)=\mathbf{1}^t$. This is indeed a feature matrix equivalent with the labelling $c_\ell^{(t+1)}$ because we have that $(f')^{(t+1)}(u)=[f^{(t+1)}(u),1]$
+for all vertices $u$.
+\end{proof}
