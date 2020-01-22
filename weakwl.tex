@@ -27,13 +27,16 @@ The following counterpart of Theorem~\ref{thm:generalbound} is now easily verifi
 
 \begin{theorem}\label{thm:generalbound_noid}
 GNN architectures of the form~(\ref{eq:architecture_noid}) for which 
-$\pmb{\mu}^{(1)}\sqsubseteq \hat{\pmb{\mu}}$ holds for any labeled graph $(G,\pmb{\mu})$, are bounded by NWL on $(G,\hat{\pmb{\ell}})$.
+	$\pmb{\mu}^{(1)}_v=\pmb{\mu}^{(1)}_w\Rightarrow  \mathbf{L}_{vv}=\mathbf{L}_{ww}$ and
+$\pmb{\mu}^{(1)}_v=\pmb{\mu}^{(1)}_w\Rightarrow  \mathbf{R}_{vv}=\mathbf{R}_{ww}$  holds for any labeled graph  $(G,\pmb{\mu})$, are bounded by NWL on $(G,\hat{\pmb{\mu}})$.
 \end{theorem}
-Compared to Theorem~\ref{thm:generalbound} the extra condition involving $\pmb{\mu}^{(1)}\sqsubseteq \hat{\pmb{\mu}}$ is needed to ensure that the values in $\mathbf{L}$ are functionally determined by degree information of the vertices.
+% Compared to Theorem~\ref{thm:generalbound} the extra condition involving 	$\pmb{\mu}^{(1)}_v=\pmb{\mu}^{(1)}_w\Rightarrow  \mathbf{L}_{vv}=\mathbf{L}_{ww}$ and
+% $\pmb{\mu}^{(1)}_v=\pmb{\mu}^{(1)}_w\Rightarrow  \mathbf{R}_{vv}=\mathbf{R}_{ww}$
+%   is needed to ensure that the values in $\mathbf{L}$ are functionally determined by degree information of the vertices.
 
 \begin{proof}
 We show the upper bound by NWL by induction on the number of iterations. For $t=0$, we have, by assumption, that 
-$\pmb{\ell}\sqsubseteq \mathbf{F}^{(0)}$. Clearly,
+$\pmb{\mu}\sqsubseteq \mathbf{F}^{(0)}$. Clearly,
 $\hat{\pmb{\mu}}{}^{(0)}\sqsubseteq \pmb{\ell}$ and hence also 
 $\hat{\pmb{\mu}}{}^{(0)}\sqsubseteq\mathbf{F}^{(0)}$. We next assume that the induction hypothesis holds for $t\geq 0$ and consider $t+1$. We need to show that 
 $\hat{\pmb{\mu}}{}^{(t+1)}_v=\hat{\pmb{\mu}}{}^{(t+1)}_w$ implies that $\mathbf{F}^{(t+1)}_{v\bullet}=\mathbf{F}^{(t+1)}_{w\bullet}$. By definition,
@@ -41,10 +44,14 @@ $\hat{\pmb{\mu}}{}^{(t+1)}_v=\hat{\pmb{\mu}}{}^{(t+1)}_w$ implies
 $$
 \ldbl \hat{\pmb{\mu}}{}^{(t)}_u \st u \in N_G(v) \rdbl=
  \ldbl \hat{\pmb{\mu}}{}^{(t)}_u \st u \in N_G(w) \rdbl.$$
- Since $\hat{\pmb{\mu}}{}^{(t)}\sqsubseteq \hat{\pmb{\mu}}{}^{(t-1)}\sqsubseteq \cdots\sqsubseteq \hat{\pmb{\mu}}{}^{(0)}$, this implies that  there is a bijection $b:N_G(v)\to N_G(w):u\mapsto u'$ such that $\hat{\pmb{\mu}}{}^{(t)}_u=\hat{\pmb{\mu}}{}^{(t)}_{u'}$ and hence also 
- $\hat{\pmb{\mu}}{}^{(0)}_u=\hat{\pmb{\mu}}{}^{(0)}_{u'}$.
-From the definition of $\hat{\pmb{\mu}}{}^{(0)}$, this implies that for every $u\in N_G(v)$ and corresponding $u'\in N_G(w)$, $\mathbf{L}_{uu}=\mathbf{L}_{u'u'}$ and $\mathbf{R}_{uu}=\mathbf{R}_{u'u'}$. By the assumption that on $\mathbf{L}$ we further have that
-$\mathbf{L}_{vv}=\mathbf{L}_{ww}$.
+It is readily verified that $\hat{\pmb{\mu}}{}^{(t)}\sqsubseteq \hat{\pmb{\mu}}{}^{(t-1)}\sqsubseteq \cdots\sqsubseteq \hat{\pmb{\mu}}{}^{(1)}$ for $t>1$. We remark that in general, $\hat{\pmb{\mu}}{}^{(1)}\not\sqsubseteq \hat{\pmb{\mu}}{}^{(0)}$.
+Hence, there is a bijection $b:N_G(v)\to N_G(w):u\mapsto u'$ such that $\hat{\pmb{\mu}}{}^{(t)}_u=\hat{\pmb{\mu}}{}^{(t)}_{u'}$ and hence also 
+ $\hat{\pmb{\mu}}{}^{(1)}_u=\hat{\pmb{\mu}}{}^{(1)}_{u'}$.
+Since $\hat{\pmb{\mu}}{}^{(0)}\sqsubseteq \pmb{\mu}^{(1)}$, this implies that for every $u\in N_G(v)$ and corresponding $u'\in N_G(w)$,  $\pmb{\mu}{}^{(1)}_u=\pmb{\mu}{}^{(1)}_{u'}$.
+By our assumption on $\pmb{\mu}^{(1)}$, this implies that
+$\mathbf{L}_{uu}=\mathbf{L}_{u'u'}$ and $\mathbf{R}_{uu}=\mathbf{R}_{u'u'}$. Similarly, 
+$\hat{\pmb{\mu}}{}^{(t+1)}_v=\hat{\pmb{\mu}}{}^{(t+1)}_w$  implies
+$\pmb{\mu}{}^{(1)}_v=\pmb{\mu}{}^{(1)}_{w}$ and thus also $\mathbf{L}_{vv}=\mathbf{L}_{ww}$.
 By the induction hypothesis we also for every $u\in N_G(v)$
    and corresponding $u'\in N_G(w)$, $\mathbf{F}^{(t)}_{u\bullet}=\mathbf{F}^{(t)}_{u'\bullet}$. It now suffices to observe that
   \begin{align*}
@@ -55,35 +62,33 @@ By the induction hypothesis we also for every $u\in N_G(v)$
 as desired.
 \end{proof}
 
-We can also show that GNN architectures of the form~(\ref{eq:architecture_noid}) 
-are NWL-strong, starting from $\hat{\pmb{\mu}}$.
-\begin{proposition}
-The class of GNN architectures of the form~(\ref{eq:architecture_noid}) for which 
-	$\pmb{\mu}^{(1)}\sqsubseteq \hat{\pmb{\mu}}$ holds for any labeled graph $(G,\pmb{\mu})$, are NWL-strong, starting from $\hat{\pmb{\mu}}$.
-\end{proposition}
-\begin{proof}
-We closely follow the proof of Theorem~\ref{thm:lowerb_general}.
- By assumption, $\mathbf{F}^{(0)}\equiv \hat{\pmb{\mu}}$ and $\mathbf{F}^{(0)}$
- row independent modulo equality. Consider $t>0$ and assume that $\mathbf{F}^{(t-1)}$ is good for $\hat{\pmb{\mu}}$. It is easily verified that the proof of Lemma~\ref{lem:rightgood} also works here. Hence, $\mathbf{R}\mathbf{F}^{(t-1)}$ is also good for  $\hat{\pmb{\mu}}$. We can also use first part of the proof of Lemma~\ref{lem:findingp}. Using the notation in that proof, we know that there exists a matrix $M^{(t-1)}$ such that for every $v\in V$ and $c\in\Sigma^{(t-1)}$:
- $$
- (\mathbf{A}\mathbf{R}\mathbf{F}^{(t-1)}\mathbf{M}^{(t-1)})_{vc}=|u\in N_G(v)| \mathbf{R}\mathbf{F}_{u\bullet}^{(t-1)}\sim c\}|
- $$
 
-\floris{To be worked out further.... }
-\end{proof}
-
-Clearly, the two architectures without $\mathbf{I}$, RW-GNN and NA-GNN satisfy the conditions in the Theorem. The same holds for the following architecture:
+\subsection{Special cases}
+As, before we consider some special cases. Suppose first that
+$\pmb{\mu}\sqsubseteq\hat{\pmb{\mu}}$ for any labeled graph $(G,\pmb{\mu})$. This again corresponds to to matrices $\mathbf{L}$ and $\mathbf{R}$ being constant. A particular GNN architecture that satisfies this condition is considered in~\cite{grohewl}:
 \begin{description}
  \item[\textit{Adjacency} (A-GNN):]
 % $\mathbf{L}=\mathbf{R}:=\mathbf{I}$, $p=q:=0$. Hence,
 $
-\mathbf{F}^{(t)}:=\sigma\left(\mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}^{(t)}\right)
+\mathbf{F}^{(t)}:=\sigma\left(\mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}^{(t)}+q\mathbf{J}\right)
 $
 \end{description}
-which was shown to be bounded by WL and WL-strong on unlabeled graphs in ~\cite{grohewl}.
-\floris{We need to make the connection with the unlabelled case more precise.}
 
-\subsection{Special cases}
+An immediate consequence of Theorem~\ref{thm:generalbound_noid} is the following.
+\begin{corollary}
+	GNN architectures of the form~(\ref{eq:architecture_noid}) for which $\pmb{\mu}\sqsubseteq\hat{\pmb{\mu}}$ holds for any labeled graph $(G,\pmb{\mu})$, are bounded by NWL, starting from $\pmb{\mu}$.
+\end{corollary}
+\begin{proof}
+The condition $\pmb{\mu}\sqsubseteq\hat{\pmb{\mu}}$ for all labelled graph $(G,\pmb{\mu})$ implies that $\mathbf{L}$ and $\mathbf{R}$ are constant matrices. Hence, the condition on
+$\pmb{\mu}{}^{(1)}$ in Theorem~\ref{thm:generalbound_noid} is satisfied. So, GNN architectures of the form~(\ref{eq:architecture_noid}) for which $\pmb{\mu}\sqsubseteq\hat{\pmb{\mu}}$ holds for any labeled graph $(G,\pmb{\mu})$, are bounded by NWL, starting from $\hat{\pmb{\mu}}$ and thus $\pmb{\mu}$.
+\end{proof}
+
+A particular case for which this holds is when $G$ is an \textit{unlabeled} graph. We can represent such a graph as a labeled graph in which the labelling assigns the same label to
+every vertex. This case was considered in~\cite{grohewel} and the previous corollary can be seen as a generalization the upper bound provided by ~\cite{grohewel} for the A-GNN architecture. We also recover their lower bound for this architecture later in this section.
+\floris{Perhaps we need to make the connection with the unlabelled case more precise.}
+
+
+
 \openprob{All what follows needs to be shown (if we want ;-)}
 \begin{corollary}
 The A-GNN,  NA-GNN  and RW-GNN architectures are bounded by WWL, starting from $(G,\pmb{\mu})$.	
@@ -97,7 +102,46 @@ The A-GNN  and RW-GNN architectures are bounded by WWL, starting from $(G,\pmb{\
 The NA-GNN architecture is bounded by WWL, starting from $(G,\pmb{\mu}{}^{(1)})$.
 \end{corollary}
 
+
 \subsection{Lower bounds}
 
 \openprob{We can tell, I believe, the same story as before but now for WWL. It should allow us to separate classes with $\mathbf{I}$.}
+
+
+We can also show that GNN architectures of the form~(\ref{eq:architecture_noid}) 
+are NWL-strong, starting from $\hat{\pmb{\mu}}$.
+\begin{proposition}
+The class of GNN architectures of the form~(\ref{eq:architecture_noid}) for which 
+	$\pmb{\mu}^{(1)}_v=\pmb{\mu}^{(1)}_w\Rightarrow  \mathbf{L}_{vv}=\mathbf{L}_{ww}$ holds for any labeled graph $(G,\pmb{\mu})$, are NWL-strong, starting from $\hat{\pmb{\mu}}$.
+\end{proposition}
+\begin{proof}
+We closely follow the proof of Theorem~\ref{thm:lowerb_general}.
+ By assumption, $\mathbf{F}^{(0)}\equiv \hat{\pmb{\mu}}$ and $\mathbf{F}^{(0)}$ is 
+ row independent modulo equality. That is, $\mathbf{F}^{(0)}$ is good for
+ $\hat{\pmb{\mu}}$. Consider $t>0$ and assume that $\mathbf{F}^{(t-1)}$ is good for $\hat{\pmb{\mu}}{}^{(t-1)}$. It is easily verified that the proof of Lemma~\ref{lem:rightgood} also works here. Hence, $\mathbf{R}\mathbf{F}^{(t-1)}$ is also good for  $\hat{\pmb{\mu}}{}^{(t-1)}$. We can also use first part of the proof of Lemma~\ref{lem:findingp}. Using the notation in that proof, we know that there exists a matrix $\mathbf{M}^{(t-1)}$ such that for every $v\in V$ and $c\in\Sigma^{(t-1)}$:
+ $$
+\mathbf{G}^{(t)}:= (\mathbf{A}\mathbf{R}\mathbf{F}^{(t-1)}\mathbf{M}^{(t-1)})_{vc}=|u\in N_G(v)| \mathbf{R}\mathbf{F}_{u\bullet}^{(t-1)}\sim c\}|
+ $$
+We now argue that $\mathbf{G}^{(t)}\equiv\hat{\pmb{\mu}}{}^{(t)}$.
+First, assume that $\hat{\pmb{\mu}}{}^{(t)}_v=\hat{\pmb{\mu}}{}^{(t)}_w$.
+We need to show that $\mathbf{G}^{(t)}_{v\bullet}=\mathbf{G}^{(t)}_{w\bullet}$. We know from 
+$\hat{\pmb{\mu}}{}^{(t)}_v=\hat{\pmb{\mu}}{}^{(t)}_w$ that 
+$$
+\ldbl \pmb{\mu}_u^{(t-1)} \st u \in N_G(v) \rdbl=
+\ldbl \pmb{\mu}_u^{(t-1)} \st u \in N_G(w) \rdbl.
+$$
+By the induction hypothesis, for every $u$ in $N_G(v)$ and corresponding $u'$ in $N_G(w)$ we have $\mathbf{F}^{(t-1)}_{u\bullet}=\mathbf{F}^{(t-1)}_{u'\bullet}$ and also
+$\mathbf{R}\mathbf{F}^{(t-1)}_{u\bullet}=\mathbf{R}\mathbf{F}^{(t-1)}_{u'\bullet}$. In particular, for every label $c\in\Sigma^{(t-1)}$, 
+$$
+|u\in N_G(v)| \mathbf{R}\mathbf{F}_{u\bullet}^{(t-1)}\sim c\}|=
+|u\in N_G(w)| \mathbf{R}\mathbf{F}_{u\bullet}^{(t-1)}\sim c\}|.$$
+As a consequence, $\mathbf{G}^{(t)}_{v\bullet}=\mathbf{G}^{(t)}_{w\bullet}$.
+Conversely, to show that $\mathbf{G}^{(t)}_{v\bullet}=\mathbf{G}^{(t)}_{w\bullet}$ implies 
+$\hat{\pmb{\mu}}{}^{(t)}_v=\hat{\pmb{\mu}}{}^{(t)}_w$, we use the same argument as above. Finally, to be able to apply 
+ Lemmas~\ref{lem:signlemma9} and
+~\ref{lem:relulemma9} we just need to argue that also $\mathbf{L}\mathbf{G}^{(t)}$ is good for $\hat{\pmb{\mu}}{}^{(t)}$.
+Suppose that $\mathbf{G}^{(t)}_{v\bullet}=\mathbf{G}^{(t)}_{w\bullet}$.
+Then, this implies that $\hat{\pmb{\ell}}_v$
+
+\end{proof}
 
