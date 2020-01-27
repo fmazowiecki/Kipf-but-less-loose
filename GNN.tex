@@ -69,6 +69,23 @@ is WL-strong. That is, compared to class of GNNs of the form~(\ref{eq:groheGNN})
 
 \openprob{Although the result reported in~\cite{grohewl} is correct, it is not entirely clear how their construction translates into an architecture of the form~\ref{eq:groheGNN}. Their construction fits, however, in an architecture of the
 form $\mathbf{F}^{(t)}:=\Bigl(\mathbf{F}^{(0)},\sigma\bigl(\mathbf{F}^{(t-1)}\mathbf{W}_1^{(t)}+ \mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t)} -\mathbf{J}\bigr)\Bigr)$ which is not exactly in the form of ~\ref{eq:groheGNN}. We will recover the WL-strongness result from ~(\ref{eq:groheGNN}) as a side result of our analysis, however. {\bf BUT: is it true that their update rule cannot be expressed as they claim??}}.
+\floris{It seems to be possible after all, provided that a slightly more general bias matrix is used. That is, to show strongness we can consider. Please check. An additional assumption is that $\sigma(\mathbf{F}^{(0)})=\mathbf{F}^{(0)}$.}
+$$
+[\mathbf{F}^{(0)},\mathbf{F}^{(t)}]:=\sigma\left([\mathbf{F}^{(0)},\mathbf{F}^{(t-1)}]\begin{pmatrix}
+\mathbf{I}_{n\times n} & \mathbf{O}_{n\times n}\\
+\mathbf{O}_{n\times n} & \mathbf{O}_{n\times n}\end{pmatrix}
++\mathbf{A}[\mathbf{F}^{(0)},\mathbf{F}^{(t-1)}]
+\begin{pmatrix}
+\mathbf{O}_{n\times n} & \mathbf{O}_{n\times n}\\
+\mathbf{O}_{n\times n} & \mathbf{W}_{n\times n}^{(t-1)}\end{pmatrix}-
+q\begin{pmatrix}
+\mathbf{O}_{n\times n} & \mathbf{J}_{n\times n}\\
+\mathbf{O}_{n\times n} & \mathbf{J}_{n\times n}\end{pmatrix}
+\right),
+$$
+where $\mathbf{W}^{(t-1)}$ is the matrix constructed in Grohe's lower bound proof.
+\floris{Our lower bound shows that it holds also for a simpler GNN architecture, however,
+see below, and also we can deal with ReLU.}
 
 In~\cite{grohewl}, also GNNs of the form~\ref{eq:groheGNNwithJ} where considered in which the activation function $\sigma$ is the ReLU function. In this case, the relationship
 $\mathbf{F}^{(2t)}\sqsubseteq \pmb{\ell}^{(t)}$ holds, for every $t\geq 0$~\cite{grohewl}.
