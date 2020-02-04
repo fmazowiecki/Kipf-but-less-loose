@@ -1,6 +1,202 @@
 %!TEX root =main.tex
 \section{Upper bounding the expressive power}
-We start by assessing the expressive power of GNNs of the form~(\ref{eq:architecture}) in terms of vertex classification.
+
+\floris{Last week we decided (I think) to go back to a more specific setting in which the the diagonal matrices $\mathbf{L}$ and $\mathbf{R}$ are required to satisfy certain conditions. That is, they should be closer to the matrices used in practice. The next paragraph may be better put when describing our architecture.}
+We start by assessing the expressive power of GNNs of the form~(\ref{eq:architecture}) in terms of vertex classification. We make the following assumptions on the matrices $\mathbf{L}$ and $\mathbf{R}$.
+Let us denote by $\pmb{\ell}^L:V\to \Rb$ the vertex labeling defined by $\pmb{\ell}^L(v):=\mathbf{L}_{vv}$ and by $\pmb{\ell}^R:V\to \Rb$ the vertex labeling defined by 
+$\pmb{\ell}^R(v):=\mathbf{R}_{vv}$ for all $v\in V$. We only consider GNNs of the form~(\ref{eq:architecture}) in which $\pmb{\ell}^L$ and $\pmb{\ell}^R$ are \textit{degree-determined}. That is, given a labeled graph $(G,\pmb{\ell})$, if $d_v=d_w$ then $\pmb{\ell}^L_v=\pmb{\ell}^L_w$ and $\pmb{\ell}^R_v=\pmb{\ell}^R_w$. In other words,
+the entries on the diagonals in $\mathbf{L}$ and $\mathbf{R}$ only depend on the degree of vertices.
+
+As a special case, we also consider the case when $\pmb{\ell}^L$ (or $\pmb{\ell}^R$) is a 
+\textit{constant} labeling. That is,  $\pmb{\ell}^L_v=\pmb{\ell}^L_w$ (or $\pmb{\ell}^R_v=\pmb{\ell}^R_w$) for all $v,w\in V$. In other words, the entries on the diagonal in $\mathbf{L}$ (or $\mathbf{R}$) are all the same.
+
+It is easily verified that for all GNN architectures mentioned earlier, the labelings $\pmb{\ell}^L$ and $\pmb{\ell}^R$ are either constant or degree-determined.
+
+With regards to vertex classification it turns out that GNNs of the form~(\ref{eq:architecture}) are still bounded by WL. It makes a difference, however, whether or not $\pmb{\ell}^R$ is constant or non-constant (but still degree-determined). Intuitively, when $\pmb{\ell}^R$ is non-constant, GNNs of the form~(\ref{eq:architecture}) will be one step ahead of WL. This is because when $\pmb{\ell}^R$ is non-constant, the diagonal entries in $\mathbf{R}$ carry information about degrees, which encode already information about the first step of WL. By contrast, when $\pmb{\ell}^R$ is constant, in 
+GNNs of the form~(\ref{eq:architecture}) the matrix $\mathbf{R}$ does not carry additional information. 
+
+\begin{proposition}\label{prop:boundconstantR}
+Let $(G,\pmb{\ell})$ be a labeled graph and assume that $\pmb{\ell}\sqsubseteq\mathbf{F}^{(0)}$.
+ % for some $k\geq 0$.
+Then, GNN architectures of the form~(\ref{eq:architecture}) with constant $\pmb{\ell}^R$ are bounded by WL on $(G,\pmb{\ell})$.
+\end{proposition}
+\begin{proof}
+We show the upper bound by WL by induction on the number of iterations. For $t=0$, we have, by assumption, that 
+$\pmb{\ell}\sqsubseteq \mathbf{F}^{(0)}$. Hence, the hypothesis holds for the base case.
+% \pmb{\ell}{}^{(1)}\sqsubseteq
+% Clearly,
+%
+% $\hat{\pmb{\ell}}{}^{(0)}\sqsubseteq \pmb{\ell}$ and hence also
+% $\hat{\pmb{\ell}}{}^{(0)}\sqsubseteq\mathbf{F}^{(0)}$.
+ We next assume that the induction hypotheses holds for $t\geq 0$ and consider $t+1$. More specifically, we assume that 
+ $\pmb{\ell}^{(t)}\sqsubseteq \mathbf{F}^{(t)}$ and
+ % For GNN architectures with non-constant $\pmb{\ell}^R$ (but degree-determined), we assume that $\pmb{\ell}^{(t+1)}\sqsubseteq \mathbf{F}^{(t)}$.
+we need to show that 
+$\pmb{\ell}{}^{(t+1)}_v=\pmb{\ell}{}^{(t+1)}_w$ implies that $\mathbf{F}^{(t+1)}_{v\bullet}=\mathbf{F}^{(t+1)}_{w\bullet}$. By definition,
+$\pmb{\ell}{}^{(t+1)}_v=\pmb{\ell}{}^{(t+1)}_w$ implies
+$\pmb{\ell}{}^{(t)}_v=\pmb{\ell}{}^{(t)}_w$ and 
+$$
+\ldbl \pmb{\ell}{}^{(t)}_u \st u \in N_G(v) \rdbl=
+ \ldbl \pmb{\ell}{}^{(t)}_u \st u \in N_G(w) \rdbl.$$
+ In other words, there exists a bijection between $N_G(v)$ and $N_G(w)$ such that for each $u\in N_G(v)$ and corresponding $u'\in N_G(w)$, $\pmb{\ell}{}^{(t)}_u=\pmb{\ell}{}^{(t)}_{u'}$. This bijection also implies that
+ that $d_v=d_w$ and hence $\pmb{\ell}^L_{v}=\pmb{\ell}^L_{w}$. That is,
+ $\mathbf{L}_{vv}=\mathbf{L}_{ww}$ and $\mathbf{R}_{vv}=\mathbf{R}_{ww}$. We also observe that $\mathbf{R}_{vv}=\mathbf{R}_{ww}$ and $\mathbf{R}_{uu}=\mathbf{R}_{u'u'}$ for every $u\in N_G(v)$ and corresponding $u'\in N_G(w)$ (since $\pmb{\ell}^R$ is assumed to be constant). From the induction hypothesis we further know that 
+ $\mathbf{F}^{(t)}_{v\bullet}=\mathbf{F}^{(t)}_{w\bullet}$ and 
+ $\mathbf{F}^{(t)}_{u\bullet}=\mathbf{F}^{(t)}_{u'\bullet}$ for  every $u\in N_G(v)$ and corresponding $u'\in N_G(w)$.
+%
+%   Furthermore,
+% since $\pmb{\ell}{}^{(t)}\sqsubseteq \pmb{\ell}{}^{(t-1)}\sqsubseteq \cdots\sqsubseteq \pmb{\ell}{}^{(1)}\sqsubseteq \pmb{\ell}{}^{(0)}$, we have that
+%  $\pmb{\ell}{}^{(0)}_u=\pmb{\ell}{}^{(0)}_{u'}$ for every $u\in N_G(v)$ and corresponding
+%  $u'\in N_G(w)$. In particular, we have that $d_u=d_{u'}$ and thus also $\mathbf{L}_{uu}=\mathbf{L}_{u'u'}$ and
+%
+%  this implies that
+%  $\hat{\pmb{\ell}}{}^{(0)}_v=\hat{\pmb{\ell}}{}^{(0)}_w$ and that there is a bijection $b:N_G(v)\to N_G(w):u\mapsto u'$ such that $\hat{\pmb{\ell}}{}^{(t)}_u=\hat{\pmb{\ell}}{}^{(t)}_{u'}$ and hence also
+%  $\hat{\pmb{\ell}}{}^{(0)}_u=\hat{\pmb{\ell}}{}^{(0)}_{u'}$. From the definition of $\hat{\pmb{\ell}}{}^{(0)}$, $\hat{\pmb{\ell}}{}^{(0)}_v=\hat{\pmb{\ell}}{}^{(0)}_w$ implies that
+%  $\mathbf{L}_{vv}=\mathbf{L}_{ww}$ and
+%  $\mathbf{R}_{vv}=\mathbf{R}_{ww}$. Similarly, for every $u\in N_G(v)$ and corresponding $u'\in N_G(w)$,
+% $\hat{\pmb{\ell}}{}^{(0)}_u=\hat{\pmb{\ell}}{}^{(0)}_{u'}$ implies that   $\mathbf{L}_{uu}=\mathbf{L}_{u'u'}$ and $\mathbf{R}_{uu}=\mathbf{R}_{u'u'}$. By the induction hypothesis we also have that
+%  $\mathbf{F}^{(t)}_{v\bullet}=\mathbf{F}^{(t)}_{w\bullet}$, and for every $u\in N_G(v)$
+%    and corresponding $u'\in N_G(w)$, $\mathbf{F}^{(t)}_{u\bullet}=\mathbf{F}^{(t)}_{u'\bullet}$.
+  It now suffices to observe that
+  \begin{align*}
+	  \mathbf{F}^{(t+1)}_{v\bullet}&=\sigma\Biggl(\mathbf{F}^{(t)}_{v\bullet}\mathbf{W}_1^{(t)}+\mathbf{L}_{vv}\biggl(\Bigl(\sum_{u\in N_G(v)} \mathbf{R}_{uu}\mathbf{F}^{(t)}_{u\bullet}\Bigr)+p\mathbf{R}_{vv}\mathbf{F}^{(t)}_{v\bullet}\biggr)\mathbf{W}^{(t)}+ q\mathbf{J}_{v\bullet}\Biggr)\\
+	 & =\sigma\Biggl(\mathbf{F}^{(t)}_{w\bullet}\mathbf{W}_1^{(t)}+\mathbf{L}_{ww}\biggl(\Bigl(\!\!\sum_{u'\in N_G(w)}\!\! \mathbf{R}_{u'u'}\mathbf{F}^{(t)}_{u'\bullet}\Bigr)+p\mathbf{R}_{ww}\mathbf{F}^{(t)}_{w\bullet}\biggr)\mathbf{W}^{(t)}+ q\mathbf{J}_{w\bullet}\Biggr)\\
+	  &=\mathbf{F}^{(t+1)}_{w\bullet},
+\end{align*}
+as desired.
+\end{proof}
+
+When $\pmb{\ell}^R$ is not constant, but nevertheless degree-determined, we obtain the following upper bound.
+\begin{proposition}\label{prop:boundnonconstantR}
+Let $(G,\pmb{\ell})$ be a labeled graph and assume that $\pmb{\ell}\sqsubseteq\mathbf{F}^{(0)}$.
+ % for some $k\geq 0$.
+Then, GNN architectures of the form~(\ref{eq:architecture}) with non-constant $\pmb{\ell}^R$ are bounded by WL on $(G,\pmb{\ell}^{(1)})$.
+\end{proposition}
+\begin{proof}
+The proof is almost the same as the previous proof. That is,
+we show the upper bound by WL by induction on the number of iterations. For $t=0$, we have, by assumption, that 
+$\pmb{\ell}\sqsubseteq \mathbf{F}^{(0)}$. Hence, since $\pmb{\ell}{}^{(1)}\sqsubseteq\pmb{\ell}$ we also have that $\pmb{\ell}{}^{(1)}\sqsubseteq\mathbf{F}^{(0)}$ and 
+the induction hypothesis holds for the base case.
+% \pmb{\ell}{}^{(1)}\sqsubseteq
+% Clearly,
+%
+% $\hat{\pmb{\ell}}{}^{(0)}\sqsubseteq \pmb{\ell}$ and hence also
+% $\hat{\pmb{\ell}}{}^{(0)}\sqsubseteq\mathbf{F}^{(0)}$.
+ We next assume that the induction hypotheses holds for $t\geq 0$ and consider $t+1$. More specifically, we assume that 
+ $\pmb{\ell}^{(t+1)}\sqsubseteq \mathbf{F}^{(t)}$ and
+ % For GNN architectures with non-constant $\pmb{\ell}^R$ (but degree-determined), we assume that $\pmb{\ell}^{(t+1)}\sqsubseteq \mathbf{F}^{(t)}$.
+we need to show that 
+$\pmb{\ell}{}^{(t+2)}_v=\pmb{\ell}{}^{(t+2)}_w$ implies that $\mathbf{F}^{(t+1)}_{v\bullet}=\mathbf{F}^{(t+1)}_{w\bullet}$. By definition,
+$\pmb{\ell}{}^{(t+2)}_v=\pmb{\ell}{}^{(t+2)}_w$ implies
+$\pmb{\ell}{}^{(t+1)}_v=\pmb{\ell}{}^{(t+1)}_w$ and 
+$$
+\ldbl \pmb{\ell}{}^{(t+1)}_u \st u \in N_G(v) \rdbl=
+ \ldbl \pmb{\ell}{}^{(t+1)}_u \st u \in N_G(w) \rdbl.$$
+ In other words, there exists a bijection between $N_G(v)$ and $N_G(w)$ such that for each $u\in N_G(v)$ and corresponding $u'\in N_G(w)$, $\pmb{\ell}{}^{(t+1)}_u=\pmb{\ell}{}^{(t+1)}_{u'}$. 
+  This bijection also implies that
+ that $d_v=d_w$ and hence $\pmb{\ell}^L_{v}=\pmb{\ell}^L_{w}$ and $\pmb{\ell}^{R}_{v}=\pmb{\ell}^R_{w}$. That is,
+ $\mathbf{L}_{vv}=\mathbf{L}_{ww}$ and $\mathbf{R}_{vv}=\mathbf{R}_{ww}$ hold.
+We next argue in a different way as in the previous proof. We observe that
+ $\pmb{\ell}{}^{(t)}\sqsubseteq \pmb{\ell}{}^{(t-1)}\sqsubseteq \cdots\sqsubseteq \pmb{\ell}{}^{(1)}\sqsubseteq \pmb{\ell}{}^{(0)}$. Hence, we have that $\pmb{\ell}{}^{(t+1)}_u=\pmb{\ell}{}^{(t+1)}_{u'}$ implies 
+ $\pmb{\ell}{}^{(1)}_u=\pmb{\ell}{}^{(1)}_{u'}$. We note that this implication was not guaranteed in the previous proof. Indeed, we can only infer that  $\pmb{\ell}{}^{(0)}_u=\pmb{\ell}{}^{(0)}_{u'}$ when $t=1$. 
+In the current setting, we thus know that $d_{u}=d_{u'}$ for every $u\in N_G(v)$ and $u'\in N_G(w)$. We may thus infer that $\mathbf{R}_{uu}=\mathbf{R}_{u'u'}$ for every $u\in N_G(v)$ and corresponding $u'\in N_G(w)$.
+ From the induction hypothesis we further know that 
+ $\mathbf{F}^{(t)}_{v\bullet}=\mathbf{F}^{(t)}_{w\bullet}$ and 
+ $\mathbf{F}^{(t)}_{u\bullet}=\mathbf{F}^{(t)}_{u'\bullet}$ for  every $u\in N_G(v)$ and corresponding $u'\in N_G(w)$.
+%
+%   Furthermore,
+% since $\pmb{\ell}{}^{(t)}\sqsubseteq \pmb{\ell}{}^{(t-1)}\sqsubseteq \cdots\sqsubseteq \pmb{\ell}{}^{(1)}\sqsubseteq \pmb{\ell}{}^{(0)}$, we have that
+%  $\pmb{\ell}{}^{(0)}_u=\pmb{\ell}{}^{(0)}_{u'}$ for every $u\in N_G(v)$ and corresponding
+%  $u'\in N_G(w)$. In particular, we have that $d_u=d_{u'}$ and thus also $\mathbf{L}_{uu}=\mathbf{L}_{u'u'}$ and
+%
+%  this implies that
+%  $\hat{\pmb{\ell}}{}^{(0)}_v=\hat{\pmb{\ell}}{}^{(0)}_w$ and that there is a bijection $b:N_G(v)\to N_G(w):u\mapsto u'$ such that $\hat{\pmb{\ell}}{}^{(t)}_u=\hat{\pmb{\ell}}{}^{(t)}_{u'}$ and hence also
+%  $\hat{\pmb{\ell}}{}^{(0)}_u=\hat{\pmb{\ell}}{}^{(0)}_{u'}$. From the definition of $\hat{\pmb{\ell}}{}^{(0)}$, $\hat{\pmb{\ell}}{}^{(0)}_v=\hat{\pmb{\ell}}{}^{(0)}_w$ implies that
+%  $\mathbf{L}_{vv}=\mathbf{L}_{ww}$ and
+%  $\mathbf{R}_{vv}=\mathbf{R}_{ww}$. Similarly, for every $u\in N_G(v)$ and corresponding $u'\in N_G(w)$,
+% $\hat{\pmb{\ell}}{}^{(0)}_u=\hat{\pmb{\ell}}{}^{(0)}_{u'}$ implies that   $\mathbf{L}_{uu}=\mathbf{L}_{u'u'}$ and $\mathbf{R}_{uu}=\mathbf{R}_{u'u'}$. By the induction hypothesis we also have that
+%  $\mathbf{F}^{(t)}_{v\bullet}=\mathbf{F}^{(t)}_{w\bullet}$, and for every $u\in N_G(v)$
+%    and corresponding $u'\in N_G(w)$, $\mathbf{F}^{(t)}_{u\bullet}=\mathbf{F}^{(t)}_{u'\bullet}$.
+  It now suffices to observe that
+  \begin{align*}
+	  \mathbf{F}^{(t+1)}_{v\bullet}&=\sigma\Biggl(\mathbf{F}^{(t)}_{v\bullet}\mathbf{W}_1^{(t)}+\mathbf{L}_{vv}\biggl(\Bigl(\sum_{u\in N_G(v)} \mathbf{R}_{uu}\mathbf{F}^{(t)}_{u\bullet}\Bigr)+p\mathbf{R}_{vv}\mathbf{F}^{(t)}_{v\bullet}\biggr)\mathbf{W}^{(t)}+ q\mathbf{J}_{v\bullet}\Biggr)\\
+	 & =\sigma\Biggl(\mathbf{F}^{(t)}_{w\bullet}\mathbf{W}_1^{(t)}+\mathbf{L}_{ww}\biggl(\Bigl(\!\!\sum_{u'\in N_G(w)}\!\! \mathbf{R}_{u'u'}\mathbf{F}^{(t)}_{u'\bullet}\Bigr)+p\mathbf{R}_{ww}\mathbf{F}^{(t)}_{w\bullet}\biggr)\mathbf{W}^{(t)}+ q\mathbf{J}_{w\bullet}\Biggr)\\
+	  &=\mathbf{F}^{(t+1)}_{w\bullet},
+\end{align*}
+as desired.
+\end{proof}
+
+It should be clear that GNNs of the form~(\ref{eq:architecture}) which are bounded by WL on $(G,\pmb{\ell})$ are also bounded by WL on $(G,\pmb{\ell}{}^{(1)})$. The converse is not true, as is illustrated by the following example.
+
+\begin{example}\label{ex2}\normalfont
+	We consider NA-GNN+ architecture~\cite{kipf-loose} in which $\pmb{\ell}^R$ is non-constant and thus Proposition~\ref{prop:boundnonconstantR} applies.
+Consider the labeled graph $(G,\pmb{\ell})$ (\raisebox{-2ex}{\includegraphics[height=1cm]{graph1}}) with 
+vertex labeling  $\pmb{\ell}_{v_1}=\pmb{\ell}_{v_2}=c$,
+$\pmb{\ell}_{v_3}=\pmb{\ell}_{v_6}=b$ and $\pmb{\ell}_{v_4}=\pmb{\ell}_{v_5}=a$, and adjacency and degree matrix 
+$$
+\mathbf{A}:=\begin{bmatrix}
+0 & 0 & 1 & 0 & 0 & 0\\
+0 & 0 & 1 & 0 & 0 & 0\\
+1 & 1 & 0 & 1 & 0 & 0\\
+0 & 0 & 1 & 0 & 1 & 0\\
+0 & 0 & 0 & 1 & 0 & 1\\
+0 & 0 & 0 & 0 & 1 & 0
+\end{bmatrix}\text{ and } 
+\mathbf{D}:=
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 & 0\\
+0 & 1 & 0 & 0 & 0 & 0\\
+0 & 0 & 3 & 0 & 0 & 0\\
+0 & 0 & 0 & 2 & 0 & 0\\
+0 & 0 & 0 & 0 & 2 & 0\\
+0 & 0 & 0 & 0 & 0 & 1
+\end{bmatrix},
+$$
+respectively. 
+We consider $\mathbf{F}^{(1)}:=\sigma(\tilde{\mathbf{D}}^{-1/2}(\mathbf{A}+\mathbf{I})\tilde{\mathbf{D}}^{-1/2}\mathbf{F}^{(0)}\mathbf{W}^{(0)})$ with  $
+\mathbf{F}^{(0)}=
+\left[\begin{smallmatrix}
+1 & 0 & 0\\
+1 & 0 & 0\\
+0 & 1 & 0\\
+0 & 0 & 1\\
+0 & 0 & 1\\
+0 & 1 & 0\\
+\end{smallmatrix}\right]
+$ and choose $\mathbf{W}^{(0)}=\left[\begin{smallmatrix}
+1 & 0 & 0\\
+0 & 1 & 0\\
+0 & 0 & 1
+\end{smallmatrix}\right]$. 
+We remark that $\pmb{\ell}^{(0)}:=\pmb{\ell}\equiv \mathbf{F}^{(0)}$.
+It can be verified that
+$$
+\mathbf{F}^{(1)}=\sigma\left(\begin{bmatrix}
+\frac{1}{2} & \frac{1}{2\sqrt{2}}& 0\\
+\frac{1}{2} & \frac{1}{2\sqrt{2}}& 0\\
+\frac{1}{2\sqrt{2}} & \frac{1}{4}& \frac{1}{
+2\sqrt{3}}\\
+0 & \frac{1}{2\sqrt{3}}& \frac{2}{
+3}\\
+0 & \frac{1}{\sqrt{6}}& \frac{2}{
+3}\\
+0 & \frac{1}{2}& \frac{1}{
+\sqrt{6}}
+\end{bmatrix}\right).
+$$
+Suppose that $\sigma$ is the ReLU activation function. Then, we observe that
+$\mathbf{F}^{(1)}_{v_4\bullet}\neq \mathbf{F}^{(1)}_{v_5\bullet}$. 
+We note, however, that $\pmb{\ell}^{(1)}_{v_4}=(a,\{a,b\})=\pmb{\ell}^{(1)}_{v_5}$.
+Hence, $\pmb{\ell}^{(1)}\not\sqsubseteq \mathbf{F}^{(1)}$ and this architecture is not bounded by WL on $(G,\pmb{\ell})$. We know, however, that it is bounded by WL on $(G,\pmb{\ell}{}^{(1)})$.
+\openprob{Is there a simple example for the one below?}
+\qed
+% It can, however, be verified that $\pmb{\ell}^{(2)}\sqsubseteq \mathbf{F}^{(1)}$.
+% \todo{The latter inclusion needs to be verified}\qed
+\end{example}
+
+
+\floris{So, what is left here can go?}
+
 It is easy to see that GNNs of the form~(\ref{eq:architecture}) are not always bounded by WL, according to 
 Definition~\ref{def:wlupper}. This should not come as a surprise since these architectures do not always fit in the general
 GNN architecture~(\ref{lab:generalGNN}), for which boundedness by WL is guaranteed (by Proposition~\ref{prop:upperboundgeneral}).
@@ -24,9 +220,10 @@ $\pmb{\ell}^{(0)}:=\pmb{\ell}$.
 It is now readily verified that $\pmb{\ell}^{(t)}_v=\pmb{\ell}^{(t)}_w$ for all $t\geq 0$. So, WL will classify both vertices as the same. We further note that  $\pmb{\ell}^{(0)}\equiv \mathbf{F}^{(0)}$. Nevertheless, $\pmb{\ell}^{(1)}\not\sqsubseteq \mathbf{F}^{(1)}$ whenever $\sigma(2)\neq\sigma(1)$. This happens, for example, when $\sigma$ is the ReLU activation function. Hence, the architecture is not bounded by WL. Similar examples can be constructed using the matrix $\mathbf{L}$  and for other choices of the activation function $\sigma$. \qed
 \end{example}
 
-A less artificial example is based on the NA-GNN+ architecture~\cite{kipf-loose}.
+
 
 \begin{example}\label{ex2}\normalfont
+	A less artificial example is based on the NA-GNN+ architecture~\cite{kipf-loose}.
 Consider the labeled graph $(G,\pmb{\ell})$ (\raisebox{-2ex}{\includegraphics[height=1cm]{graph1}}) with 
 vertex labeling  $\pmb{\ell}_{v_1}=\pmb{\ell}_{v_2}=c$,
 $\pmb{\ell}_{v_3}=\pmb{\ell}_{v_6}=b$ and $\pmb{\ell}_{v_4}=\pmb{\ell}_{v_5}=a$, and adjacency and degree matrix 
