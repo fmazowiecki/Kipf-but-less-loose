@@ -311,6 +311,81 @@ This concludes the proof of  Theorem~\ref{thm:lowerb_general}.
 % \end{lemma}
 %
 
+\floris{I don't know whether the following is of interest. We have a stronger lower bound than in~\cite{grohewl}. More specifically, we assume only one weight matrix (instead of two) and furthermore, can assume this weight matrix to be a rank one matrix. This implies that it is the product of two vectors, reducing $n^2$ parameters to $2n$! It may be interesting to see how this simple architecture behaves in practice....}
+
+\begin{theorem}
+GNN architectures of the $\mathbf{F}^{(t)}:=\sigma\bigl((\mathbf{A}+p\mathbf{I})\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)} +q\mathbf{J}\bigr)$ with $\mathbf{W}$ a rank-one matrix, is WL-strong, for any $0<p<1$ and $m_q<q<1$ for some $m_q$.
+\end{theorem}
+\begin{proof}
+We assume that $\mathbf{F}^{(0)}\equiv\pmb{\ell}$ and that  $\mathbf{F}^{(0)}$ is row-independent modulo equality. We define for $t>0$:
+	\begin{align*}
+	\mathbf{G}^{(t)}&:=(\mathbf{A}+p\mathbf{I})\mathbf{F}^{(t-1)}\\
+	\mathbf{F}^{(t)}&:=\sigma(\mathbf{G}^{(t)}\mathbf{W}^{(t-1)}+q\mathbf{J}).
+	\end{align*}
+We assume next that $\mathbf{F}^{(t-1)}$ is good for $\pmb{\ell}{}^{(t-1)}$. We first show that
+$\mathbf{G}^{(t)}\equiv\pmb{\ell}^{(t)}$, and then apply
+	Lemmas~\ref{lem:signlemma9} and
+	~\ref{lem:relulemma9} to find $\mathbf{W}^{(t-1)}$ and $q$ such that $\mathbf{F}^{(t)}$ is good for  $\pmb{\ell}{}^{(t)}$. We observe that these lemmas create a rank one matrix $\mathbf{W}^{(t-1)}$.
+
+
+We observe that the upper bound proof of Theorem~\ref{thm:generalbound}  implies that  $\pmb{\ell}{}^{(t)}\sqsubseteq \mathbf{G}^{(t)}$. It thus suffices to show that $ \mathbf{G}^{(t)}\sqsubseteq \pmb{\ell}{}^{(t)}$.
+
+Suppose, for the sake of contradiction, that there exists two vertices $v,w\in V$ such that 
+	\begin{equation}
+	\pmb{\ell}{}^{(t)}_v\neq\pmb{\ell}{}^{(t)}_w \text{ and }
+	\mathbf{G}^{(t)}_{v\bullet}=\mathbf{G}^{(t)}_{w\bullet}. \label{eq:contra}
+	\end{equation} 
+We show that this is impossible for $p$ such that $0<p<1$. We distinguish between the following two cases. If $\pmb{\ell}{}^{(t)}_v\neq\pmb{\ell}{}^{(t)}_w$ then either
+(i)~$\pmb{\ell}{}^{(t-1)}_v\neq\pmb{\ell}{}^{(t-1)}_w$; or 
+(ii)~$\pmb{\ell}{}^{(t-1)}_v=\pmb{\ell}{}^{(t-1)}_w$ and
+	$$
+	\ldbl \pmb{\ell}{}^{(t-1)}_{u} \st u \in N_G(v) \rdbl\neq
+	\ldbl \pmb{\ell}{}^{(t-1)}_{u} \st u \in N_G(w) \rdbl.
+	$$
+By assumption $\mathbf{F}^{(t-1)}$ is good for $\pmb{\ell}{}^{(t-1)}$.
+In particular, if we consider the unique row vectors in  $\mathbf{F}^{(t-1)}$, then these are linearly independent. Let us denote the unique row vectors in $\mathbf{F}^{(t-1)}$ by $\mathbf{F}_1,\ldots,\mathbf{F}_s$ for some $s$.
+
+
+Suppose that we are in case (i). Then,  $\pmb{\ell}{}^{(t-1)}_v\neq\pmb{\ell}{}^{(t-1)}_w$ implies that
+	$\mathbf{F}^{(t-1)}_{v\bullet}\neq \mathbf{F}^{(t-1)}_{w\bullet}$. We can assume, wlog, that $\mathbf{F}^{(t-1)}_{v\bullet}=\mathbf{F_1}$ and
+	$\mathbf{F}^{(t-1)}_{w\bullet}=\mathbf{F_2}$. It should be clear from the definition of $\mathbf{G}^{(t)}$ that every of its rows is a linear combination of 
+	the unique row vectors $\mathbf{F}_1,\ldots,\mathbf{F}_s$. More specifically:
+	\begin{align*}
+	\mathbf{G}^{(t)}_{v\bullet}&:=(\alpha_1+p)\mathbf{F}_1+ \alpha_2\mathbf{F}_2+ \sum_{i=3}^s \alpha_i\mathbf{F}_i\\
+	%\intertext{and similarly,} 
+	\mathbf{G}^{(t)}_{w\bullet}&=\beta_1\mathbf{F}_1+ (\beta_2+p)\mathbf{F}_2+ \sum_{i=3}^s \beta_i\mathbf{F}_i,
+	\end{align*}
+	for some non-negative natural numbers $\alpha_i$ and $\beta_i$, for $i\in[1,s]$.
+We recall, however, that the vertices $v$ and $w$ are such that $\mathbf{G}^{(t)}_{v\bullet}=\mathbf{G}^{(t)}_{w\bullet}$. This in turn implies that
+	$$
+	(\alpha_1+p-\beta_1)\mathbf{F}_1 + (\alpha_2-\beta_2-p)\mathbf{F}_2 +\sum_{i=3}^s (\alpha_i-\beta_i)\mathbf{F}_s=0.
+	$$
+	So, unless all these coefficients are zero, we have that $\mathbf{F}_1,\ldots,\mathbf{F}_s$
+	are not linearly independent. It is now clear that $\alpha_1+p=\beta_1$ and
+	$\alpha_2=\beta_2+p$ cannot hold for any $p$, $0<p<1$. Indeed, $\alpha_i-\beta_j$
+	is always an integer number. Hence, case (i) cannot occur.
+	
+
+Suppose next that we are in case (ii). Recall that for case (ii), we have $\pmb{\ell}{}^{(t-1)}_v=\pmb{\ell}{}^{(t-1)}_w$.
+	Using the same notation as above, we may assume that $\mathbf{F}^{(t-1)}_{v\bullet}=\mathbf{F_1}=\mathbf{F}^{(t-1)}_{w\bullet}$. In case (ii), however, we have that
+	$
+	\ldbl \pmb{\ell}{}^{(t-1)}_{u} \st u \in N_G(v) \rdbl\neq
+	\ldbl \pmb{\ell}{}^{(t-1)}_{u} \st u \in N_G(w) \rdbl
+	$.
+	That is, there must exist a label assigned by $\pmb{\ell}{}^{(t-1)}$ that does not occurs the same number of times in the neighborhoods of $v$ and $w$, respectively. Recall that $\mathbf{F}^{(t-1)}\equiv \pmb{\ell}{}^{(t-1)}$. We assume that $\mathbf{F}_2$ corresponds to the label witnessing the difference in the neighborhood labels. (As a special case, this label may also correspond to $\mathbf{F}_1$ but the same argument as below applies.)
+
+We develop $\mathbf{G}^{(t)}_{v\bullet}$ and $\mathbf{G}^{(t)}_{w\bullet}$ again as linear combinations of $\mathbf{F}_1,\ldots,\mathbf{F}_s$. That is,
+	\begin{align*}
+	\mathbf{G}^{(t)}_{v\bullet}&:=(\alpha_1+p)\mathbf{F}_1+ \alpha_2\mathbf{F}_2+ \sum_{i=3}^s \alpha_i\mathbf{F}_i\\
+	%\intertext{and similarly,} 
+	\mathbf{G}^{(t)}_{w\bullet}&=(\beta_1+p)\mathbf{F}_1+ \beta_2\mathbf{F}_2+ \sum_{i=3}^s \beta_i\mathbf{F}_i.
+	\end{align*}
+	Our assumption (also in case (ii)) is still that $\mathbf{G}^{(t)}_{v\bullet}=\mathbf{G}^{(t)}_{w\bullet}$. Using the same argument as before, based on linear independence of $\mathbf{F}_1,\ldots,\mathbf{F}_s$, we must have that 
+	$\alpha_i=\beta_i$ for all $i\in [1,s]$.
+This cannot be true, however. Indeed,
+ $\alpha_2$ and $\beta_2$, corresponding to $\mathbf{F}_2$, correspond to the number of time the label corresponding to $\mathbf{F}_2$ occurs in $N_G(u)$ and $N_G(w)$, respectively. By assumption, these numbers are different. So again, case (ii) cannot occur either. Hence, $\mathbf{G}^{(t)}\sqsubseteq \pmb{\ell}^{(t)}$, as desired.
+\end{proof}
+
 
 \floris{The lower bound so far do not cover the two GCN cases. Question: 
 Can the lower bound be established also for 
@@ -331,6 +406,7 @@ The class of GNNs of the form
 \end{equation}
 is WL-strong, where WL now starts from $(G,\hat{\pmb{\ell}})$. Here, $\sigma$ can be either the sign or ReLU activation function.
 \end{theorem}
+\floris{The proof below can be simplified along the lines of the previous proof. So, any $p$ works. }
 \begin{proof}
 Looking at the proof of Theorem~\ref{thm:lowerb_general}, it suffices to show the following. Let $\mathbf{F}^{(0)}\equiv\hat{\pmb{\ell}}$ and define for $t>0$:
 \begin{align*}
