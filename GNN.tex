@@ -2,9 +2,29 @@
 
 
 \section{Graph neural networks}
-\floris{This section needs a pass.}
-In general, a graph neural network, or GNN for short, consists of a number of layers. In each layer, feature vectors of vertices are computed based on the features from the previous layer.
-What makes GNN stand out from other neural network architectures is the use of adjacency information in graphs. More specifically, given a graph $G=(V,E)$, a GNN computes for each vertex $v\in V$ a feature vector $\mathbf{F}^{(t)}_{v\bullet}$  in layer $t$ by combining:
+Neural networks are a model to compute functions $f : \Rb^s \to \Rb^k$ obtained as a composition of layers $l^1,\ldots, l^m$. Every layer $l^t$ computes a function $f^{(t)} : \Rb^{k_{t-1}} \to \Rb^{k_t}$ based on the previous layer, where $k_0 = s$ and $k_m =k$. Formally, every layer $l^t$ is given by
+\begin{equation}\label{eq:NN}
+ l^t(f^{(t-1)}) = \sigma \left(\bW^{(t)} \vec{x} + b^{(t)}  \right),
+\end{equation}
+where: $\bW^{(t)} \in \Rb^{k_{t} \times k_{t-1}}$ is called the \emph{weight}; $b^{(t)} \in \Rb^{k_t}$ is called the \emph{bias}; and $\sigma$ is an \emph{activation function}. Activation functions are nonlinear transformations that are applied pointwise. We will discuss them in more detail later. We will consider several architectures of neural networks that are defined as variants of~\eqref{eq:NN}.
+% The most common example is ReLU defined as $\max(\cdot, 0)$ on every point.
+
+In this paper we are interested in architectures of \emph{graph neural networks} (GNN in short).
+There are many different architectures for GNNs in the literature. The goal of this paper is to compare these architectures in terms of expressiveness, therefore we start by giving a very general definition of a GNN. Afterwards, we will discuss how particular architectures are captured by this definition.
+
+A GNN is defined with respect to a labelled graph $(G,\labl)$, where $G = (V,E)$ and $\labl : V \to \Rb^{k}$. A GNN computes a function $f : L_s \to L_k$, where $L_j$ is the set of all labellings $f : V \to \Rb^j$.
+We will identify every labelling $f \in L_j$ with a matrix $F \in \Rb^{n \times j}$ by putting the label of every node in a separate row.
+A GNN is obtained as composition of layers that compute labellings $l^1, \ldots, l^m$, where every layer computes $l^t(f^{(t-1)}) = f^{(t)} \in L_{k_t}$ and $f^0 = \labl$. For every $f^{(t)}$ let $\bF^{(t)} \in \Rb^{n \times k_{t}}$ be its corresponding matrix. We consider architectures, where each layer $l^t$ is of the form
+\begin{equation}\label{eq:GNN}
+l^t(\bF^{(t)}) = \sigma \left( \bN^{(t)}\bF^{(t)}\bW_1^{(t)} + \bF^{(t)}\bW_2^{(t)} + \bB^{(t)} \right),
+\end{equation}
+where $\bN^{(t)} \in \Rb^{n \times n}$ is called the \emph{neighbourhood}, $\bW_1^{(t)}, \bW_2^{(t)} \in \Rb^{k_{t-1} \times k_t}$ are called \emph{weights}, and $\bB^{(t)} \in \Rb^{n \times k_t}$ is called the \emph{bias}. Compared to~\eqref{eq:NN} the main differences are
+\begin{itemize}
+ \item that there are two weight matrices and they are on the right side.
+ \item
+\end{itemize}
+
+More specifically, a GNN computes for each vertex $v\in V$ a feature vector $\mathbf{F}^{(t)}_{v\bullet}$  in layer $t$ by combining:
 \begin{itemize}
 	\item[] (i)~the feature vector $\mathbf{F}^{(t-1)}_{v\bullet}$ of $v$ from the previous layer; and
 	\item[] (ii)~the multi-set of features from the previous layer  of $v$'s neighbors, i.e., the multi-set $\ldbl \mathbf{F}^{(t-1)}_{u\bullet} \st u \in N_G(v) \rdbl$.
