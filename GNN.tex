@@ -2,42 +2,48 @@
 
 
 \section{Graph neural networks}
-Neural networks are a model to compute functions $f : \Rb^s \to \Rb^k$ obtained as a composition of layers $l^1,\ldots, l^m$. Every layer $l^t$ computes a function $f^{(t)} : \Rb^{k_{t-1}} \to \Rb^{k_t}$ based on the previous layer, where $k_0 = s$ and $k_m =k$. Formally, every layer $l^t$ is given by
+Neural networks are a model to compute functions $f : \Rb^s \to \Rb^k$ obtained as a composition of layers $l^1,\ldots, l^m$. Every layer $l^t$ computes a function $f^{(t)} : \Rb^{s} \to \Rb^{k_t}$ based on the previous layer, where $k_0 = s$ and $k_m =k$. To ease the presentation we assume that $f^{(0)} : \Rb^s \to \Rb^s$ is the identity function. Formally, $f = l^m \circ \ldots \circ l^1 $ and every layer $l^t$ is given by
 \begin{equation}\label{eq:NN}
- l^t(f^{(t-1)}) = \sigma \left(\bW^{(t)} \vec{x} + b^{(t)}  \right),
+ l^t(f^{(t-1)}) (\vec{x}) = \sigma \left(\bW^{(t)} f^{(t-1)}(\vec{x}) + b^{(t)}  \right),
 \end{equation}
-where: $\bW^{(t)} \in \Rb^{k_{t} \times k_{t-1}}$ is called the \emph{weight}; $b^{(t)} \in \Rb^{k_t}$ is called the \emph{bias}; and $\sigma$ is an \emph{activation function}. Activation functions are nonlinear transformations that are applied pointwise. We will discuss them in more detail later. We will consider several architectures of neural networks that are defined as variants of~\eqref{eq:NN}.
+where: $\bW^{(t)} \in \Rb^{k_{t} \times k_{t-1}}$ is called the \emph{weight}; $b^{(t)} \in \Rb^{k_t}$ is called the \emph{bias}; and $\sigma$ is an \emph{activation function}. Activation functions are nonlinear transformations that are applied pointwise. We will discuss them in more detail later. We will study several architectures of neural networks that will be variants of~\eqref{eq:NN}, which is a standard presentation of a neural network~\cite{?}.
 % The most common example is ReLU defined as $\max(\cdot, 0)$ on every point.
 
 In this paper we are interested in architectures of \emph{graph neural networks} (GNN in short).
-There are many different architectures for GNNs in the literature. The goal of this paper is to compare these architectures in terms of expressiveness, therefore we start by giving a very general definition of a GNN. Afterwards, we will discuss how particular architectures are captured by this definition.
+There are many different architectures for GNNs in the literature and the goal of this paper is to compare these architectures in terms of expressiveness. We will start by giving a very general definition of a GNN and afterwards, we will discuss how particular architectures are captured by this definition.
 
 A GNN is defined with respect to a labelled graph $(G,\labl)$, where $G = (V,E)$ and $\labl : V \to \Rb^{k}$. A GNN computes a function $f : L_s \to L_k$, where $L_j$ is the set of all labellings $f : V \to \Rb^j$.
-We will identify every labelling $f \in L_j$ with a matrix $F \in \Rb^{n \times j}$ by putting the label of every node in a separate row.
-A GNN is obtained as composition of layers that compute labellings $l^1, \ldots, l^m$, where every layer computes $l^t(f^{(t-1)}) = f^{(t)} \in L_{k_t}$ and $f^0 = \labl$. For every $f^{(t)}$ let $\bF^{(t)} \in \Rb^{n \times k_{t}}$ be its corresponding matrix. We consider architectures, where each layer $l^t$ is of the form
-\begin{equation}\label{eq:GNN}
-l^t(\bF^{(t)}) = \sigma \left( \bN^{(t)}\bF^{(t)}\bW_1^{(t)} + \bF^{(t)}\bW_2^{(t)} + \bB^{(t)} \right),
+We will identify every labelling $f \in L_j$ with a matrix $\bF \in \Rb^{n \times j}$ by putting the label of every node in a separate row.
+A GNN is obtained as composition of layers that compute labellings $l^1, \ldots, l^m$, where every layer computes $l^t(f^{(t-1)}) = f^{(t)} \in L_{k_t}$ and $f^{(0)} = \labl$. For every $f^{(t)}$ let $\bF^{(t)} \in \Rb^{n \times k_{t}}$ be its corresponding matrix. We consider architectures, where each layer $l^t$ is of the form
+\begin{equation}\label{eq:GNNs}
+l^t(\bF^{(t)}) = \sigma \left( \bN\bF^{(t)}\bW_1^{(t)} + \bF^{(t)}\bW_2^{(t)} + \bB^{(t)} \right),
 \end{equation}
-where $\bN^{(t)} \in \Rb^{n \times n}$ is called the \emph{neighbourhood}, $\bW_1^{(t)}, \bW_2^{(t)} \in \Rb^{k_{t-1} \times k_t}$ are called \emph{weights}, and $\bB^{(t)} \in \Rb^{n \times k_t}$ is called the \emph{bias}. Compared to~\eqref{eq:NN} the main differences are
-\begin{itemize}
- \item that there are two weight matrices and they are on the right side.
- \item
-\end{itemize}
+where $\bN^{(t)} \in \Rb^{n \times n}$ is called the \emph{neighbourhood}, $\bW_1^{(t)}, \bW_2^{(t)} \in \Rb^{k_{t-1} \times k_t}$ are called \emph{weights}, and $\bB^{(t)} \in \Rb^{n \times k_t}$ is called the \emph{bias}. The bias is restricted to matrices such that all rows of the matrix are the same. Compared to~\eqref{eq:NN} there are four main differences.
+\begin{enumerate}
+\item The initial $f^{(0)}$ is given by the labelling $\labl$ instead of being identity. This is because we consider labelled graphs. Unlabelled graphs are represented $\labl$ that is identical for all vertices.
+ \item There is a new neighbourhood component. Intuitively, this allows us to gather the information about the neighbourhood of each node. Typically $\bN$ will be the adjacency matrix.
+ \item There are two weight matrices and they appear on the right side of the previous labelling $\bF^{(t)}$. Here it is important weight matrices appear on the right because we want to restrict combining information about different rows to the neighbourhood component. The reason there are two matrices is to have separately the information about the neighbourhood and about the previous labelling.
+ \item The bias is restricted. Like before, the reason is to forbid distinguishing rows with measures other than the neighbourhood information.
+\end{enumerate}
 
-More specifically, a GNN computes for each vertex $v\in V$ a feature vector $\mathbf{F}^{(t)}_{v\bullet}$  in layer $t$ by combining:
-\begin{itemize}
-	\item[] (i)~the feature vector $\mathbf{F}^{(t-1)}_{v\bullet}$ of $v$ from the previous layer; and
-	\item[] (ii)~the multi-set of features from the previous layer  of $v$'s neighbors, i.e., the multi-set $\ldbl \mathbf{F}^{(t-1)}_{u\bullet} \st u \in N_G(v) \rdbl$.
-\end{itemize}
-One typically parametrizes GNNs by how this combination is achieved. We here follow~\cite{grohewl,DBLP:conf/iclr/XuHLJ19}  in which combination and aggregation functions for each layer $t$ are considered, denoted by
+% More specifically, a GNN computes for each vertex $v\in V$ a feature vector $\mathbf{F}^{(t)}_{v\bullet}$  in layer $t$ by combining:
+% \begin{itemize}
+% 	\item[] (i)~the feature vector $\mathbf{F}^{(t-1)}_{v\bullet}$ of $v$ from the previous layer; and
+% 	\item[] (ii)~the multi-set of features from the previous layer  of $v$'s neighbors, i.e., the multi-set $\ldbl \mathbf{F}^{(t-1)}_{u\bullet} \st u \in N_G(v) \rdbl$.
+% \end{itemize}
+% One typically parametrises GNNs by how this combination is achieved.
+
+Consider a more abstract presentation of~\eqref{eq:GNNs}.
+We follow~\cite{grohewl,DBLP:conf/iclr/XuHLJ19} in which combination and aggregation functions for each layer $t$ are considered, denoted by
 $f_{\textsl{comb}}^{(t)}$ and
-$f_{\textsl{agg}}^{(t)}$, respectively, and features are updated as follows.  For each vertex $v\in V$ and layer $t$:
+$f_{\textsl{agg}}^{(t)}$, respectively. Then the layers are define by updates as follows. For each vertex $v\in V$ and layer $t$:
 \begin{equation}
-\mathbf{F}^{(t)}_{v\bullet}:=
+\mathbf{F}^{(t+1)}_{v\bullet}:=
 f_{\textsl{comb}}^{(t)}\Bigl(
 \mathbf{F}_{v\bullet}^{(t-1)},f_{\textsl{aggr}}^{(t)}\bigl(\ldbl \mathbf{F}^{(t-1)}_{u\bullet} \st u \in N_G(v) \rdbl\bigr)
 \Bigr), \label{lab:generalGNN}
 \end{equation}
+where $\mathbf{F}^{(t)}_{v\bullet} = l^{}$.
  Finally, if a GNN consists of $L$ layers then
 $\mathbf{F}^{(L)}$ is used to classify the vertices in $G$ different classes. More precisely, vertices $v$ and $w$ will belong to the same class if and only if 
 $\mathbf{F}^{(L)}_{v\bullet}=\mathbf{F}^{(L)}_{w\bullet}$, i.e., when their feature vectors are equal.
