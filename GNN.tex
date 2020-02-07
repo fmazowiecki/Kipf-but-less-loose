@@ -9,16 +9,16 @@ Neural networks are a model to compute functions $f : \Rb^s \to \Rb^k$ obtained 
 where: $\bW^{(t)} \in \Rb^{k_{t} \times k_{t-1}}$ is called the \emph{weight}; $b^{(t)} \in \Rb^{k_t}$ is called the \emph{bias}; and $\sigma$ is an \emph{activation function}. Activation functions are nonlinear transformations that are applied pointwise. We will discuss them in more detail later. We will study several architectures of neural networks that will be variants of~\eqref{eq:NN}, which is a standard presentation of a neural network~\cite{?}.
 % The most common example is ReLU defined as $\max(\cdot, 0)$ on every point.
 
-In this paper we are interested in architectures of \emph{graph neural networks} (GNN in short).
-There are many different architectures for GNNs in the literature and the goal of this paper is to compare these architectures in terms of expressiveness. We will start by giving a very general definition of a GNN and afterwards, we will discuss how particular architectures are captured by this definition.
+In this paper we are interested in architectures of \emph{graph neural networks} (GNN in short). 
+There are many different architectures for GNNs in the literature and the goal of this paper is to compare these architectures in terms of expressiveness. In this paper we will present GNNs as a model computing labellings of a graph. However, a labelling of a graph is essentially a function assigning a real vector to every node and it could be also interpreted as a node classifier (as it often is in the literature). We will start by giving a very general definition of a GNN and afterwards, we will discuss how particular architectures are captured by this definition.
 
 A GNN is defined with respect to a labelled graph $(G,\labl)$, where $G = (V,E)$ and $\labl : V \to \Rb^{k}$. A GNN computes a function $f : L_s \to L_k$, where $L_j$ is the set of all labellings $f : V \to \Rb^j$.
 We will identify every labelling $f \in L_j$ with a matrix $\bF \in \Rb^{n \times j}$ by putting the label of every node in a separate row.
 A GNN is obtained as composition of layers that compute labellings $l^1, \ldots, l^m$, where every layer computes $l^t(f^{(t-1)}) = f^{(t)} \in L_{k_t}$ and $f^{(0)} = \labl$. For every $f^{(t)}$ let $\bF^{(t)} \in \Rb^{n \times k_{t}}$ be its corresponding matrix. We consider architectures, where each layer $l^t$ is of the form
 \begin{equation}\label{eq:GNNs}
-l^t(\bF^{(t)}) = \sigma \left( \bN\bF^{(t)}\bW_1^{(t)} + \bF^{(t)}\bW_2^{(t)} + \bB^{(t)} \right),
+l^t(\bF^{(t-1)}) = \sigma \left( \bN\bF^{(t-1)}\bW_1^{(t)} + \bF^{(t)}\bW_2^{(t)} + \bB^{(t)} \right),
 \end{equation}
-where $\bN^{(t)} \in \Rb^{n \times n}$ is called the \emph{neighbourhood}, $\bW_1^{(t)}, \bW_2^{(t)} \in \Rb^{k_{t-1} \times k_t}$ are called \emph{weights}, and $\bB^{(t)} \in \Rb^{n \times k_t}$ is called the \emph{bias}. The bias is restricted to matrices such that all rows of the matrix are the same. Compared to~\eqref{eq:NN} there are four main differences.
+where $\bN \in \Rb^{n \times n}$ is called the \emph{neighbourhood}, $\bW_1^{(t)}, \bW_2^{(t)} \in \Rb^{k_{t-1} \times k_t}$ are called \emph{weights}, and $\bB^{(t)} \in \Rb^{n \times k_t}$ is called the \emph{bias}. The bias is restricted to matrices such that all rows of the matrix are the same. Compared to~\eqref{eq:NN} there are four main differences.
 \begin{enumerate}
 \item The initial $f^{(0)}$ is given by the labelling $\labl$ instead of being identity. This is because we consider labelled graphs. Unlabelled graphs are represented $\labl$ that is identical for all vertices.
  \item There is a new neighbourhood component. Intuitively, this allows us to gather the information about the neighbourhood of each node. Typically $\bN$ will be the adjacency matrix.
@@ -33,18 +33,20 @@ where $\bN^{(t)} \in \Rb^{n \times n}$ is called the \emph{neighbourhood}, $\bW_
 % \end{itemize}
 % One typically parametrises GNNs by how this combination is achieved.
 
-Consider a more abstract presentation of~\eqref{eq:GNNs}.
-We follow~\cite{grohewl,DBLP:conf/iclr/XuHLJ19} in which combination and aggregation functions for each layer $t$ are considered, denoted by
-$f_{\textsl{comb}}^{(t)}$ and
-$f_{\textsl{agg}}^{(t)}$, respectively. Then the layers are define by updates as follows. For each vertex $v\in V$ and layer $t$:
+We will discuss a more abstract definition of a GNN than~\eqref{eq:GNNs}.
+For each layer $t$ we consider two functions:
+combination function $f_{\textsl{comb}}^{(t)}$; and aggregation function
+$f_{\textsl{agg}}^{(t)}$. The layers are defined as follows. For each vertex $v\in V$ and layer $t$:
 \begin{equation}
-\mathbf{F}^{(t+1)}_{v\bullet}:=
+\mathbf{F}^{(t)}_{v\bullet}:=
 f_{\textsl{comb}}^{(t)}\Bigl(
 \mathbf{F}_{v\bullet}^{(t-1)},f_{\textsl{aggr}}^{(t)}\bigl(\ldbl \mathbf{F}^{(t-1)}_{u\bullet} \st u \in N_G(v) \rdbl\bigr)
 \Bigr), \label{lab:generalGNN}
 \end{equation}
-where $\mathbf{F}^{(t)}_{v\bullet} = l^{}$.
- Finally, if a GNN consists of $L$ layers then
+where $\mathbf{F}^{(t)} = l^{t}(\mathbf{F}^{(t-1)})$.
+
+
+Finally, if a GNN consists of $L$ layers then
 $\mathbf{F}^{(L)}$ is used to classify the vertices in $G$ different classes. More precisely, vertices $v$ and $w$ will belong to the same class if and only if 
 $\mathbf{F}^{(L)}_{v\bullet}=\mathbf{F}^{(L)}_{w\bullet}$, i.e., when their feature vectors are equal.
 
