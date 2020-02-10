@@ -2,7 +2,7 @@
 
 
 \section{Graph neural networks}
-Neural networks are a model to compute functions $f : \Rb^s \to \Rb^k$ obtained as a composition of layers $l^1,\ldots, l^m$. Every layer $l^t$ computes a function $f^{(t)} : \Rb^{s} \to \Rb^{k_t}$ based on the previous layer, where $k_0 = s$ and $k_m =k$. To ease the presentation we assume that $f^{(0)} : \Rb^s \to \Rb^s$ is the identity function. Formally, $f = l^m \circ \ldots \circ l^1 $ and every layer $l^t$ is given by
+Neural networks are a model to compute functions $f : \Rb^s \to \Rb^k$ obtained as a composition of layers $l^1,\ldots, l^m$.  Slightly abusing the notation we will identify a GNN with the function $f$ it computes. Every layer $l^t$ computes a function $f^{(t)} : \Rb^{s} \to \Rb^{k_t}$ based on the previous layer, where $k_0 = s$ and $k_m =k$. To ease the presentation we assume that $f^{(0)} : \Rb^s \to \Rb^s$ is the identity function. Formally, $f = l^m \circ \ldots \circ l^1 $ and every layer $l^t$ is given by
 \begin{equation}\label{eq:NN}
  l^t(f^{(t-1)}) (\vec{x}) = \sigma \left(\bW^{(t)} f^{(t-1)}(\vec{x}) + b^{(t)}  \right),
 \end{equation}
@@ -14,17 +14,29 @@ There are many different architectures for GNNs in the literature and the goal o
 
 A GNN is defined with respect to a labelled graph $(G,\labl)$, where $G = (V,E)$ and $\labl : V \to \Rb^{k}$. A GNN computes a function $f : L_s \to L_k$, where $L_j$ is the set of all labellings $f : V \to \Rb^j$.
 We will identify every labelling $f \in L_j$ with a matrix $\bF \in \Rb^{n \times j}$ by putting the label of every node in a separate row.
-A GNN is obtained as composition of layers that compute labellings $l^1, \ldots, l^m$, where every layer computes $l^t(f^{(t-1)}) = f^{(t)} \in L_{k_t}$ and $f^{(0)} = \labl$. For every $f^{(t)}$ let $\bF^{(t)} \in \Rb^{n \times k_{t}}$ be its corresponding matrix. We consider architectures, where each layer $l^t$ is of the form
+A GNN is obtained as composition of layers that compute labellings $l^1, \ldots, l^m$, where every layer computes $l^t(f^{(t-1)}) = f^{(t)} \in L_{k_t}$ and $f^{(0)} \equiv \labl$. For every $f^{(t)}$ let $\bF^{(t)} \in \Rb^{n \times k_{t}}$ be its corresponding matrix. We consider architectures, where each layer $l^t$ is of the form
 \begin{equation}\label{eq:GNNs}
-l^t(\bF^{(t-1)}) = \sigma \left( \bN\bF^{(t-1)}\bW_1^{(t)} + \bF^{(t)}\bW_2^{(t)} + \bB^{(t)} \right),
+l^t(\bF^{(t-1)}) = \sigma \left( \bF^{(t)}\bW_1^{(t)} + \bN\bF^{(t-1)}\bW_2^{(t)} + \bB^{(t)} \right),
 \end{equation}
 where $\bN \in \Rb^{n \times n}$ is called the \emph{neighbourhood}, $\bW_1^{(t)}, \bW_2^{(t)} \in \Rb^{k_{t-1} \times k_t}$ are called \emph{weights}, and $\bB^{(t)} \in \Rb^{n \times k_t}$ is called the \emph{bias}. The bias is restricted to matrices such that all rows of the matrix are the same. Compared to~\eqref{eq:NN} there are four main differences.
 \begin{enumerate}
-\item The initial $f^{(0)}$ is given by the labelling $\labl$ instead of being identity. This is because we consider labelled graphs. Unlabelled graphs are represented $\labl$ that is identical for all vertices.
- \item There is a new neighbourhood component. Intuitively, this allows us to gather the information about the neighbourhood of each node. Typically $\bN$ will be the adjacency matrix.
- \item There are two weight matrices and they appear on the right side of the previous labelling $\bF^{(t)}$. Here it is important weight matrices appear on the right because we want to restrict combining information about different rows to the neighbourhood component. The reason there are two matrices is to have separately the information about the neighbourhood and about the previous labelling.
+\item The initial $f^{(0)}$ is equivalent to the labelling $\labl$ instead of being identity. This is because we consider labelled graphs. Unlabelled graphs are represented with $\labl$ that is identical on all vertices.
+ \item There is a new neighbourhood component. Intuitively, this allows us to gather the information about the neighbourhood of each node. Typically $\bN$ will be the adjacency matrix $\bA$.
+ \item There are two weight matrices and they appear on the right side of the previous labelling $\bF^{(t)}$. Here it is important weight matrices appear on the right because we want to restrict combining information about different rows to the neighbourhood component. The reason that there are two matrices is to have separately the information about the neighbourhood and about the previous labelling.
  \item The bias is restricted. Like before, the reason is to forbid distinguishing rows with measures other than the neighbourhood information.
 \end{enumerate}
+In this paper we will consider GNN architectures that are restrictions of~\eqref{eq:GNNs}. For example we call \emph{standard architecture} the architecture, where $\bN = \bA$ and the bias is always of the form $q \bJ$, where $\bJ$ is a matrix with all entries equal to~$1$. We will identify architectures with the set of functions $f : \Rb^s \to \Rb^k$ that are definable by GNNs that the architecture allows. We will denote architectures using the font $\architecture$ and we will write $f \in \architecture$ meaning that $f$ is a function computable by a GNN in the architecture $\architecture$.
+
+For every GNN $f$ with $m$ layers we define the \emph{layer sequence} of labellings obtained between each layers $f^{(0)}, \ldots f^{(m)}$. We will analyse the properties of architectures by analysing the layer sequences. We say that a GNN $f$ is \emph{monotonic} if $f^{(m)} \sqsubseteq f^{(m-1)} \sqsubseteq \ldots \sqsubseteq f^{(0)}$. We say that an architecture $\architecture$ is monotonic if for every $f\in \architecture$ and its layer sequence $f^{(0)}, \ldots f^{(m)}$ there exists $g \in \architecture$ with the layer sequence $g^{(0)}, \ldots g^{(m)}$ such that $g$ is monotonic and $g^{(i)} \sqsubseteq f^{(i)}$ for all $i = 0,\ldots, m$.
+
+\begin{definition}\label{def:comparing}
+Consider two architectures $\architecture$ and $\architecture'$. We say that $\architecture$ is bounded by $\architecture'$ if for every $f \in \architecture$ with the layer sequence $f^{(0)}, \ldots f^{(m)}$ there exists constants $a,b \in \Nb$ and $g \in \architecture'$ with the layer sequence $g^{(0)}, \ldots g^{(am + b)}$ such that $g^{(ai + b)} \sqsubseteq f^{(i)}$ for all $i = 0,\ldots,m$.
+\end{definition}
+
+Before we continue we present an example motivating the formulation of Definition~\ref{def:comparing}. It might seem natural to remove from the definition the two constants $a,b \in \Nb$.
+
+We introduce two more definitions. First let us recall that 
+
 
 % More specifically, a GNN computes for each vertex $v\in V$ a feature vector $\mathbf{F}^{(t)}_{v\bullet}$  in layer $t$ by combining:
 % \begin{itemize}
@@ -43,14 +55,13 @@ f_{\textsl{comb}}^{(t)}\Bigl(
 \mathbf{F}_{v\bullet}^{(t-1)},f_{\textsl{aggr}}^{(t)}\bigl(\ldbl \mathbf{F}^{(t-1)}_{u\bullet} \st u \in N_G(v) \rdbl\bigr)
 \Bigr), \label{lab:generalGNN}
 \end{equation}
-where $\mathbf{F}^{(t)} = l^{t}(\mathbf{F}^{(t-1)})$.
+where $\mathbf{F}^{(t)} = l^{t}(\mathbf{F}^{(t-1)})$. Notice that if in~\eqref{eq:GNNs} we restrict to $\bN = \bA$ then~\eqref{lab:generalGNN} captures that definition.
 
+% Finally, if a GNN consists of $L$ layers then
+% $\mathbf{F}^{(L)}$ is used to classify the vertices in $G$ different classes. More precisely, vertices $v$ and $w$ will belong to the same class if and only if 
+% $\mathbf{F}^{(L)}_{v\bullet}=\mathbf{F}^{(L)}_{w\bullet}$, i.e., when their feature vectors are equal.
 
-Finally, if a GNN consists of $L$ layers then
-$\mathbf{F}^{(L)}$ is used to classify the vertices in $G$ different classes. More precisely, vertices $v$ and $w$ will belong to the same class if and only if 
-$\mathbf{F}^{(L)}_{v\bullet}=\mathbf{F}^{(L)}_{w\bullet}$, i.e., when their feature vectors are equal.
-
-The way that GNNs update feature vectors is clearly reminiscent of how the WL procedure works. The relationship between vertex classification by GNNs of the form~(\ref{lab:generalGNN}) and vertex classification by WL can be made precise~\cite{grohewl,DBLP:conf/iclr/XuHLJ19}. To state this relation formally, we define the notions of being \textit{bounded by WL}, for upper bounding the classification power of GNNs, and being \textit{WL-strong}, for lower bounding the classification power of GNNs~\cite{grohewl}. 
+% The way that GNNs update feature vectors is clearly reminiscent of how the WL procedure works. The relationship between vertex classification by GNNs of the form~(\ref{lab:generalGNN}) and vertex classification by WL can be made precise~\cite{grohewl,DBLP:conf/iclr/XuHLJ19}. To state this relation formally, we define the notions of being \textit{bounded by WL}, for upper bounding the classification power of GNNs, and being \textit{WL-strong}, for lower bounding the classification power of GNNs~\cite{grohewl}. 
 
 \begin{definition}[Bounded by WL]\normalfont\label{def:wlupper}
 Let $(G,\pmb{\ell})$ be a labeled graph and let $\pmb{\ell}^{(0)}:=\pmb{\ell}$. Furthermore, denote by 
