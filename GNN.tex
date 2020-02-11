@@ -18,7 +18,7 @@ A GNN is obtained as composition of layers that compute labellings $l^1, \ldots,
 \begin{equation}\label{eq:GNNs}
 l^t(\bF^{(t-1)}) = \sigma \left( \bF^{(t)}\bW_1^{(t)} + \bN\bF^{(t-1)}\bW_2^{(t)} + \bB^{(t)} \right),
 \end{equation}
-where $\bN \in \Rb^{n \times n}$ is called the \emph{neighbourhood}, $\bW_1^{(t)}, \bW_2^{(t)} \in \Rb^{k_{t-1} \times k_t}$ are called \emph{weights}, and $\bB^{(t)} \in \Rb^{n \times k_t}$ is called the \emph{bias}. The bias is restricted to matrices such that all rows of the matrix are the same. Compared to~\eqref{eq:NN} there are four main differences.
+where $\bN \in \Rb^{n \times n}$ is called the \emph{neighbourhood}, $\bW_1^{(t)}, \bW_2^{(t)} \in \Rb^{k_{t-1} \times k_t}$ are called \emph{weights}, and $\bB^{(t)} \in \Rb^{n \times k_t}$ is called the \emph{bias}. The bias is restricted to matrices such that all rows of the matrix are the same. Compared to~\eqref{eq:NN} there are four important differences.
 \begin{enumerate}
 \item The initial $f^{(0)}$ is equivalent to the labelling $\labl$ instead of being identity. This is because we consider labelled graphs. Unlabelled graphs are represented with $\labl$ that is identical on all vertices.
  \item There is a new neighbourhood component. Intuitively, this allows us to gather the information about the neighbourhood of each node. Typically $\bN$ will be the adjacency matrix $\bA$.
@@ -30,10 +30,22 @@ In this paper we will consider GNN architectures that are restrictions of~\eqref
 For every GNN $f$ with $m$ layers we define the \emph{layer sequence} of labellings obtained between each layers $f^{(0)}, \ldots f^{(m)}$. We will analyse the properties of architectures by analysing the layer sequences. We say that a GNN $f$ is \emph{monotonic} if $f^{(m)} \sqsubseteq f^{(m-1)} \sqsubseteq \ldots \sqsubseteq f^{(0)}$. We say that an architecture $\architecture$ is monotonic if for every $f\in \architecture$ and its layer sequence $f^{(0)}, \ldots f^{(m)}$ there exists $g \in \architecture$ with the layer sequence $g^{(0)}, \ldots g^{(m)}$ such that $g$ is monotonic and $g^{(i)} \sqsubseteq f^{(i)}$ for all $i = 0,\ldots, m$.
 
 \begin{definition}\label{def:comparing}
-Consider two architectures $\architecture$ and $\architecture'$. We say that $\architecture$ is bounded by $\architecture'$ if for every $f \in \architecture$ with the layer sequence $f^{(0)}, \ldots f^{(m)}$ there exists constants $a,b \in \Nb$ and $g \in \architecture'$ with the layer sequence $g^{(0)}, \ldots g^{(am + b)}$ such that $g^{(ai + b)} \sqsubseteq f^{(i)}$ for all $i = 0,\ldots,m$.
+Consider two architectures $\architecture$ and $\architecture'$. We say that $\architecture$ is weaker than $\architecture'$ (or equivalently that $\architecture'$ is stronger than $\architecture$) if for every $f \in \architecture$ with the layer sequence $f^{(0)}, \ldots f^{(m)}$ there exists constants $a,b \in \Nb$ and $g \in \architecture'$ with the layer sequence $g^{(0)}, \ldots g^{(am + b)}$ such that $g^{(ai + b)} \sqsubseteq f^{(i)}$ for all $i = 0,\ldots,m$. This is denoted by $\architecture' \sqsubseteq \architecture$. We write $\architecture' \not \sqsubseteq \architecture$ if this property does not hold.
 \end{definition}
 
-Before we continue we present an example motivating the formulation of Definition~\ref{def:comparing}. It might seem natural to remove from the definition the two constants $a,b \in \Nb$.
+It might seem natural to avoid the two constants $a,b \in \Nb$ in Definition~\ref{def:comparing} by fixing $a = 1$ and $b = 0$. We present an example motivating this formulation.
+
+\begin{example}
+Consider two architectures:
+\begin{enumerate}
+ \item $\architecture_1$, where we fix $\bN = \bA$;
+ \item $\architecture_2$, where we fix $\bN = \bA^2$.
+\end{enumerate}
+Intuitively $\architecture_1$ is a stronger architecture as $\architecture_2$ omits some information about the neighbourhood.
+For instance, trivially $\architecture_1 \sqsubseteq \architecture_2$ with $a = 2$ and $b = 0$\todo{shit, this isn't trivial}. But if in Definition~\ref{def:comparing} one fixes $a = 1$ then this does not hold as witnessed by the following example. 
+
+To conclude we show that moreover $\architecture_2 \not \sqsubseteq \architecture_1$.
+\end{example}
 
 We introduce two more definitions. First let us recall that 
 
