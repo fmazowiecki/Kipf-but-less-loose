@@ -2,21 +2,20 @@
 
 
 \section{Graph neural networks}
-Neural networks are a model to compute functions $f : \Rb^s \to \Rb^k$ obtained as a composition of layers $l^1,\ldots, l^m$.  Slightly abusing the notation we will identify a GNN with the function $f$ it computes. Every layer $l^t$ computes a function $f^{(t)} : \Rb^{s} \to \Rb^{k_t}$ based on the previous layer, where $k_0 = s$ and $k_m =k$. To ease the presentation we assume that $f^{(0)} : \Rb^s \to \Rb^s$ is the identity function. Formally, $f = l^m \circ \ldots \circ l^1 $ and every layer $l^t$ is given by
+Neural networks are a model to compute functions $f : \Rb^s \to \Rb^k$ obtained as a composition of layers $l^1,\ldots, l^m$.  Slightly abusing the notation we will identify a GNN with the function $g$ it computes. Every layer $l^t$ computes a function $f^{(t)} : \Rb^{s} \to \Rb^{k_t}$ based on the previous layer, where $k_0 = s$ and $k_m =k$. To ease the presentation we assume that $f^{(0)} : \Rb^s \to \Rb^s$ is the identity function. Formally, a neural network is $g = l^m \circ \ldots \circ l^1 $ and every layer defines $f^{(t)} = l^t(f^{(t-1)})$ as follows
 \begin{equation}\label{eq:NN}
- l^t(f^{(t-1)}) (\vec{x}) = \sigma \left(\bW^{(t)} f^{(t-1)}(\vec{x}) + b^{(t)}  \right),
+ f^{(t)} (\vec{x}) = \sigma \left(\bW^{(t)} f^{(t-1)}(\vec{x}) + b^{(t)}  \right),
 \end{equation}
 where: $\bW^{(t)} \in \Rb^{k_{t} \times k_{t-1}}$ is called the \emph{weight}; $b^{(t)} \in \Rb^{k_t}$ is called the \emph{bias}; and $\sigma$ is an \emph{activation function}. Activation functions are nonlinear transformations that are applied pointwise. We will discuss them in more detail later. We will study several architectures of neural networks that will be variants of~\eqref{eq:NN}, which is a standard presentation of a neural network~\cite{?}.
-% The most common example is ReLU defined as $\max(\cdot, 0)$ on every point.
 
 In this paper we are interested in architectures of \emph{graph neural networks} (GNN in short). 
 There are many different architectures for GNNs in the literature and the goal of this paper is to compare these architectures in terms of expressiveness. In this paper we will present GNNs as a model computing labellings of a graph. However, a labelling of a graph is essentially a function assigning a real vector to every node and it could be also interpreted as a node classifier (as it often is in the literature). We will start by giving a very general definition of a GNN and afterwards, we will discuss how particular architectures are captured by this definition.
 
-A GNN is defined with respect to a labelled graph $(G,\labl)$, where $G = (V,E)$ and $\labl : V \to \Rb^{k}$. A GNN computes a function $f : L_s \to L_k$, where $L_j$ is the set of all labellings $f : V \to \Rb^j$.
+A GNN is defined with respect to a labelling $\labl$ such that there is a labelled graph $(G,\labl)$, where $G = (V,E)$ and $\labl : V \to \Rb^{k}$. A GNN computes a function $g : L_s \to L_k$, where $L_j$ is the set of all labellings $f : V \to \Rb^j$.
 We will identify every labelling $f \in L_j$ with a matrix $\bF \in \Rb^{n \times j}$ by putting the label of every node in a separate row.
-A GNN is obtained as composition of layers that compute labellings $l^1, \ldots, l^m$, where every layer computes $l^t(f^{(t-1)}) = f^{(t)} \in L_{k_t}$ and $f^{(0)} \equiv \labl$. For every $f^{(t)}$ let $\bF^{(t)} \in \Rb^{n \times k_{t}}$ be its corresponding matrix. We consider architectures, where each layer $l^t$ is of the form
+A GNN is obtained as composition of layers $l^1, \ldots, l^m$, where every layer computes $l^t(f^{(t-1)}) = f^{(t)} \in L_{k_t}$ and $f^{(0)} \equiv \labl$. For every $f^{(t)}$ let $\bF^{(t)} \in \Rb^{n \times k_{t}}$ be its corresponding matrix. We consider architectures, where each layer defines $\bF^{(t)} = l^t(\bF^{(t-1)})$ as follows
 \begin{equation}\label{eq:GNNs}
-l^t(\bF^{(t-1)}) = \sigma \left( \bF^{(t)}\bW_1^{(t)} + \bN\bF^{(t-1)}\bW_2^{(t)} + \bB^{(t)} \right),
+\bF^{(t)} = \sigma \left( \bF^{(t)}\bW_1^{(t)} + \bN\bF^{(t-1)}\bW_2^{(t)} + \bB^{(t)} \right),
 \end{equation}
 where $\bN \in \Rb^{n \times n}$ is called the \emph{neighbourhood}, $\bW_1^{(t)}, \bW_2^{(t)} \in \Rb^{k_{t-1} \times k_t}$ are called \emph{weights}, and $\bB^{(t)} \in \Rb^{n \times k_t}$ is called the \emph{bias}. The bias is restricted to matrices such that all rows of the matrix are the same. Compared to~\eqref{eq:NN} there are four important differences.
 \begin{enumerate}
@@ -25,15 +24,24 @@ where $\bN \in \Rb^{n \times n}$ is called the \emph{neighbourhood}, $\bW_1^{(t)
  \item There are two weight matrices and they appear on the right side of the previous labelling $\bF^{(t)}$. Here it is important weight matrices appear on the right because we want to restrict combining information about different rows to the neighbourhood component. The reason that there are two matrices is to have separately the information about the neighbourhood and about the previous labelling.
  \item The bias is restricted. Like before, the reason is to forbid distinguishing rows with measures other than the neighbourhood information.
 \end{enumerate}
-In this paper we will consider GNN architectures that are restrictions of~\eqref{eq:GNNs}. For example we call \emph{standard architecture} the architecture, where $\bN = \bA$ and the bias is always of the form $q \bJ$, where $\bJ$ is a matrix with all entries equal to~$1$. We will identify architectures with the set of functions $f : \Rb^s \to \Rb^k$ that are definable by GNNs that the architecture allows. We will denote architectures using the font $\architecture$ and we will write $f \in \architecture$ meaning that $f$ is a function computable by a GNN in the architecture $\architecture$.
+The final labelling defined by a GNN $g$ on the graph $(G,\labl)$ is $g(\labl)$. Notice that $g(\labl')$ is well-defined for the same graph with a different labelling $(G,\labl')$. For convenience we call labellings $\labl$ \emph{compatible with $g$} if $g(\labl)$ is well-defined.
 
-For every GNN $f$ with $m$ layers we define the \emph{layer sequence} of labellings obtained between each layers $f^{(0)}, \ldots f^{(m)}$. We will analyse the properties of architectures by analysing the layer sequences. We say that a GNN $f$ is \emph{monotonic} if $f^{(m)} \sqsubseteq f^{(m-1)} \sqsubseteq \ldots \sqsubseteq f^{(0)}$. We say that an architecture $\architecture$ is monotonic if for every $f\in \architecture$ and its layer sequence $f^{(0)}, \ldots f^{(m)}$ there exists $g \in \architecture$ with the layer sequence $g^{(0)}, \ldots g^{(m)}$ such that $g$ is monotonic and $g^{(i)} \sqsubseteq f^{(i)}$ for all $i = 0,\ldots, m$.
+In this paper we will consider GNN architectures that are restrictions of~\eqref{eq:GNNs}. For example we call \emph{standard architecture} the architecture, where $\bN = \bA$ and the bias $\mathbf{B}^{(t)}$ is always of the form $q \bJ$, where $q \in \Rb$ and $\bJ$ is a matrix with all entries equal to~$1$. This is denoted by
+\begin{equation}
+\mathbf{F}^{(t)}:=\sigma\Bigl(\mathbf{F}^{(t-1)}\mathbf{W}_1^{(t)}+ \mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t)} + q^{(t)} \bJ \Bigr), \label{eq:groheGNN}
+\end{equation}
+where we write $q^{(t)}$ to emphasise that it can be different for each layer.
+
+We will identify architectures with the set of functions $g$ that are definable by GNNs that the architecture allows. 
+We will denote architectures using the font $\architecture$ and we will write $g \in \architecture$ meaning that $g$ is computable by a GNN in the architecture $\architecture$.
+
+% For every GNN $f$ with $m$ layers we define the \emph{layer sequence} of labellings obtained between each layers $f^{(0)}, \ldots f^{(m)}$. We will analyse the properties of architectures by analysing the layer sequences. We say that a GNN $f$ is \emph{monotonic} if $f^{(m)} \sqsubseteq f^{(m-1)} \sqsubseteq \ldots \sqsubseteq f^{(0)}$. We say that an architecture $\architecture$ is monotonic if for every $f\in \architecture$ and its layer sequence $f^{(0)}, \ldots f^{(m)}$ there exists $g \in \architecture$ with the layer sequence $g^{(0)}, \ldots g^{(m)}$ such that $g$ is monotonic and $g^{(i)} \sqsubseteq f^{(i)}$ for all $i = 0,\ldots, m$.
 
 \begin{definition}\label{def:comparing}
-Consider two architectures $\architecture$ and $\architecture'$. We say that $\architecture$ is weaker than $\architecture'$ (or equivalently that $\architecture'$ is stronger than $\architecture$) if for every $f \in \architecture$ with the layer sequence $f^{(0)}, \ldots f^{(m)}$ there exists constants $a,b \in \Nb$ and $g \in \architecture'$ with the layer sequence $g^{(0)}, \ldots g^{(am + b)}$ such that $g^{(ai + b)} \sqsubseteq f^{(i)}$ for all $i = 0,\ldots,m$. This is denoted by $\architecture' \sqsubseteq \architecture$. We write $\architecture' \not \sqsubseteq \architecture$ if this property does not hold.
+Consider two architectures $\architecture$ and $\architecture'$. We say that $\architecture$ is weaker than $\architecture'$ (or equivalently that $\architecture'$ is stronger than $\architecture$) if: for every $g \in \architecture$ with $m$ layers and every labelling $\labl$ compatible with $g$ there exists $g' \in \architecture'$ with $m'$ layers such that $g'(\labl) \sqsubseteq g(\labl)$.
+This is denoted by $\architecture' \sqsubseteq \architecture$. We write $\architecture' \not \sqsubseteq \architecture$ if this property does not hold.
+If we require that there exists a uniform constant $c$ such that $m' \le m + c$ then we write that $\architecture' \sqsubseteq \architecture$ up to a constant factor $c$. In the particular case when this holds for $c = 0$ we write that $\architecture' \sqsubseteq \architecture$ with no factor. Similarly, if there exist uniform constants $c, c'$ such that $m' \le cm + c'$ we write that $\architecture' \sqsubseteq \architecture$ up to a linear factor $c$.
 \end{definition}
-
-It might seem natural to avoid the two constants $a,b \in \Nb$ in Definition~\ref{def:comparing} by fixing $a = 1$ and $b = 0$. We present an example motivating this formulation.
 
 \begin{example}
 Consider two architectures:
@@ -41,14 +49,11 @@ Consider two architectures:
  \item $\architecture_1$, where we fix $\bN = \bA$;
  \item $\architecture_2$, where we fix $\bN = \bA^2$.
 \end{enumerate}
-Intuitively $\architecture_1$ is a stronger architecture as $\architecture_2$ omits some information about the neighbourhood.
-For instance, trivially $\architecture_1 \sqsubseteq \architecture_2$ with $a = 2$ and $b = 0$\todo{shit, this isn't trivial}. But if in Definition~\ref{def:comparing} one fixes $a = 1$ then this does not hold as witnessed by the following example. 
-
-To conclude we show that moreover $\architecture_2 \not \sqsubseteq \architecture_1$.
+Then $\architecture_1 \sqsubseteq \architecture_2$ up to a linear factor~$2$ and $\architecture_2 \not \sqsubseteq \architecture_1$.
 \end{example}
+\todo{F: I don't know a simple proof of the first statement (I think one can prove it through WL). The second statement requires some simple example.}
 
-We introduce two more definitions. First let us recall that 
-
+Notice that the WL algorithm can be viewed as an architecture. Indeed, for every labelled graph the WL algorithm outputs a labelling. We will denote this by $\architectureWL$. In view of this definition we say that an architecture $\architecture$ is \emph{bounded by WL} if $\architectureWL \sqsubseteq \architecture$. We also say that an architecture $\architecture$ is \emph{WL-strong} if $\architecture \sqsubseteq \architectureWL$. The definitions of bounded by WL and WL-strong up to linear and constant factors carry on in the obvious way.
 
 % More specifically, a GNN computes for each vertex $v\in V$ a feature vector $\mathbf{F}^{(t)}_{v\bullet}$  in layer $t$ by combining:
 % \begin{itemize}
@@ -56,6 +61,13 @@ We introduce two more definitions. First let us recall that
 % 	\item[] (ii)~the multi-set of features from the previous layer  of $v$'s neighbors, i.e., the multi-set $\ldbl \mathbf{F}^{(t-1)}_{u\bullet} \st u \in N_G(v) \rdbl$.
 % \end{itemize}
 % One typically parametrises GNNs by how this combination is achieved.
+
+\subparagraph*{Activation functions.}
+Before we present how architectures compare with the WL algorithm we discuss the activation functions $\sigma$ from~\eqref{eq:GNNs}. We will assume that an architecture has a fixed activation function. Moreover, when we compare two architectures we assume that they use the same activation function. If the activation function is not specified it means that it can be any function. This is particularly important when comparing architectures with WL. When we verify whether $\architectureWL \sqsubseteq \architecture$ we do not specify the activation function $\sigma$ and the intended meaning is that the property of being bounded by WL should work for any $\sigma$. On the contrary, when we verify $\architecture \sqsubseteq \architectureWL$ we write for which activation function the architecture is WL-strong. In this paper we will consider two example activation functions:
+\begin{itemize}
+ \item ReLU defined pointwise as $x \to \max(x, 0)$ for all $x \in \Rb$;
+ \item sign, defined as $sign(x) = 1$ if $x > 0$, $sign(x) = -1$ if $x < 0$ and $sign(0) = 0$ for all $x \in \Rb$.
+\end{itemize}
 
 We will discuss a more abstract definition of a GNN than~\eqref{eq:GNNs}.
 For each layer $t$ we consider two functions:
@@ -75,43 +87,95 @@ where $\mathbf{F}^{(t)} = l^{t}(\mathbf{F}^{(t-1)})$. Notice that if in~\eqref{e
 
 % The way that GNNs update feature vectors is clearly reminiscent of how the WL procedure works. The relationship between vertex classification by GNNs of the form~(\ref{lab:generalGNN}) and vertex classification by WL can be made precise~\cite{grohewl,DBLP:conf/iclr/XuHLJ19}. To state this relation formally, we define the notions of being \textit{bounded by WL}, for upper bounding the classification power of GNNs, and being \textit{WL-strong}, for lower bounding the classification power of GNNs~\cite{grohewl}. 
 
-\begin{definition}[Bounded by WL]\normalfont\label{def:wlupper}
-Let $(G,\pmb{\ell})$ be a labeled graph and let $\pmb{\ell}^{(0)}:=\pmb{\ell}$. Furthermore, denote by 
-$\pmb{\ell}^{(t)}$ the vertex labeling obtained after $t$ iterations of the WL procedure, starting from $\pmb{\ell}^{(0)}$. Let $\mathbf{F}^{(t)}$ be feature matrices computed using a GNN of the form ~(\ref{lab:generalGNN}), for $t\geq 0$. Then, given $\mathbf{F}^{(0)}$ such that $\pmb{\ell}^{(0)}\sqsubseteq \mathbf{F}^{(0)}$ holds, one says that the GNN  is \textit{bounded by WL} if for all $t\geq 0$, 
-$\pmb{\ell}^{(t)}\sqsubseteq \mathbf{F}^{(t)}$.
-% That is, the vertex labeling induced by $\mathbf{F}^{(t)}$ is always coarser than the vertex labeling $\pmb{\ell}^{(t)}$  obtained by WL after $t$ iterations.
-\end{definition}
-In terms of vertex classification this implies that when a GNN is bounded by WL, then 
-for every $t$, when WL classifies two vertices as the same in step $t$, then so does the GNN. 
+% \begin{definition}[Bounded by WL]\normalfont\label{def:wlupper}
+% Let $(G,\pmb{\ell})$ be a labeled graph and let $\pmb{\ell}^{(0)}:=\pmb{\ell}$. Furthermore, denote by 
+% $\pmb{\ell}^{(t)}$ the vertex labeling obtained after $t$ iterations of the WL procedure, starting from $\pmb{\ell}^{(0)}$. Let $\mathbf{F}^{(t)}$ be feature matrices computed using a GNN of the form ~(\ref{lab:generalGNN}), for $t\geq 0$. Then, given $\mathbf{F}^{(0)}$ such that $\pmb{\ell}^{(0)}\sqsubseteq \mathbf{F}^{(0)}$ holds, one says that the GNN  is \textit{bounded by WL} if for all $t\geq 0$, 
+% $\pmb{\ell}^{(t)}\sqsubseteq \mathbf{F}^{(t)}$.
+% % That is, the vertex labeling induced by $\mathbf{F}^{(t)}$ is always coarser than the vertex labeling $\pmb{\ell}^{(t)}$  obtained by WL after $t$ iterations.
+% \end{definition}
+% In terms of vertex classification this implies that when a GNN is bounded by WL, then 
+% for every $t$, when WL classifies two vertices as the same in step $t$, then so does the GNN. 
 
-The boundedness property holds for \textit{any} GNN of the form~(\ref{lab:generalGNN}):
-\begin{proposition}[~\cite{grohewl,DBLP:conf/iclr/XuHLJ19}]\label{prop:upperboundgeneral}
+% The boundedness property holds for \textit{any} GNN of the form~(\ref{lab:generalGNN}):
+\begin{proposition}[\cite{grohewl,DBLP:conf/iclr/XuHLJ19}]\label{prop:upperboundgeneral}
 % Let $(G,\pmb{\ell})$ be a labeled graph and let $\mathbf{F}^{(0)}$ consist of feature vectors such that $\pmb{\ell}^{(0)}\sqsubseteq \mathbf{F}^{(0)}$. Then, $\pmb{\ell}^{(t)}\sqsubseteq \mathbf{F}^{(t)}$ for every $t>0$, where $\mathbf{F}^{(t)}$ is computed by a
-Any GNN of the form~(\ref{lab:generalGNN}) is bounded by WL.
+Any architecture of the form~(\ref{lab:generalGNN}), in particular the standard architecture~\eqref{eq:groheGNN}, is bounded by WL with no factor.
 \end{proposition}
 
+% When the combination and aggregation functions are assumed to be all injective one can further show that GNNs of the form~(\ref{lab:generalGNN}) are also as powerful as WL~\cite{DBLP:conf/iclr/XuHLJ19}. That is, when two vertices are classified as the same by the GNN then they are also classified the same by WL. 
+% We can phrase this more generally in terms of \textit{classes} of GNNs. Here, a class of GNNs is simply a collection of GNNs of the form~(\ref{lab:generalGNN}) in which the allowed aggregation and combination functions are restricted to belong to some class. For example, one could consider the class of injective functions for the combination and aggregation functions.
+% 
+% \begin{definition}[WL-strong]\normalfont\label{def:wlstrong}
+% A \textit{class} of GNNs of the form~(\ref{lab:generalGNN}) is \textit{WL-strong} if for any given labeled graph
+% 	$(G,\pmb{\ell})$, there exist instantiations of the combination and aggregation functions in that class such that for all $t\geq 0$, $\mathbf{F}^{(t)}\sqsubseteq \pmb{\ell}{}^{(t)}$.
+% \end{definition}
 
-When the combination and aggregation functions are assumed to be all injective one can further show that GNNs of the form~(\ref{lab:generalGNN}) are also as powerful as WL~\cite{DBLP:conf/iclr/XuHLJ19}. That is, when two vertices are classified as the same by the GNN then they are also classified the same by WL. 
-We can phrase this more generally in terms of \textit{classes} of GNNs. Here, a class of GNNs is simply a collection of GNNs of the form~(\ref{lab:generalGNN}) in which the allowed aggregation and combination functions are restricted to belong to some class. For example, one could consider the class of injective functions for the combination and aggregation functions.
+% Clearly, for classes of GNNs of the form~(\ref{lab:generalGNN}) that are WL-strong, 
+% Proposition~\ref{prop:upperboundgeneral} implies that for every labeled graph $(G,\pmb{\ell})$ there
+% exist instantiations of the combination and aggregation functions in that class such that
+% for all $t\geq 0$, $\mathbf{F}^{(t)}\equiv \pmb{\ell}{}^{(t)}$. That is, there is at least one particular instantiation of the GNNs in the class that is equivalent to WL in terms of vertex classification.
 
-\begin{definition}[WL-strong]\normalfont\label{def:wlstrong}
-A \textit{class} of GNNs of the form~(\ref{lab:generalGNN}) is \textit{WL-strong} if for any given labeled graph
-	$(G,\pmb{\ell})$, there exist instantiations of the combination and aggregation functions in that class such that for all $t\geq 0$, $\mathbf{F}^{(t)}\sqsubseteq \pmb{\ell}{}^{(t)}$.
-\end{definition}
+This result is complemented by the following.
+\begin{proposition}[\cite{grohewl}]\label{prop:lowerboundgeneral}
+The standard architecture defined by~\eqref{eq:groheGNN} is WL-strong with no factor.
+\end{proposition}
 
-Clearly, for classes of GNNs of the form~(\ref{lab:generalGNN}) that are WL-strong, 
-Proposition~\ref{prop:upperboundgeneral} implies that for every labeled graph $(G,\pmb{\ell})$ there
-exist instantiations of the combination and aggregation functions in that class such that
-for all $t\geq 0$, $\mathbf{F}^{(t)}\equiv \pmb{\ell}{}^{(t)}$. That is, there is at least one particular instantiation of the GNNs in the class that is equivalent to WL in terms of vertex classification.
+% where $\mathbf{W}_1^{(t)}$, $\mathbf{W}_2^{(t)}$  are weight matrices, $\mathbf{B}^{(t)}$ are 
+% constant\footnote{A constant matrix is matrix which is a multiple of the all-ones matrix $\mathbf{J}$.} bias matrices, and $\sigma$ is the sign function. It is readily verified that GNNs of the form~(\ref{eq:groheGNN}) can be seen as  GNNs of the form~(\ref{lab:generalGNN}). Hence, GNNs of the form~(\ref{eq:groheGNN}) are also bounded by WL by Proposition~\ref{prop:upperboundgeneral}.
 
-A specific class of GNNs which is known to be WL-strong~\cite{grohewl} is given by:
-\begin{equation}
-\mathbf{F}^{(t)}:=\sigma\Bigl(\mathbf{F}^{(t-1)}\mathbf{W}_1^{(t)}+ \mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t)} + \mathbf{B}^{(t)}\Bigr), \label{eq:groheGNN}
-\end{equation}
-where $\mathbf{W}_1^{(t)}$, $\mathbf{W}_2^{(t)}$  are weight matrices, $\mathbf{B}^{(t)}$ are 
-constant\footnote{A constant matrix is matrix which is a multiple of the all-ones matrix $\mathbf{J}$.} bias matrices, and $\sigma$ is the sign function. It is readily verified that GNNs of the form~(\ref{eq:groheGNN}) can be seen as  GNNs of the form~(\ref{lab:generalGNN}). Hence, GNNs of the form~(\ref{eq:groheGNN}) are also bounded by WL by Proposition~\ref{prop:upperboundgeneral}.
+More specifically, it was shown in~\cite{grohewl} that the standard architecture is WL-strong wit no factor even if we assume that the bias is uniformly $- \mathbf{J}$ for all layers.
 
-More specifically, it was shown in~\cite{grohewl} that even the class of GNNs of the form
+To conclude the section we discuss architectures from the literature that are restrictions of~\eqref{eq:GNNs}. We divide them into three groups.
+
+\begin{enumerate}
+ \item \emph{Neighbourhood only.} When $\bW_1^{(t)}$ is always the $0$ matrix. The examples we consider are
+ \begin{description}
+% \item[\textit{Adjacency}:]
+% % $\mathbf{L}=\mathbf{R}:=\mathbf{I}$, $p=q:=0$. Hence,
+% $
+% \mathbf{F}^{(t+1)}:=\sigma\left(\mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)}\right)
+% $
+\item[\textit{Random walk (RW-GNN)}:] 
+% $\mathbf{L}:=\mathbf{D}^{-1}$ with $\mathbf{D}$ the degree matrix of $\mathbf{A}$, $\mathbf{R}:=\mathbf{I}$, $p=q:=0$. Hence,
+$$
+\mathbf{F}^{(t)}:=\sigma\left(\mathbf{D}^{-1}\mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right);$$
+\item[\textit{Augmented random walk (RW-GNN+)}:] 
+% $\mathbf{L}:=\tilde{\mathbf{D}}^{-1}$ with $\tilde{\mathbf{D}}$ the degree matrix of $\mathbf{A}+\mathbf{I}$, $\mathbf{R}:=\mathbf{I}$, $p:=1$, $q:=0$. Hence,
+$$
+\mathbf{F}^{(t)}:=\sigma\left(\tilde{\mathbf{D}}^{-1}(\mathbf{A}+\mathbf{I})\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right),$$
+with $\tilde{\mathbf{D}}$ the degree matrix of $\mathbf{A}+\mathbf{I}$;
+\item[\textit{Normalized adjacency (NA-GNN)}:] 
+% $\mathbf{L}=\mathbf{R}:=\mathbf{D}^{-1/2}$, $p=q:=0$. Hence,
+$$
+\mathbf{F}^{(t)}:=\sigma\left(\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right)
+;$$
+\end{description}
+\item \emph{Degree normalised.} Without restrictions on $\bW_1^{(t)}$ but fixing $\bN = \mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}$. For example
+\begin{description}
+\item[\textit{$1$st Order GCN (1-GCN)}:]
+$$
+\mathbf{F}^{(t)}:=\sigma\left(\mathbf{F}^{(t-1)}\mathbf{W}_1^{(t-1)}+\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t-1)}\right);$$
+
+\item[\textit{Simplified $1$st Order GCN (1-GCNs)}:]
+$$
+\mathbf{F}^{(t)}:=\sigma\left((\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}+\mathbf{I})\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t-1)}\right);$$
+\end{description}
+
+\item \emph{Normalised and optimised.} These are the remaining architectures.
+\begin{description}
+\item[\textit{Augmented adjacency (NA-GNN+)}~\cite{kipf-loose}:] % $\mathbf{L}=\mathbf{R}:=\tilde{\mathbf{D}}^{-1/2}$, $p:=1$, $q:=0$. Hence,
+$$
+\mathbf{F}^{(t)}:=\sigma\left(\tilde{\mathbf{D}}^{-1/2}(\mathbf{A}+\mathbf{I})\tilde{\mathbf{D}}^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right);
+$$
+\item[\textit{Weighted augmented adjacency (NA-GNN++)}~\cite{DBLP:journals/corr/abs-1905-03046}:]
+$$\mathbf{F}^{(t)}:=\sigma\left((r\mathbf{I}+(1-r)\tilde{\mathbf{D}})^{-1/2}(\mathbf{A}+p\mathbf{I})(r\mathbf{I}+(1-r)\mathbf{D})^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right),
+$$
+which underlies the PiNet architecture.
+\end{description}
+\end{enumerate}
+
+\subsection{Old stuff that we might use in this section or later}
+
 \begin{equation}
 \mathbf{F}^{(t)}:=\sigma\Bigl(\mathbf{F}^{(t-1)}\mathbf{W}_1^{(t)}+ \mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t)} - \mathbf{J}\Bigr), \label{eq:groheGNNwithJ}
 \end{equation}
@@ -166,47 +230,7 @@ the unique rows in $\mathbf{F}^{(0)}$ are linearly independent. It will become c
 % A graph neural network (GNN) model consists of layers, where each layer specifies how to update a vertex labeling $\mathbf{F}$. A GNN with $k$ layers is defined by updates of $\mathbf{F}^{(t)}$ for $t = 0, \ldots,k$, which denotes the labeling obtained after $t$ layers. A new labeling $\mathbf{F}^{(t+1)}$ is obtained inductively by transformations defined on the previous labeling $\mathbf{F}^{(t)}$. An \emph{architecture} specifies what kind of transformations are allowed.
 
 
-Although GNN architectures of the form~(\ref{eq:groheGNN}) or~(\ref{eq:GNN}) are quite general,  they do not capture some common GNN architectures used in the literature:
-%
-\floris{We may want to add references to the architectures below. This requires some googling around. Also, not entirely happy with the acronym's.
-Better suggestions are welcome!}
-% Well-known GNN architectures can be obtained from~(\ref{eq:architecture}) by varying $\mathbf{L}$ and $\mathbf{R}$, $p$ and $q$, as follows:
-\begin{description}
-% \item[\textit{Adjacency}:]
-% % $\mathbf{L}=\mathbf{R}:=\mathbf{I}$, $p=q:=0$. Hence,
-% $
-% \mathbf{F}^{(t+1)}:=\sigma\left(\mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)}\right)
-% $
-\item[\textit{Random walk (RW-GNN)}:] 
-% $\mathbf{L}:=\mathbf{D}^{-1}$ with $\mathbf{D}$ the degree matrix of $\mathbf{A}$, $\mathbf{R}:=\mathbf{I}$, $p=q:=0$. Hence,
-$$
-\mathbf{F}^{(t)}:=\sigma\left(\mathbf{D}^{-1}\mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right);$$
-\item[\textit{Normalized adjacency (NA-GNN)}:] 
-% $\mathbf{L}=\mathbf{R}:=\mathbf{D}^{-1/2}$, $p=q:=0$. Hence,
-$$
-\mathbf{F}^{(t)}:=\sigma\left(\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right)
-;$$
-\item[\textit{$1$st Order GCN (1-GCN)}:]
-$$
-\mathbf{F}^{(t)}:=\sigma\left(\mathbf{F}^{(t-1)}\mathbf{W}_1^{(t-1)}+\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t-1)}\right);$$
 
-\item[\textit{Simplified $1$st Order GCN (1-GCNs)}:]
-$$
-\mathbf{F}^{(t)}:=\sigma\left((\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}+\mathbf{I})\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t-1)}\right);$$
-\item[\textit{Augmented random walk (RW-GNN+)}:] 
-% $\mathbf{L}:=\tilde{\mathbf{D}}^{-1}$ with $\tilde{\mathbf{D}}$ the degree matrix of $\mathbf{A}+\mathbf{I}$, $\mathbf{R}:=\mathbf{I}$, $p:=1$, $q:=0$. Hence,
-$$
-\mathbf{F}^{(t)}:=\sigma\left(\tilde{\mathbf{D}}^{-1}(\mathbf{A}+\mathbf{I})\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right),$$
-with $\tilde{\mathbf{D}}$ the degree matrix of $\mathbf{A}+\mathbf{I}$; and
-\item[\textit{Augmented adjacency (NA-GNN+)}~\cite{kipf-loose}:] % $\mathbf{L}=\mathbf{R}:=\tilde{\mathbf{D}}^{-1/2}$, $p:=1$, $q:=0$. Hence,
-$$
-\mathbf{F}^{(t)}:=\sigma\left(\tilde{\mathbf{D}}^{-1/2}(\mathbf{A}+\mathbf{I})\tilde{\mathbf{D}}^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right);
-$$
-\item[\textit{Weighted augmented adjacency (NA-GNN++)}~\cite{DBLP:journals/corr/abs-1905-03046}:]
-$$\mathbf{F}^{(t)}:=\sigma\left((r\mathbf{I}+(1-r)\tilde{\mathbf{D}})^{-1/2}(\mathbf{A}+p\mathbf{I})(r\mathbf{I}+(1-r)\mathbf{D})^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right),
-$$
-which underlies the PiNet architecture.
-\end{description}
 % Bias can be added to all previous architectures by setting $q\neq 0$.
 This begs the question how these architectures relate to WL. This question is of particular importance for the augmented adjacency architecture which is often regarded as a continuous version of WL~\cite{kipf-loose}
 \floris{We may want to sell the connection with Kipf a bit more, especially as it served as our motivation to look in all. this.}
