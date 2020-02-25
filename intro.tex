@@ -1,4 +1,55 @@
 %!TEX root =main.tex
 \section{Introduction}\label{sec:intro}
+A standard approach to learning tasks on graph structured data, such as vertex classification, edge prediction, and  graph classification, consists of the construction of a \textit{representation} of vertices and graphs that capture their structural information. Graph Neural Networks (GNNs) are currently considered as the state-of-the art approach for learning such representations. Many variants of GNNs exist but they all follow a similar strategy. More specifically,  each vertex is initially associated with a feature vector. This is followed by a recursive neighbourhood aggregation scheme where each vertex aggregates feature vectors of its neighbours, possibly combines this with its own current feature vector, to finally obtain its new feature vector. After a number of iterations, each vertex is then represented by the resulting feature vector. A representation of a graph is  obtained by combining the feature vectors of each of the vertices in some or other way. The latter process is also called pooling. 
 
-\floris{Clearly, this needs to be written. Let's wait until we have the complete story.}
+The adequacy of GNNs for graph learning tasks is therefore directly related to their so-called \textit{distinguishing power}. Here, distinguishing power refers to the ability of GNNs to distinguish vertices and graphs in terms of their corresponding representations. That is, when two vertices are represented by the same feature vector, they are considered the same with regards to any subsequent feature-based task. Similarly for when two graphs have the same representation.
+
+Only recently a formal study of the distinguishing power of some GNN variants has been initiated. In two independent studies~\cite{xhlj19,grohewl}, it was shown that the distinguishing power of a general class ${\cal C}$ of GNNs is \textit{bounded}. More specifically, in those works, it is shown that for GNNs in ${\cal C}$, two vertices will have the same representation (feature vector) whenever the classical Weisfeiler-Lehman (WL) vertex-colouring algorithm assigns the same colour to these vertices. To recall, the WL algorithm starts from an initial vertex colouring of the graph. Then, similarly as GNNs, the WL algorithm recursively aggregates the colouring of neighbouring vertices. In each recursive step, a vertex colouring is obtained that refines the previous one. The WL algorithm stops when no further refinement is obtained. One then says that the WL algorithm reached the stable vertex colouring. When it comes to distinguishing  graphs, this implies that GNNs in ${\cal C}$ have the same distinguishing power as the WL graph-isomorphism test. This test identifies two graphs whenever they have the same stable vertex colouring. 
+In those works, it was further shown that the WL algorithm can be simulated by means of GNNs in ${\cal C}$. As a consequence, the distinguishing power of the class ${\cal C}$ of GNNs agrees with the distinguishing power of the WL algorithm (on vertices) and the WL-test (on graphs).
+
+In this paper we continue the study of the distinguishing power of classes of GNNs that fall outside the class ${\cal C}$ considered in~\cite{grohewl,xhlj19}.  Prominent examples of such GNNs are the so-called Graph Convolutional Networks (GCNs)~\cite{kipf-loose}. Although GCNs adhere to the same strategy as GNNs (i.e., recursive neighbourhood aggregation), they additionally take into account \textit{vertex degree information}. This brings them outside the class ${\cal C}$ of GNNs.  Our main observation is that the distinguishing power of such GCNs is still bounded by the WL algorithm, \textit{but that they are one step ahead}. Intuitively, this is due to the fact that the degree information, which is part of GCNs from the start, is only derived by the WL algorithm after one step. This advantage of GCNs over more classical GNNs may explain the success of GCNs in various graph learning tasks. 
+
+In addition, we show that the WL algorithm \textit{cannot} be simulated by GCNs. This is somewhat contradictory to the general belief that GCNs can be seen as a ``continuous generalisation'' of the WL algorithm. The reason is that the GCNs in~\cite{kipf-loose} assign equal importance between features
+of the vertex itself and the features of its neighbours. We show that, by introducing a trade-off parameter between features of the vertex and those of its neighbours, the simulation of the WL algorithm can be achieved. We remark that the incorporation of such a trade-off parameter was already suggested in~\cite{kipf-loose} based on empirical results.
+Our simulation result thus provides a theoretical justification of this parameter. We further remark that the trade-off parameter is crucial in the GNN formalism underlying PiNet~\cite{DBLP:journals/corr/abs-1905-03046}.
+
+In the literature one also finds classes of GNNs in which the features of the vertex itself are not taken into account during the recursive aggregation scheme. Since the WL algorithm takes the self-colours into account, it is easily verified that such GNNs have a weaker distinguishing power than those who also use the features of the vertices themselves. Indeed, we show that their distinguishing power is limited by a \textit{weak version of the WL algorithm} (WWL) in which self-colours are ignored. We again show that the WWL algorithm can be simulated by these classes of GNNs.\todo{G: Is this important? Grohe sort of does this but to make it seem important he focuses on unlabelled graphs, right?} 
+
+Finally, in proving our results we refine some of the tools presented in~\cite{grohewl}. In particular, the simulation result of the WL-algorithm depends on the chosen activation function. In~\cite{grohewl}, the sign and ReLU functions were considered. The simulation of the WL algorithm by GNNs using the ReLU activation function was shown by leveraging their simulation of the WL algorithm by GNNs using the sign function. This, however, induces a doubling of the number of layers. We provide a direct simulation of the WL algorithm by GNNs using the ReLU activation function, hereby avoiding the doubling of layers.
+Furthermore, as part of our simulation proof we obtain a very simple form of GNNs that only needs a linear number of parameters (linear in the number of vertices in the graph). By contrast, standard GNNs require a quadratic number of parameters in each layer. These simple forms of GNNs may be of independent interest.
+\todo{G: up to here it reads quite nice!}
+
+\paragraph{Related work.}
+We refer to~\cite{Zhou2018,Zonghan2019} for recent surveys on GNNs and GCNs and instead focus on related work on the distinguishing power of graph neural networks and its connections to the WL-algorithm. As already mentioned,~\cite{xhlj19} and~\cite{grohewl}
+were the first to formally establish this connection. Earlier, the WL algorithm already served as inspiration for the design of WL-kernels~\cite{Shrvashidze2011} and the GraphSAGE GNN framework~\cite{Hamilton2017a}. 
+
+The distinguishing power of the WL algorithm itself is well understood
+\cite{CaiFI92,KieferSS15,ArvindKRV17}. Connections with logic (chileans).
+
+The work by~\cite{grohewl} in which vertex-labelled undirected graphs were considered has been extended to directed graphs, possibly with vertex- and edge-labels~\cite{Jaume2019}. They show that the distinguishing power is still limited by the corresponding notion of the WL algorithm (see e.g.,~\cite{}). 
+
+About $k$-WL -> morris, also
+\cite{NIPS2019_8488} for something in between.
+
+\cite{Wu2019}\cite{Cai2018}: removing activation functions...
+\cite{journals/pieee/OrtegaFKMV18} mentions that SGN are equivalent to symmetric normalised Laplacian in~\cite{Vignac2019OnTC} (they also use the inverse of a matrix as propagation schema. Check)
+
+\cite{chen2019powerful}: interesting: they add features $d, Ad, A^2d,\ldots, A^kd$
+(simplified iterated degrees). We basically show that GCNs are like GNN that start from ell1, the 1-step WL labelling. This paper seems to do something similar, but slightly more general. They say that it may reduce the number of layers, which would not come as a surprise since you compute some of the WL stuff up-front.
+
+ We should be able to bound this as well. Also, it may even make more sense to replace this with iterated degrees,...
+
+\cite{atamna2019principled}: This seems rubbish, check.
+
+\cite{Hoang2019RevisitingGN} relationship to filters.
+
+\cite{Grel2019AnAO} Spectral and information preservation stuff. Interesting, not sure how it links to expressive power.
+Check also Stability and generalization of graph convolutional neural networks
+
+Other kinds of expressiveness questions...check all citations to grohe and xu paper?
+
+\cite{DBLP:journals/corr/abs-1901-09342} universality aspects... check references therein.
+
+position aware GNNs, attention? pooling?
+% \cite{Jin2017,Lei2017}
+\floris{todo.}

@@ -12,13 +12,7 @@ In a nutshell, we will upper and lower bound such architectures by
  %  Indeed,
 % in GNN architectures of the form~\ref{eq:architecture_noid}, the absence of the identity has a consequence that features are updated based on adjacency information alone. We make this now more precise.
 
-We define the \textit{neighbor-only WL}, NWL for short, process as follows. Let $G=(V,\pmb{\mu})$ be a labeled graph and let $\Sigma$ be a set of labels. Initially, let $\pmb{\mu}^{(0)}:=\pmb{\mu}$. 
-Then, the NWL procedure computes a labeling $\pmb{\mu}^{(t)}$, for $t> 0$, as follows: 
-$$
-\pmb{\mu}^{(t)}_v:=\textsc{Hash}\bigl(\ldbl \pmb{\mu}_u^{(t-1)} \st u \in N_G(v) \rdbl\bigr),
-$$
-where $\textsc{Hash}$ bijectively maps the multi-set $\ldbl \pmb{\mu}_u^{(t-1)} \st u \in N_G(v) \rdbl$ of labels of $v$'s neighbors to a unique label in $\Sigma$, which has not been used in previous iterations. When the number of distinct labels in $\pmb{\mu}^{(t)}$ and $\pmb{\mu}^{(t-1)}$ is the same, the NWL algorithm terminates.
-Termination is guaranteed in at most $n$ steps. We refer to the resulting labeling as the \textit{NWL labeling of $(G,\pmb{\mu})$}. 
+
 
 As before, given matrices $\mathbf{L}$ and $\mathbf{R}$ we define the set of 
 extended labels as $\hat{\Sigma}=\Sigma\cup (\Sigma\times L\times R)$ with

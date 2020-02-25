@@ -1,36 +1,46 @@
 %!TEX root =main.tex
 \section{Preliminaries}
-\floris{This section may need updating when we finish the rest.
-Some notations, like $A_{v\bullet}$ etc are missing. So, we check at the end.}
-Let $G=(V,E)$ be an undirected graph consisting of $n$ vertices.
-Given a vertex $v\in V$, we denote by $N_G(v)$ its set of neighbors, i.e., $N_G(v):=\{u\st \{u,v\}\in E\}$. Furthermore, the degree of a vertex $v$, denoted by $d_{v}$, is the number of vertices in $N_G(v)$. With a labeled graph $(G,\pmb{\ell})$ we mean a graph $G=(V,E)$ whose vertices are labeled using a function $\pmb{\ell}:V\to \Sigma$
-for some set $\Sigma$ of labels.
+We denote by $[n]$ the set $\{1,2,\ldots,n\}$ and
+use $\{\!\}$ and $\ldbl\! \rdbl$ to indicate sets and multisets, respectively.
 
-Given $G=(V,E)$, we denote by $\mathbf{A}$ its adjacency matrix of dimension $n \times n$ such that the entry $\mathbf{A}_{vw}=1$ if $\{v,w\}\in E$ and  $\mathbf{A}_{vw}=0$ otherwise. We denote by $\mathbf{D}$ the diagonal matrix such that $\mathbf{D}_{vv}=d_v$ for each $v\in V$. Throughout the paper we will assume that $G$ does not have isolated nodes, which is equivalent to assuming that $\mathbf{D}$ does not have any $0$ entries on the diagonal. We will also assume that there are no self loops, so the diagonal of $\mathbf{A}$ is filled with $0$s.
+Let $G=(V,E)$ be an undirected graph consisting of $n$ vertices. Without loss of generality we assume that $V=[n]$ for some $n\in\Nb$. Given a vertex $v\in V$, we denote by $N_G(v)$ its set of neighbors, i.e., $N_G(v):=\{u\st \{u,v\}\in E\}$. Furthermore, the degree of a vertex $v$, denoted by $d_{v}$, is the number of vertices in $N_G(v)$. With a labelled graph $(G,\pmb{\ell})$ we mean a graph $G=(V,E)$ whose vertices are labelled using a function $\pmb{\ell}:V\to \Sigma$
+for some set $\Sigma$ of labels. 
 
-Given a labeled graph $(G,\pmb{\ell})$, it will be convenient to regard the vertex labeling $\pmb{\ell}$ as a vector in $\Rb^{n\times 1}$ such that $\pmb{\ell}_v:=\pmb{\ell}(v)$. Here, without loss of generality, we silently assume an embedding of  the set $\Sigma$ of labels in $\Rb$. More generally, we also consider vertex labelings in which 
-vertices in $G$ are labeled  with vectors from $\Rb^q$, for some dimension $q \in \Nb$. 
-Given a matrix $\mathbf{F} \in \Rb^{n \times q}$, we refer to the vertex labeling (induced by)
-$\mathbf{F}$ as the labeling which associates vertex $v$ with label the row vector  $\mathbf{F}_{v\bullet}$.
+We also fix the graph $G=(V,E)$ and we denote by $\mathbf{A}$ its adjacency matrix of dimension $n \times n$ such that the entry $\mathbf{A}_{vw}=1$ if $\{v,w\}\in E$ and  $\mathbf{A}_{vw}=0$ otherwise. We denote by $\mathbf{D}$ the diagonal matrix such that $\mathbf{D}_{vv}=d_v$ for each $v\in V$. Throughout the paper we will assume that $G$ does not have isolated nodes, which is equivalent to assuming that $\mathbf{D}$ does not have any $0$ entries on the diagonal. We will also assume that there are no self loops, so the diagonal of $\mathbf{A}$ is filled with $0$s. For an arbitray matrix $\mathbf{B}$ we denote by $\mathbf{B}_{i\bullet}$ the $i$th row of $\mathbf{B}$.
 
-It will be important later on to be able to compare two labelings of $G$.
+Given a labelled graph $(G,\pmb{\ell})$, it will be convenient to regard the vertex labelling $\pmb{\ell}$ as a matrix in $\Rb^{n\times q}$ for some $q$ and we identify the label $\pmb{\ell}(v)$ with the row vector $\pmb{\ell}_{v\bullet}\in\mathbf{R}^{1\times q}$.
+We thus implicitly assume an embedding of  the set $\Sigma$ of labels in $\Rb^{1\times q}$. Conversely,
+given a matrix $\mathbf{F} \in \Rb^{n \times q}$, we refer to the vertex labelling (induced by)
+$\mathbf{F}$ as the labelling which associates vertex $v$ with label the row vector  $\mathbf{F}_{v\bullet}$.
+
+It will be important later on to be able to compare two labellings of $G$.
 Given a matrix $\mathbf{F} \in \Rb^{n\times q}$ and a matrix $\mathbf{F}' \in \Rb^{n\times q'}$ we say that the
-vertex labeling  $\mathbf{F}'$ is coarser than the vertex labeling $\mathbf{F}$, denoted by $\mathbf{F}\sqsubseteq \mathbf{F}'$, if
+vertex labelling  $\mathbf{F}'$ is coarser than the vertex labelling $\mathbf{F}$, denoted by $\mathbf{F}\sqsubseteq \mathbf{F}'$, if
 for all $v,w\in V$,
 $
 \mathbf{F}_{v\bullet}=\mathbf{F}_{w\bullet} \Rightarrow \mathbf{F}'_{v\bullet}=\mathbf{F}'_{w\bullet}
 $
-The vertex labelings $\mathbf{F}$ and $\mathbf{F}'$ are equivalent, denoted by $\mathbf{F}\equiv\mathbf{F}'$, if $\mathbf{F}\sqsubseteq \mathbf{F}'$ and
+The vertex labellings $\mathbf{F}$ and $\mathbf{F}'$ are equivalent, denoted by $\mathbf{F}\equiv\mathbf{F}'$, if $\mathbf{F}\sqsubseteq \mathbf{F}'$ and
 $\mathbf{F}'\sqsubseteq \mathbf{F}$ hold. In other words, $\mathbf{F}\equiv\mathbf{F}'$ if and only if for all $v,w\in V$,
 $
 \mathbf{F}_{v\bullet}=\mathbf{F}_{w\bullet} \Leftrightarrow \mathbf{F}'_{v\bullet}=\mathbf{F}'_{w\bullet}
 $.
 
-Of particular importance is the labeling obtained by color refinement, also known as Weisfeiler-Lehman (or WL, for short). The WL procedure constructs a labeling, in an incremental fashion, based on neighborhood information. More specifically, consider a labeled graph $(G,\pmb{\ell})$. Initially, 
-$\pmb{\ell}^{(0)}:=\pmb{\ell}$. Then, the WL procedure computes a labeling $\pmb{\ell}^{(t)}$, for $t> 0$, as follows: 
+Of particular importance is the labelling obtained by color refinement, also known as Weisfeiler-Lehman (or WL, for short). The WL procedure constructs a labelling, in an incremental fashion, based on neighborhood information. More specifically, consider a labelled graph $(G,\pmb{\ell})$. Initially, 
+$\pmb{\ell}^{(0)}:=\pmb{\ell}$. Then, the WL procedure computes a labelling $\pmb{\ell}^{(t)}$, for $t> 0$, as follows: 
 $$
 \pmb{\ell}^{(t)}_v:=\textsc{Hash}\Bigl(\bigl(\pmb{\ell}^{(t-1)}_v,\ldbl \pmb{\ell}_u^{(t-1)} \st u \in N_G(v) \rdbl\bigr)\Bigr),
 $$
 where $\textsc{Hash}$ bijectively maps the above pair, consisting of (i)~the previous label 
 $\pmb{\ell}^{(t-1)}_v$ of $v$; and (ii)~the multi-set $\ldbl \pmb{\ell}_u^{(t-1)} \st u \in N_G(v) \rdbl$ of labels of $v$'s neighbors, to a unique label in $\Sigma$, which has not been used in previous iterations. When the number of distinct labels in $\pmb{\ell}^{(t)}$ and $\pmb{\ell}^{(t-1)}$ is the same, the 1-WL algorithm terminates.
-Termination is guaranteed in at most $n$ steps. We refer to the resulting labeling as the \textit{WL labeling of $(G,\pmb{\ell})$}. 
+Termination is guaranteed in at most $n$ steps. We refer to the resulting labelling as the \textit{WL labelling of $(G,\pmb{\ell})$}. 
+
+
+We define the \textit{weak WL}, WWL for short, process as follows. Let $G=(V,\pmb{\mu})$ be a labelled graph and let $\Sigma$ be a set of labels. Initially, let $\pmb{\mu}^{(0)}:=\pmb{\mu}$. 
+Then, the WWL procedure computes a labelling $\pmb{\mu}^{(t)}$, for $t> 0$, as follows: 
+$$
+\pmb{\mu}^{(t)}_v:=\textsc{Hash}\bigl(\ldbl \pmb{\mu}_u^{(t-1)} \st u \in N_G(v) \rdbl\bigr),
+$$
+where $\textsc{Hash}$ bijectively maps the multi-set $\ldbl \pmb{\mu}_u^{(t-1)} \st u \in N_G(v) \rdbl$ of labels of $v$'s neighbors to a unique label in $\Sigma$, which has not been used in previous iterations. 
+
+\floris{WWL is strange: it does not seem to produces refinements.}

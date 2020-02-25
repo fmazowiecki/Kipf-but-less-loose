@@ -10,17 +10,19 @@
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
-\usepackage{multirow}      % microtypography
+\usepackage{multirow}       % table tricks
+\usepackage{textcomp}       % quotations
 
 % Our own Macros
 \usepackage{amssymb,amsthm,amsmath}
 \usepackage[textsize=small]{todonotes}
 \presetkeys{todonotes}{inline}{}
 
-%commentshttps://www.overleaf.com/7481143292gkhcfhbrmxyw
+%comments
 \newcommand{\filip}[1]{\todo[inline, color=green!10]{{\bf Filip:} #1}}
 \newcommand{\openprob}[1]{\todo[inline, color=red!10]{{\bf Open problem}: #1}}
 \newcommand{\floris}[1]{\todo[inline, color=blue!10]{{\bf Floris:} #1}}
+\newcommand{\tobdone}[1]{\todo[inline, color=blue!30]{{\bf TODO:} #1}}
 
 \newcommand{\hash}{\textsc{Hash}}
 \providecommand{\st}{}
@@ -50,7 +52,7 @@
 \newtheorem{corollary}{Corollary}
 \newtheorem{example}{Example}
 
-\title{Loosely Stated, Formally Proved: Kipf and Wellington's GCNs
+\title{Loosely Stated, Formally Proved: Kipf and Welling's GCNs
 are Almost 1WL Powerful}
 
 \author{
@@ -83,13 +85,18 @@ are Almost 1WL Powerful}
   so).
 \end{abstract}
 
+\clearpage
+
+\tableofcontents
+
+\clearpage
+
 \input{intro}
 \input{prelim}
 \input{GNN}
 \input{upperb}
 \input{lowerb}
 \input{weakwl}
-
 
 \bibliographystyle{apalike}
 \bibliography{refs}
