@@ -1,7 +1,111 @@
 %!TEX root =main.tex
 
+\section{Message Passing Neural Networks}
+We start by describing message passing neural networks (MPNNs) for  deep learning on graphs, introduced by \cite{GilmerSRVD17}. Roughly speaking, in MPNNs, vertex features are propagated through the graph according to its connectivity structure. 
+An MPNN computes a vertex labeling $\pmb{\ell}:V\to \mathbb{Q}^{s}$, for some $s\in\mathbb{N}^+$, by means of a number of rounds of computation, starting from the input labeled graph $\langle G,\pmb{\nu}\rangle$.
 
-\section{Graph neural networks}
+The vertex labeling computed after round $t$ is denoted by $\pmb{\ell}^{(t)}$. We next detail how $\pmb{\ell}^{(t)}$ is computed.
+\begin{description}\setlength{\itemsep}{-0.4ex}
+\item [Initialisation.]  We let $\pmb{\ell}^{(0)}:=\pmb{\nu}$.
+\end{description}
+Then, for round $t=1,2,\ldots,d$, we define $\pmb{\ell}^{(t)}:V\to\mathbb{Q}^{s}$, as follows\footnote{We can assume, without loss of generality, that every round assigns labels in $\mathbb{Q}^s$ for the same $s$. If not, one can include ``padding with zeroes'' in the message and update functions.}:
+\begin{description}\setlength{\itemsep}{-0.4ex}
+\item [Message Passing.] Each vertex $v\in V$ receives messages from its neighbours which are subsequently aggregated:
+$$
+\mathbf{m}^{(t)}_{v}:=\sum_{u\in N_G(v)}\textsc{Msg}^{(t)}\left(\pmb{\ell}^{(t-1)}_v,\pmb{\ell}^{(t-1)}_u,v,u\right)\in\mathbb{Q}^{s}.
+$$
+\item [Updating.] Each vertex $v\in V$ further updates $\mathbf{m}^{(t)}_{v}$ possibly based on its current label $\pmb{\ell}^{(t-1)}_v$:
+$$
+\pmb{\ell}^{(t)}_v:=\textsc{Upd}^{(t)}\left(\pmb{\ell}^{(t-1)}_v,\mathbf{m}^{(t)}_{v}\right)\in\mathbb{Q}^{s}.
+$$
+\end{description}
+Here, $\textsc{Msg}^{(t)}$ and $\textsc{Upd}^{(t)}$ are general (computable) functions.
+After round $d$, we define the final labeling $\pmb{\ell}:V\to\mathbb{Q}^{s}$ as  $\pmb{\ell}_v:=\pmb{\ell}^{(d)}_v$ for every $v\in V$. If further aggregation over the entire graph is needed, e.g., for graph classification, an additional readout function 
+$\textsc{ReadOut}(\ldbl\pmb{\ell}_v\mid v\in V\rdbl)$ can be applied. We omit the readout function here since most of the computation happens during the rounds of an MPNN.
+
+We illustrate MPNNs by a number of examples, in which the message functions leverage an increasing amount of information from the vertices involved.
+\begin{example}\normalfont
+We first consider
+the graph neural network
+architecture~\cite{Hamilton2017a,grohewl} defined by:
+\begin{equation}
+\mathbf{L}^{(t)}:=\sigma\left(\mathbf{L}^{(t-1)}\mathbf{W}_1^{(t)}+\mathbf{A}_G\mathbf{L}^{(t-1)}\mathbf{W}_2^{(t)}+\mathbf{B}^{(t)}\right), \label{gnn:grohe}
+\end{equation}
+where $\mathbf{L}^{(t)}$ is the $n\times s$-matrix consisting of the rows $\pmb{\ell}^{(t)}_v$, for $v\in V$, $\mathbf{A}_G$ is the adjacency matrix of $G$, $\mathbf{W}_1^{(t)}$ and $\mathbf{W}_2^{(t)}$ are (learnable) weight matrices,
+$\mathbf{B}^{(t)}$ is a bias matrix consisting of $n$ copies of the same row $\mathbf{b}^{(t)}$, and $\sigma$ is a non-linear activation function. We can regard this architecture as an MPNN. Indeed,~(\ref{gnn:grohe}) can be equivalently phrased as the architecture which computes, in round $t$, for each each vertex $v\in V$ the label defined by:
+$$
+\pmb{\ell}^{(t)}_v:=\sigma\Bigl(\pmb{\ell}^{(t-1)}_v\mathbf{W}_1^{(t)}+ \sum_{u\in N_G(v)}\pmb{\ell}^{(t-1)}_u\mathbf{W}_2^{(t)}+\mathbf{b}^{(t)} \Bigr).
+$$
+To phrase this as an MPNN, it suffices to define for each $\mathbf{x}$ and $\mathbf{y}$ in $\mathbb{Q}^s$, each $v\in V$ and $u\in N_G(v)$, and each $t\geq 1$:
+$$\textsc{Msg}^{(t)}\bigl(\mathbf{x},\mathbf{y},v,u):=\mathbf{y}\mathbf{W}_2^{(t)}
+$$
+and 
+$$\textsc{Upd}^{(t)}(\mathbf{x},\mathbf{y}):=\mathbf{x}\mathbf{W}_1^{(t)}+\mathbf{y} + \mathbf{b}^{(t)}.
+$$
+\qed
+\end{example}
+%
+We observe that in the previous example the message functions do not depend on $v$ and $u$. MPNNs with update functions only depending on $\pmb{\ell}_v^{(t)}$ and $\pmb{\ell}_u^{(t)}$ will be referred to as \textit{anonymous MPNNs}, since they do not know which vertices are being considered.
+In our next example, the message functions used a bit more information. More specifically the can use the degrees of the vertices.
+
+\begin{example}\normalfont
+Similarly, the GCN architecture by~\cite{kipf-loose}, which in round $t$ computes for each vertex $v\in V$ the label:
+\begin{equation}
+\pmb{\ell}^{(t)}_v:=\sigma\Bigl(\bigl(\frac{1}{1+d_v}\bigr)\pmb{\ell}_v^{(t-1)}\mathbf{W}^{(t)} + \sum_{u\in N_G(v)} \bigl(\frac{1}{\sqrt{1+d_v}}\bigr)\bigl(\frac{1}{\sqrt{1+d_u}}\bigr)\pmb{\ell}^{(t-1)}_u\mathbf{W}^{(t)}\Bigr), \label{GNN:Kipf}
+\end{equation}
+where $\mathbf{W}$ is a learnable weight matrix and $\sigma$ is a non-linear activation function, can be regarded as an MPNN. Indeed, it suffices to define for each $\mathbf{x}$ and $\mathbf{y}$ in $\mathbb{Q}^s$, each $v\in V$ and $u\in N_G(v)$, and each $t\geq 1$:
+$$\textsc{Msg}^{(t)}\bigl(\mathbf{x},\mathbf{y},v,u):=
+\frac{1}{d_v}\bigl(\frac{1}{1+d_v}\bigr)\mathbf{x}\mathbf{W}^{(t)}+
+\bigl(\frac{1}{\sqrt{1+d_v}}\bigr)\bigl(\frac{1}{\sqrt{1+d_u}}\bigr)\mathbf{y}\mathbf{W}_2^{(t)}
+$$
+and 
+$$\textsc{Upd}^{(t)}(\mathbf{x},\mathbf{y}):=\mathbf{y}.
+$$
+\qed
+\end{example}
+We indeed observe that the message functions depend on the degrees of the vertices $v$ and $u$. MPNNs whose message functions depend on 
+ $\pmb{\ell}_v^{(t)}$, $\pmb{\ell}_u^{(t)}$, $d_v$ and $d_u$ will be referred to as \textit{degree-aware} MPNNs. As a final example, we show how an MPNN can compute any computable function. 
+
+\begin{example}\normalfont
+We will construct	
+	
+Assume that $\nu:V\to \mathbf{Q}^{s}$ with $s=n^2$. We can always assume this by padding with zeroes.
+We  will construct an MPNN that computes a labeling which represents the adjacency matrix $\mathbf{A}_G$ of $G$. We here use a vectorised representation of the adjacency matrix obtained by concatenating its rows.
+We define for 
+each $\mathbf{x}$ and $\mathbf{y}$ in $\mathbb{Q}^s$ and each $v\in V$ and $u\in N_G(v)$: 
+$$
+\textsc{Msg}^{(t)}\bigl(\mathbf{x},\mathbf{y},v,u):=\mathbf{e}_{v,w},
+$$
+where $\mathbf{e}_{v,w}$ is a binary row vector in $\mathbf{Q}^{s}$ with entries equal to $1$ on positions $vn+w$ and $wn+v$ and all other entries equal to $0$. Then,
+clearly
+\end{example}
+
+For a given labeled graph $\langle G,\pmb{\nu},\pmb{\eta})$ and MPNN $M$ we denote by 
+$\pmb{\ell}_M^{(t)}$ the vertex labeling computed by $M$ after $t$ rounds. In other words, we always assume that it is clear which labeled graph is considered.
+
+We remark that formalisation of MPNNs given here differs slightly from the formalisation presented by \cite{GilmerSRVD17}. We show in the appendix that the two formalisms are equivalent, provided that the message functions in \cite{GilmerSRVD17} are allowed to take vertices $v$ and $w$ as arguments. In fact, there is a certain ambiguity on what the message functions in the MPNNs of \cite{GilmerSRVD17} can depend. More precisely, in~\cite{GilmerSRVD17}, only $\pmb{\ell}_v^{(t-1)}$, $\pmb{\ell}_w^{(t-1)}$ and $\pmb{\eta}_{\{v,w\}}$ are specified as arguments. Nevertheless, the examples given in  \cite{GilmerSRVD17} illustrating which graph neural network architectures can be captured by MPNNs use message functions that may depend on, e.g., the degree  of vertices. As we will see, this has an impact on the distinguishing power of MPNNs.
+
+We will compare different classes of MPNNs.  Classes of MPPNs can be defined, e.g., by restricting the allowed message and update functions in MPNNs. We will see  examples of MPNN classes later in the paper. 
+
+The following definition states when one class of MPNNs is weaker (in terms of distinguishing power) than another class of MPNNs. Intuitively, one class $\architecture$ will be weaker than other class $\architecture'$ if any MPNN $M\in\architecture$ cannot distinguish more vertices than some MPNN $M'\in\architecture'$.
+
+\begin{definition}\label{def:comparing}\normalfont
+Consider two classes $\architecture$ and $\architecture'$ of MPNNs. We say that $\architecture$ is weaker than $\architecture'$ (or equivalently that $\architecture'$ is stronger than $\architecture$) if there exists a function $g:\mathbb{N}\to \mathbb{N}$ such that for every $M \in \architecture$ there exists an $M'\in \architecture'$ satisfying $\pmb{\ell}_{M'}^{(g(t))}\sqsubseteq \pmb{\ell}_{M}^{(t)}$, for all $t\geq 0$ and for any labeled graph $\langle G,\pmb{\nu},\pmb{\eta})$. This is denoted by $\architecture \sqsubseteq \architecture'$.
+% with $d$ layers 
+% and every labelling $\labl$ compatible with $g$ there exists $g' \in \architecture'$ with $m'$ layers such that $g'(\labl) \sqsubseteq g(\labl)$.
+% This is denoted by $\architecture' \sqsubseteq \architecture$.
+We write $\architecture \not \sqsubseteq \architecture'$ if the above property does not hold. 
+If we additionally require that the function $g:\mathbb{N}\to\mathbb{N}$ satisfies 
+$g(t)\le t +c$ for some constant $c$, then we write that $\architecture \sqsubseteq \architecture'$ up to a constant factor $c$. In the particular case when this holds for $c = 0$ we write that $\architecture \sqsubseteq \architecture'$ with no factor. Similarly, if there exist constants $c, c'$ such that $g(t) \le ct + c'$ we write that $\architecture \sqsubseteq \architecture'$ up to a linear factor $c$.
+\end{definition}
+
+Of particular interest will be the class of MPNNs corresponding to the WL algorithm. 
+\floris{Ok, add aMPNN description of WL. Note that I added the description of the WL algorithm on undirected graphs but with each labels to the prelims. }
+We will denote this class by $\architectureWL$ and it is defined as MPNNs in which the message 
+We say that an architecture $\architecture$ is \emph{bounded by WL} if $\architecture\sqsubseteq \architectureWL$. We also say that an architecture $\architecture$ is \emph{WL-strong} if $\architectureWL \sqsubseteq \architecture$. The definitions of bounded by WL and WL-strong up to linear and constant factors carry on in the obvious way.
+
+
+\section{PREVIOUS VERSION: Graph neural networks}
 Neural networks are a model to compute functions $f : \Rb^s \to \Rb^k$ obtained as a composition of layers $l^1,\ldots, l^m$.  Slightly abusing the notation we will identify a GNN with the function $g$ it computes. Every layer $l^t$ computes a function $f^{(t)} : \Rb^{s} \to \Rb^{k_t}$ based on the previous layer, where $k_0 = s$ and $k_m =k$. To ease the presentation we assume that $f^{(0)} : \Rb^s \to \Rb^s$ is the identity function. Formally, a neural network is $g = l^m \circ \ldots \circ l^1 $ and every layer defines $f^{(t)} = l^t(f^{(t-1)})$ as follows
 \begin{equation}\label{eq:NN}
  f^{(t)} (\vec{x}) = \sigma \left(\bW^{(t)} f^{(t-1)}(\vec{x}) + b^{(t)}  \right),

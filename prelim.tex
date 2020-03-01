@@ -44,3 +44,10 @@ $$
 where $\textsc{Hash}$ bijectively maps the multi-set $\ldbl \pmb{\mu}_u^{(t-1)} \st u \in N_G(v) \rdbl$ of labels of $v$'s neighbors to a unique label in $\Sigma$, which has not been used in previous iterations. 
 
 \floris{WWL is strange: it does not seem to produces refinements.}
+
+The WL procedure on an undirected graph $G$ with vertex labeling $\pmb{\ell}$ and edge labeling $\pmb{\eta}$ works, as follows.  Let ${\cal E}$ denote the set of edge labels. Initially, 
+$\pmb{\ell}^{(0)}:=\pmb{\ell}$. Then, the WL procedure computes a labelling $\pmb{\ell}^{(t)}$, for $t> 0$, as follows: 
+$$
+\pmb{\ell}^{(t)}_v:=\textsc{Hash}\Bigl(\bigl(\pmb{\ell}^{(t-1)}_v,\ldbl \pmb{\ell}_u^{(t-1)} \st u \in N_G(v), \pmb{\eta}_{\{v,u\}}=\eta \rdbl_{\eta\in{\cal E}}\bigr)\Bigr),
+$$
+where $\textsc{Hash}$ bijectively maps the right-hand side to a unique label in $\Sigma$, which has not been used in previous iterations.

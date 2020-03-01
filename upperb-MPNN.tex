@@ -1,0 +1,107 @@
+\section{The expressive power of MPNNs}
+It has been recently shown by~\cite{Loukas2019} that MPNNs are Turing complete, i.e., they can compute any (computable) graph function. The proof uses an equivalence between MPNNs and a well-known distributed computation model, LOCAL, which is known to be Turing complete~\cite{Angluin}. We refer to~\cite{Loukas2019} for more details. The completeness result crucially relies on the dependence of the message functions on $v$ and $w$, i.e., on knowing which vertices are being considered. 
+% Indeed, after $\delta=\text{diam}(G)$ rounds each vertex has complete information about the graph $\langle G,\pmb{\nu},\pmb{\eta})$
+% and once can use $\textsc{Upd}^{(\delta+1)}$ to compute the desired graph function.
+
+\paragraph{Anonymous MPNNs.} In contrast, when the message functions 
+$\textsc{Msg}^{(t)}$ in MPNNs only depend on $\pmb{\ell}_v^{(t-1)}$, $\pmb{\ell}_w^{(t-1)}$ and $\pmb{\eta}_{\{v,w\})}$, then the distinguishing power is limited. MPNNs with this restrictions are referred to as \textit{anonymous} MPNNs (or aMPNNs) in~\cite{Loukas2019}. We given an example of aMPNNs next.
+
+
+%
+%
+% As just mentioned, there is an ambiguity in the \citet{GilmerSRVD17}
+%
+%
+% It appears that this ambiguity raises some confusion and leads to imprecise statements about the distinguishing power of MPNNs. Indeed, the distinguishing power of MPNNs is often claimed to be bounded by the Weisfeiler-Lehman vertex colouring algorithm. This is verified, however, only when it concerns so-called \textit{anonymous} MPNNs.
+%
+% \smallskip
+% \noindent
+% {\bf Remarks.}
+%
+% First of all, directed graphs are considered.
+% Clearly, undirected graphs, as used in \citet{GilmerSRVD17}, can be regarded as directed graphs.
+% Second, the dependency of the message functions $\textsc{Upd}^{(t)}$ on the vertices $v$ and $w$
+% is made explicit. In~\citet{GilmerSRVD17} this dependency is not specified but the vertices
+%
+%
+% \leftpointright This formalisation of MPNNs given in \citep{Loukas2019} differs from that of in the following: (i)~$E^*$ and $N_G*(v)$ instead of $E$ and $N_G(v)$ are used; (ii) aggregation happens during the update phase and not the messaging phase; and (iii) the update function does not take $\mathbf{m}_v^{(t)}$ as a separate input. I guess that the two models are equivalent, but we may want to check this.
+%
+% \smallskip
+% \noindent
+% \leftpointright The formalisation of MPNNs by \citet{GilmerSRVD17} is a bit underspecified. The message and update functions do not explicitly depend on the vertices themselves, but in the examples given in \citep{GilmerSRVD17}, these functions seem to be allowed to use extra information related to the vertices and input graph. For example, to model the GCN model by~\citep{KipfW16}, the message functions need the degrees of the vertices.
+%%
+% \paragraph{Anonymous MPNNs.}
+% %
+%  The Turing completeness comes a bit as surprise. Indeed, many papers declare MPNNs as being bounded, in terms of their distinguishing power of vertices and graphs, by the Weisfeiler-Lehman algorithm. This is always backed up by referring to the papers~\citet{XuHLJ19,grohewl}. This connection, however, only holds when MPNNs do not have access to the identifiers of vertices $v$ and $w$.  Such MPNNs are referredin~\citet{Loukas2019}  as \textit{anonymous MPNNs.} Anonymous MPNNs (aMPNNs) are thus MPNNs such that the functions 
+% An anonymous MPNN (aMPNN) is an MPNN in which the message functions
+% $\textsc{Msg}^{(t)}$ only depend on $\pmb{\ell}_v^{(t-1)}$ and $\pmb{\ell}_w^{(t-1)}$~\citep{Loukas2019}.
+
+More precisely, we show that aMPNNs are bounded by WL in terms of their distinguishing power. In other words, for every $t\geq 0$, $\mathbf{w}\pmb{\ell}^{(t)}\sqsubseteq \pmb{\ell}^{(t)}$. This was already shown  by \cite{XuHLJ19} and~\cite{grohewl} for undirected graphs and in which the edge labeling $\pmb{\eta}$ is absent. The generalisation to labeled directed graphs $\langle G,\pmb{\nu},\pmb{\eta}\rangle$ simply requires the use of the WL-algorithm on such graphs~\citep{}.
+% the following proposition is
+% \citet{Jaume2019} recently showed the following:
+% \smallskip
+% \noindent
+% \leftpointright I am ignoring the edge labeling $\pmb{\eta}$ for now (more later).
+%
+\begin{proposition}\label{prop:WL}
+	The distinguishing power of anonymous MPNNs is bounded by WL.
+\end{proposition}
+\begin{proof}
+We need to show that $\mathbf{w}\pmb{\ell}^{(t)}\sqsubseteq \pmb{\ell}^{(t)}$ for every $t$.
+By definition of $\mathbf{w}\pmb{\ell}^{(0)}=$, $\mathbf{w}\pmb{\ell}^{(0)}=\pmb{\ell}^{(0)}$.
+Assume by induction that $\mathbf{w}\pmb{\ell}^{(t-1)}\sqsubseteq \pmb{\ell}^{(t-1)}$. Consider
+two vertices $v,w\in V$ such that $\mathbf{w}\pmb{\ell}^{(t)}_v=\mathbf{w}\pmb{\ell}^{(t)}_w$.
+By definition of $\mathbf{w}\pmb{\ell}^{(t)}$, this implies that 
+$\mathbf{w}\pmb{\ell}^{(t-1)}_v=\mathbf{w}\pmb{\ell}^{(t-1)}_w$ and furthermore, for every
+edge label $\eta$:
+\begin{align*}
+	\lmset \mathbf{w}\pmb{\ell}^{(t-1)}_u\mid u\in N_G^*(v), \pmb{\eta}_{(u,v)}=\eta\rmset&=	\lmset \mathbf{w}\pmb{\ell}^{(t-1)}_u\mid u\in N_G^*(w), \pmb{\eta}_{(u,v)}=\eta\rmset.
+	% \lmset \pmb{\eta}_{(u,v)} \mid (u,v)\in E\rmset&=	\lmset \pmb{\eta}_{(u,w)} \mid (u,w)\in E\rmset\\
+	% \lmset \pmb{\eta}_{(v,u)} \mid (v,u)\in E\rmset&=	\lmset \pmb{\eta}_{(w,u)} \mid (w,u)\in E\rmset.
+\end{align*}
+This implies that, by induction, $\pmb{\ell}^{(t-1)}_v=\pmb{\ell}^{(t-1)}_w$, and for every $u\in N_G^*(v)$ such that
+$\pmb{\eta}_{(u,v)}=\eta$  there exists a unique corresponding $u'\in N_G^*(w)$ such that $\pmb{\eta}_{u'w}=\eta$. In other words,
+$$
+\mathbf{m}^{(t)}_{v\gets u}=\textsc{Msg}^{(t)}(\pmb{\ell}^{(t-1)}_v,\pmb{\ell}^{(t-1)}_u,\eta)=
+\textsc{Msg}^{(t)}(\pmb{\ell}^{(t-1)}_w,\pmb{\ell}^{(t-1)}_u,\eta)=\mathbf{m}^{(t)}_{w\gets u'}.$$
+As a consequence,
+$$
+\sum_{\substack{u\in N_G^*(v)\\\pmb{\eta}_{(u,v)}=\eta}} \mathbf{m}^{(t)}_{v\gets u}=\sum_{\substack{u'\in N_G^*(w)\\\pmb{\eta}_{(u',w)}=\eta}} \mathbf{m}^{(t)}_{w\gets u'}
+$$
+for every $\eta$ and hence, $\sum_{u\in N_G^*(v)}\mathbf{m}^{(t)}_{v\gets u}=
+\sum_{u\in N_G^*(w)}\mathbf{m}^{(t)}_{w\gets u'}
+$. From this we can infer that
+$$
+\pmb{\ell}^{(t)}:=\textsc{Upd}^{(t)}\left(\sum_{u\in N_G^*(v)}\mathbf{m}^{(t)}_{v\gets u}\right)=\textsc{Upd}^{(t)}\left(\sum_{u'\in N_G^*(w)}\mathbf{m}^{(t)}_{w\gets u'}\right)=\pmb{\ell}^{(t)},
+$$
+as desired.
+% We remark that this proposition encompasses the result by~\citep{XuHLJ19} for learning formalisms
+% which compute a vertex labeling $\pmb{\ell}^{(t)}$ in round $t$, specified as follows: For every vertex $v\in V$,
+%
+\end{proof}
+
+We remark that a similar result was recently established by~\citet{Jaume2019}. In that work, however, a version of WL on labeled directed graph is used which decouples vertex labels and edge labels. We here consider a version of WL such that correspondences known for undirected graphs carry over. More specifically,
+fractional isomorphisms, $C^2$. Check!
+%
+%
+% \smallskip
+% \noindent
+% \leftpointright I believe it is possible to link aMPNNs to the general model we used earlier.
+% For each layer $t$ we consider two functions:
+% combination function $f_{\textsl{comb}}^{(t)}$; and aggregation function
+% $f_{\textsl{agg}}^{(t)}$. The layers are defined as follows. For each vertex $v\in V$ and layer $t$:
+
+We further remark that the works \citep{XuHLJ19,grohewl}  considered graph neural models of the form
+$$
+\pmb{\ell}^{(t)}_{v}:=
+f_{\textsl{comb}}^{(t)}\Bigl(
+\pmb{\ell}_{v}^{(t-1)},f_{\textsl{aggr}}^{(t)}\bigl(\lmset \pmb{\ell}^{(t-1)}_{w} \mid w \in N_G(v) \rmset\bigr)
+\Bigr),
+$$
+where $f_{\textsl{comb}}^{(t)}$ and  $f_{\textsl{agg}}^{(t)}$ are general (computable) combination and aggregation functions. It is easily verified that such models are equivalent to aMPNNs. To see this, it suffices to observe that the aggregation functions $f_{\textsl{aggr}}^{(t)}\bigl(\lmset \pmb{\ell}^{(t-1)}_{w} \mid u \in N_G(v) \rmset\bigr)$ can be written in the form $g^{(t)}\bigl(\sum_{w\in N_G(v)} h^{(t)}(\pmb{\ell}^{(t-1)}_{w})\bigr)$ (this was observed in Lemma 5 in~\cite{XuHLJ19}, based on Theorem 2 in~\cite{ZaheerKRPSS17}). Crucial in all this is that feature values belong to a countable domain and that the size of multisets is bounded. These conditions are satisfied because our domain is $\mathbb{Q}$ and there are at most $|V|$ elements in a multiset. For completeness, we provide additional details in Section~\ref{subsec:aggr} in the appendix.
+% % $f_{\textsl{agg}}^{(t)}$.
+% In~\citet{Loukas2019} there is an argument, based on Lemma 5 in~\citet{XuHLJ19}, which allows to convert any aggregation function to a summation followed by a function. It may need a bit more thought how to squeeze this into aMPNNs.
+
+% \smallskip
+% \noindent
+% \leftpointright To bring edge information into the picture, we may look into~\citep{Jaume2019}, where WL for edge labeled graphs is considered.
