@@ -1,5 +1,8 @@
 %!TEX root =main.tex
 \section{Preliminaries}
+Let $\mathbb{N}$ denote the set of all natural numbers including zero, i.e.
+$\mathbb{N} = \{0,1,2,\dots\}$, and $\mathbb{N}^+ = \mathbb{N} \setminus
+\{0\}$.
 We use $\{\!\}$ and $\ldbl\! \rdbl$ to indicate sets and multisets,
 respectively, and write $[n]$ for the set $\{1,2,\ldots,n\}$.
 
@@ -31,7 +34,6 @@ implicitly assume an embedding of the set $\Sigma$ of labels in $\Rb^{1\times
 q}$. Conversely, given a matrix $\mathbf{F} \in \Rb^{n \times q}$, we refer to
 the vertex labelling (induced by) $\mathbf{F}$ as the labelling which
 associates vertex $v$ with label the row vector $\mathbf{F}_{v\bullet}$.
-\todo{G: read until here}
 
 It will be important later on to be able to compare two labellings of $G$.
 Given a matrix $\mathbf{F} \in \Rb^{n\times q}$ and a matrix $\mathbf{F}' \in
@@ -47,10 +49,12 @@ $\mathbf{F}\equiv\mathbf{F}'$ if and only if for all $v,w\in V$, $
 \mathbf{F}_{v\bullet}=\mathbf{F}_{w\bullet} \Leftrightarrow
 \mathbf{F}'_{v\bullet}=\mathbf{F}'_{w\bullet} $.
 
-Of particular importance is the labelling obtained by color refinement, also
+\paragraph*{Weisfeiler-Lehman labellings.}
+Of particular importance is the labelling obtained by colour refinement, also
 known as Weisfeiler-Lehman (or WL, for short). The WL procedure constructs a
-labelling, in an incremental fashion, based on neighborhood information. More
-specifically, consider a labelled graph $(G,\pmb{\ell})$. Initially,
+labelling, in an incremental fashion, based on neighbourhood information. More
+specifically, we initially set
+%, consider a labelled graph $(G,\pmb{\ell})$. Initially,
 $\pmb{\ell}^{(0)}:=\pmb{\ell}$. Then, the WL procedure computes a labelling
 $\pmb{\ell}^{(t)}$, for $t> 0$, as follows:
 \[
@@ -60,29 +64,37 @@ $\pmb{\ell}^{(t)}$, for $t> 0$, as follows:
 where
 $\textsc{Hash}$ bijectively maps the above pair, consisting of (i)~the
 previous label $\pmb{\ell}^{(t-1)}_v$ of $v$; and (ii)~the multi-set $\ldbl
-\pmb{\ell}_u^{(t-1)} \st u \in N_G(v) \rdbl$ of labels of $v$'s neighbors, to
-a unique label in $\Sigma$, which has not been used in previous iterations.
+\pmb{\ell}_u^{(t-1)} \st u \in N_G(v) \rdbl$ of labels of the neighbours of $v$, to
+a label in $\Sigma$ which has not been used in previous iterations.
 When the number of distinct labels in $\pmb{\ell}^{(t)}$ and
-$\pmb{\ell}^{(t-1)}$ is the same, the 1-WL algorithm terminates.  Termination
+$\pmb{\ell}^{(t-1)}$ is the same, the WL algorithm terminates. Termination
 is guaranteed in at most $n$ steps. We refer to the resulting labelling as the
 \textit{WL labelling of $(G,\pmb{\ell})$}. 
 
-
-We define the \textit{weak WL}, WWL for short, process as follows. Let
-$G=(V,\pmb{\mu})$ be a labelled graph and let $\Sigma$ be a set of labels.
-Initially, let $\pmb{\mu}^{(0)}:=\pmb{\mu}$.  Then, the WWL procedure computes
-a labelling $\pmb{\mu}^{(t)}$, for $t> 0$, as follows: $$
-\pmb{\mu}^{(t)}_v:=\textsc{Hash}\bigl(\ldbl \pmb{\mu}_u^{(t-1)} \st u \in
-N_G(v) \rdbl\bigr), $$ where $\textsc{Hash}$ bijectively maps the multi-set
-$\ldbl \pmb{\mu}_u^{(t-1)} \st u \in N_G(v) \rdbl$ of labels of $v$'s
-neighbors to a unique label in $\Sigma$, which has not been used in previous
-iterations. 
+We define a \textit{weak WL} (WWL, for short) procedure.  Let $\pmb{\mu}$ be a
+labelling function $\pmb{\mu}:V\to \Sigma$.
+%Let
+%$G=(V,\pmb{\mu})$ be a labelled graph and let $\Sigma$ be a set of labels.
+Initially, we set $\pmb{\mu}^{(0)}:=\pmb{\mu}$.  Then, the WWL procedure
+computes a labelling $\pmb{\mu}^{(t)}$, for $t> 0$, as follows:
+\[
+    \pmb{\mu}^{(t)}_v:=\textsc{Hash}\bigl(\ldbl \pmb{\mu}_u^{(t-1)} \st u \in
+    N_G(v) \rdbl\bigr),
+\]
+where $\textsc{Hash}$ bijectively maps the multi-set $\ldbl
+\pmb{\mu}_u^{(t-1)} \st u \in N_G(v) \rdbl$ of labels of the neighbours of $v$
+to a label in $\Sigma$ which has not been used in previous iterations. 
 
 \floris{WWL is strange: it does not seem to produces refinements.}
-
-The WL procedure on an undirected graph $G$ with vertex labeling $\pmb{\ell}$ and edge labeling $\pmb{\eta}$ works, as follows.  Let ${\cal E}$ denote the set of edge labels. Initially, 
-$\pmb{\ell}^{(0)}:=\pmb{\ell}$. Then, the WL procedure computes a labelling $\pmb{\ell}^{(t)}$, for $t> 0$, as follows: 
-$$
-\pmb{\ell}^{(t)}_v:=\textsc{Hash}\Bigl(\bigl(\pmb{\ell}^{(t-1)}_v,\ldbl \pmb{\ell}_u^{(t-1)} \st u \in N_G(v), \pmb{\eta}_{\{v,u\}}=\eta \rdbl_{\eta\in{\cal E}}\bigr)\Bigr),
-$$
-where $\textsc{Hash}$ bijectively maps the right-hand side to a unique label in $\Sigma$, which has not been used in previous iterations.
+\todo{G: so we do not define the WWL labelling, because the above procedure
+may not terminate! so we consider all intermediate labellings to compare
+with?}
+%
+%\todo{G: read until here}
+%
+%The WL procedure on an undirected graph $G$ with vertex labeling $\pmb{\ell}$ and edge labeling $\pmb{\eta}$ works, as follows.  Let ${\cal E}$ denote the set of edge labels. Initially, 
+%$\pmb{\ell}^{(0)}:=\pmb{\ell}$. Then, the WL procedure computes a labelling $\pmb{\ell}^{(t)}$, for $t> 0$, as follows: 
+%$$
+%\pmb{\ell}^{(t)}_v:=\textsc{Hash}\Bigl(\bigl(\pmb{\ell}^{(t-1)}_v,\ldbl \pmb{\ell}_u^{(t-1)} \st u \in N_G(v), \pmb{\eta}_{\{v,u\}}=\eta \rdbl_{\eta\in{\cal E}}\bigr)\Bigr),
+%$$
+%where $\textsc{Hash}$ bijectively maps the right-hand side to a unique label in $\Sigma$, which has not been used in previous iterations.

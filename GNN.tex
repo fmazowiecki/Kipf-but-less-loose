@@ -1,12 +1,19 @@
 %!TEX root =main.tex
 
-\section{Message Passing Neural Networks}
-We start by describing message passing neural networks (MPNNs) for  deep learning on graphs, introduced by \cite{GilmerSRVD17}. Roughly speaking, in MPNNs, vertex features are propagated through a graph according to its connectivity structure. MPNNs are known to model a variety of graph neural network architectures commonly used in practice.
+\section{Message Passing Neural Networks}\label{sec:MPNNs}
+We start by describing message passing neural networks (MPNNs) for  deep
+learning on graphs, introduced by \cite{GilmerSRVD17}. Roughly speaking, in
+MPNNs, vertex features are propagated through a graph according to its
+connectivity structure. MPNNs are known to model a variety of graph neural
+network architectures commonly used in practice.
 
 \subsection{Definition}
-Given a labeled graph $\langle G,\pmb{\nu}\rangle$, an MPNN computes a vertex labeling $\pmb{\ell}:V\to \mathbb{Q}^{s}$, for some $s\in\mathbb{N}^+$, by means of a number of rounds of computation, starting from the input labeling $\pmb{\nu}:V\to\mathbb{Q}^s$.
+Given a labelled graph $\langle G,\pmb{\nu}\rangle$, an MPNN computes a vertex
+labelling $\pmb{\ell}:V\to \mathbb{Q}^{s}$, for some $s\in\mathbb{N}^+$, by
+means of a number of rounds of computation, starting from the input labelling
+$\pmb{\nu}:V\to\mathbb{Q}^s$.
 
-The vertex labeling computed by an MPNN after round $t$ is denoted by $\pmb{\ell}^{(t)}$. We next detail how $\pmb{\ell}^{(t)}$ is computed.
+The vertex labelling computed by an MPNN after round $t$ is denoted by $\pmb{\ell}^{(t)}$. We next detail how $\pmb{\ell}^{(t)}$ is computed.
 \begin{description}\setlength{\itemsep}{-0.4ex}
 \item [Initialisation.]  We let $\pmb{\ell}^{(0)}:=\pmb{\nu}$.
 \end{description}
@@ -21,9 +28,14 @@ $$
 \pmb{\ell}^{(t)}_v:=\textsc{Upd}^{(t)}\left(\pmb{\ell}^{(t-1)}_v,\mathbf{m}^{(t)}_{v}\right)\in\mathbb{Q}^{s}.
 $$
 \end{description}
-Here, the message functions $\textsc{Msg}^{(t)}$ and update functions $\textsc{Upd}^{(t)}$ are general (computable) functions.
-After round $d$, we define the final labeling $\pmb{\ell}:V\to\mathbb{Q}^{s}$ as  $\pmb{\ell}_v:=\pmb{\ell}^{(d)}_v$ for every $v\in V$. If further aggregation over the entire graph is needed, e.g., for graph classification, an additional readout function 
-$\textsc{ReadOut}(\ldbl\pmb{\ell}_v\mid v\in V\rdbl)$ can be applied. We omit the readout function here since most of the computation happens during the rounds of an MPNN.
+Here, the message functions $\textsc{Msg}^{(t)}$ and update functions
+$\textsc{Upd}^{(t)}$ are general (computable) functions. After round $d$, we
+define the final labelling $\pmb{\ell}:V\to\mathbb{Q}^{s}$ as
+$\pmb{\ell}_v:=\pmb{\ell}^{(d)}_v$ for every $v\in V$. If further aggregation
+over the entire graph is needed, e.g., for graph classification, an additional
+readout function $\textsc{ReadOut}(\ldbl\pmb{\ell}_v\mid v\in V\rdbl)$ can be
+applied. We omit the readout function here since most of the computation
+happens during the rounds of an MPNN.
 
 \subsection{Examples}
 We illustrate MPNNs by a number of examples in which the message functions leverage an increasing amount of information of the vertices involved. 
@@ -31,7 +43,7 @@ We illustrate MPNNs by a number of examples in which the message functions lever
 \paragraph{Anonymous MPNNs.}
 We start with two examples of so-called \textit{anonymous}  MPNNs. These are MPNNs whose message functions do not depend on the vertices $v$ and $u$. Phrased otherwise, anonymous MPNNs have message functions only depending on $\pmb{\ell}_v^{(t-1)}$ and $\pmb{\ell}_u^{(t-1)}$.
  % will be referred to as \textit{anonymous MPNNs}, since the message functions do not know which vertices are being considered.
-\begin{example}[GNN architectures]\normalfont
+\begin{example}[GNN architectures]\label{ex:GNN}\normalfont
 We first consider
 the graph neural network
 architectures~\cite{Hamilton2017a,grohewl} defined by:
@@ -43,7 +55,7 @@ $\mathbf{B}^{(t)}$ is a bias matrix in $\mathbb{Q}^{n\times s}$ consisting of $n
 $$
 \pmb{\ell}^{(t)}_v:=\sigma\Bigl(\pmb{\ell}^{(t-1)}_v\mathbf{W}_1^{(t)}+ \sum_{u\in N_G(v)}\pmb{\ell}^{(t-1)}_u\mathbf{W}_2^{(t)}+\mathbf{b}^{(t)} \Bigr),
 $$
-where we identified the labelings with their images, i.e., a row vector in $\mathbb{Q}^s$. 
+where we identified the labellings with their images, i.e., a row vector in $\mathbb{Q}^s$. 
 To phrase this as an MPNN, it suffices to define for each $\mathbf{x}$ and $\mathbf{y}$ in $\mathbb{Q}^s$, each $v\in V$ and $u\in N_G(v)$, and each $t\geq 1$:
 \begin{equation*}
 	\textsc{Msg}^{(t)}\bigl(\mathbf{x},\mathbf{y},v,u):=\mathbf{y}\mathbf{W}_2^{(t)}
@@ -53,7 +65,7 @@ To phrase this as an MPNN, it suffices to define for each $\mathbf{x}$ and $\mat
 We observe that  message functions indeed do not depend on $v$ and $u$. \qed
 \end{example}
 Another example of an anonymous MPNN originates from the Weisfeiler-Lehman procedure described in the preliminaries.
-\begin{example}[Weisfeiler-Lehman]\normalfont
+\begin{example}[Weisfeiler-Lehman]\label{ex:WL}\normalfont
 We recall that WL computes, in round $t$, for each vertex $v\in V$ the label:
 $$
 \pmb{\ell}^{(t)}_v:=\textsc{Hash}\left(\pmb{\ell}^{(t-1)}_v,\ldbl \pmb{\ell}_u^{(t-1)} \st u \in N_G(v) \rdbl\right).
@@ -94,8 +106,8 @@ $\pmb{\ell}^{(t-1)}_u$ and the degrees $d_v$ and $d_u$ of the vertices $v$ and $
  As a final example, we show how an MPNN can compute any computable function when the message functions can use knowledge of which vertices are under consideration. 
 
 \begin{example}[Turing complete MPNN]\normalfont
-	Let $\langle G,\pmb{\nu}\rangle$ be a connected labeled graph with $\pmb{\nu}:V\to\mathbb{Q}^t$ and let $\mathbf{f}_G:V\to\mathbb{Q}$ be a labeling 
-	computed by a computable function on input 	$\langle G,\pmb{\nu}\rangle$. To compute $\mathbf{f}_G$ by means of an MPNN we first use a number  of $d$ rounds  to ensure that $\pmb{\ell}^{(d)}_v$ represents $\langle G,\pmb{\nu}\rangle$. In other words, after $d$ rounds,  each vertex has the entire input labeled graph as label. An update function simulating $\mathbf{f}_G$ then suffices to computer $\mathbf{f}_G$. We assume that $V=[n]$ and use $i\in[n]$ to denoted the $i$th vertex in $V$.
+	Let $\langle G,\pmb{\nu}\rangle$ be a connected labelled graph with $\pmb{\nu}:V\to\mathbb{Q}^t$ and let $\mathbf{f}_G:V\to\mathbb{Q}$ be a labelling 
+	computed by a computable function on input 	$\langle G,\pmb{\nu}\rangle$. To compute $\mathbf{f}_G$ by means of an MPNN we first use a number  of $d$ rounds  to ensure that $\pmb{\ell}^{(d)}_v$ represents $\langle G,\pmb{\nu}\rangle$. In other words, after $d$ rounds,  each vertex has the entire input labelled graph as label. An update function simulating $\mathbf{f}_G$ then suffices to computer $\mathbf{f}_G$. We assume that $V=[n]$ and use $i\in[n]$ to denoted the $i$th vertex in $V$.
 	
 To encode $\langle G,\pmb{\nu}\rangle$ in the labels of vertices we use labels in $\mathbf{Q}^s$ with 
 $s=t+1+n(t+2)+n^2$. The aim it to ensure that for each vertex $i$, the final label $\pmb{\ell}_i^{(d)}$ is of the form
@@ -111,7 +123,7 @@ The remaining $n^2$ positions hold a vectorised representation of the adjacency 
 $\langle G,\pmb{\nu}\rangle$ from the label~(\ref{eq:graphinlabel}). We now show how this label can be obtained.
 
 For convenience, we initially extend $\pmb{\nu}$
-to a labeling $V:\to\mathbb{Q}^s$ by padding each $\pmb{\nu}_i$ with $s-t$ zeroes. We abuse notation and also refer to this initial labeling by $\pmb{\nu}$.
+to a labelling $V:\to\mathbb{Q}^s$ by padding each $\pmb{\nu}_i$ with $s-t$ zeroes. We abuse notation and also refer to this initial labelling by $\pmb{\nu}$.
 
 For each round $t$, vertices $i$ and $j\in N_G(i)$, and $\mathbf{x},\mathbf{y}\in\mathbb{Q}^s$, we define
 $
@@ -145,5 +157,5 @@ In the next section we recall results concerning the distinguishing power of ano
 
 \subsection{On the choice of formalism}
 We use a different formalisation of MPNNs than given in~\cite{GilmerSRVD17}. More specifically, we explicitly allow a dependency of the message functions on $v$ and $u\in N_G(v)$. The reason is that there is a certain ambiguity in the formalisation in ~\cite{GilmerSRVD17} on what precisely the message functions can depend on. More specifically, only a dependence on  $\pmb{\ell}_v^{(t-1)}$ and $\pmb{\ell}_u^{(t-1)}$
-is specified. In contrast, the examples given in~\cite{GilmerSRVD17} use more information, such as the degree of vertices. Another difference is that the MPNNs in ~\cite{GilmerSRVD17} work on graphs that carry both vertex and edge labels. We ignore edge labelings in this paper but all our upper bound results carry over to this more general setting. Indeed, it suffices to use the extension of the Weisfeiler-Lehman algorithm for this more general class of graphs~\cite{Jaume2019}. Our formalisation also differs from the one given by~\cite{Loukas2019} in that we only exchange messages from $u\in N_G(v)$
+is specified. In contrast, the examples given in~\cite{GilmerSRVD17} use more information, such as the degree of vertices. Another difference is that the MPNNs in ~\cite{GilmerSRVD17} work on graphs that carry both vertex and edge labels. We ignore edge labellings in this paper but all our upper bound results carry over to this more general setting. Indeed, it suffices to use the extension of the Weisfeiler-Lehman algorithm for this more general class of graphs~\cite{Jaume2019}. Our formalisation also differs from the one given by~\cite{Loukas2019} in that we only exchange messages from $u\in N_G(v)$
 to $v$. In~\cite{Loukas2019}, every vertex can also send itself a message. We provide this functionality by parametrizing the update functions with the current label of the vertex itself, just as in~\cite{GilmerSRVD17}. One can verify that both formalisations are equivalent.
