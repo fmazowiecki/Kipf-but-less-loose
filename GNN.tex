@@ -19,7 +19,7 @@ The vertex labelling computed by an MPNN after round $t$ is denoted by $\pmb{\el
 \end{description}
 Then, for round $t=1,2,\ldots,d$, we define $\pmb{\ell}^{(t)}:V\to\mathbb{Q}^{s}$, as follows\footnote{We can assume, without loss of generality, that every round assigns labels in $\mathbb{Q}^s$ for the same $s$. If not, one can include ``padding with zeroes'' in the message and update functions.}:
 \begin{description}\setlength{\itemsep}{-0.4ex}
-\item [Message Passing.] Each vertex $v\in V$ receives messages from its neighbours which are subsequently aggregated:
+\item [Message Passing.] Each vertex $v\in V$ receives messages from its neighbours which are subsequently aggregated. Formally the function $\textsc{Msg}^{(t)}$ receives as input two vertices $v$ and $u$ with their corresponding labels in the previous iteration $\pmb{\ell}^{(t-1)}_v$ and $\pmb{\ell}^{(t-1)}_u$ and outputs a vector in $\mathbb{Q}^s$. Then for every vertex $v$ we aggregate by summing all such vectors for every neighbour $u$.
 $$
 \mathbf{m}^{(t)}_{v}:=\sum_{u\in N_G(v)}\textsc{Msg}^{(t)}\left(\pmb{\ell}^{(t-1)}_v,\pmb{\ell}^{(t-1)}_u,v,u\right)\in\mathbb{Q}^{s}.
 $$
@@ -84,7 +84,14 @@ MPNNs whose message functions depend on
  $\pmb{\ell}_v^{(t-1)}$, $\pmb{\ell}_u^{(t-1)}$, $d_v$ and $d_u$ will be referred to as \textit{degree-aware} MPNNs. 
 
 \begin{example}[GCN by Kipf and Welling]\label{ex:KipfasMPNN}\normalfont
-We consider the GCN architecture by~\cite{kipf-loose}, which in round $t$ computes for each vertex $v\in V$ the label:
+We consider the GCN architecture by~\cite{kipf-loose}, which in round $t$ computes
+\begin{equation*}
+\mathbf{L}^{(t)} = \sigma\left(
+   \tilde{\mathbf{D}}^{-1/2}\tilde{\mathbf{A}}\tilde{\mathbf{D}}^{-1/2}\mathbf{L}^{(t-1)}\mathbf{W}_1^{(t-1)},
+  \right)
+\end{equation*}
+where $\tilde{\mathbf{A}} = \mathbf{A} + \mathbf{I}$ and $\tilde{\mathbf{D}}$ is the diagonal matrix defined by $\tilde{\mathbf{D}}_{vv} = d_{v} + 1$. 
+This means that for each vertex $v\in V$ it computes the label:
 \begin{equation}
 \pmb{\ell}^{(t)}_v:=\sigma\Bigl(\bigl(\frac{1}{1+d_v}\bigr)\pmb{\ell}_v^{(t-1)}\mathbf{W}^{(t)} + \sum_{u\in N_G(v)} \bigl(\frac{1}{\sqrt{1+d_v}}\bigr)\bigl(\frac{1}{\sqrt{1+d_u}}\bigr)\pmb{\ell}^{(t-1)}_u\mathbf{W}^{(t)}\Bigr), \label{GNN:Kipf}
 \end{equation}
