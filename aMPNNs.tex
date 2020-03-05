@@ -1,12 +1,12 @@
 %!TEX root =main.tex
 \section{The distinguishing power of anonymous MPNNs}
 We recall from Section~\ref{sec:MPNNs} that anonymous MPNNs are MPNNs whose message functions
-only depend on the previous labels of the vertices involved. The distinguishing power of anonymous MPNNs (or aMPNNs for short) is well understood.
-Indeed, as we will shortly, it follows from two independent works (\cite{xhlj19} and~\cite{grohewl}), that the distinguishing power of aMPNNs can be linked to the distinguishing power of the WL algorithm. Apart from rephrasing known results in terms of aMPNNs, we provide two simplifications of the results of~\cite{grohewl}.
+only depend on the previous labels of the vertices involved. The distinguishing power of anonymous MPNNs (or aMPNNs, for short) is well understood.
+Indeed, as we will shortly see, it follows from two independent works~\cite{xhlj19,grohewl} that the distinguishing power of aMPNNs can be linked to the distinguishing power of the WL algorithm. Apart from rephrasing known results in terms of aMPNNs, we provide two simplifications of the results of~\cite{grohewl}.
 
 \subsection{General aMPNNs}
-Let $\langle G,\pmb{\nu}\rangle$ be a labelled graph.
-We denote by $\architectureWL$ the ``class'' of aMPNNs consisting of the single aMPNN $M_{\textsl{WL}}$ originating from the WL algorithm (see Example~\ref{ex:WL}). We denote the class of anonymous MPNNs by $\architectureano$.
+Let $( G,\pmb{\nu})$ be a labelled graph.
+We denote by $\architectureWL$ the `class' of aMPNNs consisting of the single aMPNN $M_{\textsl{WL}}$ originating from the WL algorithm (see Example~\ref{ex:WL}). We denote the class of anonymous MPNNs by $\architectureano$.
 
 \begin{theorem}[Based on~\cite{xhlj19,grohewl}]\label{thm:eqstrongWL}
 The classes $\architectureano$ and  $\architectureWL$ are equally strong.
@@ -14,9 +14,9 @@ The classes $\architectureano$ and  $\architectureWL$ are equally strong.
 
 
 \begin{proof}
-We first argue that $\architectureano$ is weaker than $\architectureWL$. The proof is a trivial adaptation of the proofs of Lemma 2 in~\cite{xhlj19} and Theorem 5 in~\cite{grohewl}. We show, by induction on the number of rounds of computation, that  $\pmb{\ell}_{M_{\textsl{WL}}}^{(t)}\sqsubseteq \pmb{\ell}_M^{(t)}$ for every $t\geq 0$.
+We first argue that $\architectureano$ is weaker than $\architectureWL$. The proof is a trivial adaptation of the proofs of Lemma 2 in~\cite{xhlj19} and Theorem 5 in~\cite{grohewl}. We show, by induction on the number of rounds of computation, that  $\pmb{\ell}_{M_{\textsl{WL}}}^{(t)}\sqsubseteq \pmb{\ell}_M^{(t)}$ for all $M \in \architectureano$ and every $t\geq 0$.
 
-Clearly, this holds for $t=0$ since $\pmb{\ell}_{M_{\textsl{WL}}}^{(t)}=\pmb{\ell}_M^{(t)}:=\pmb{\nu}$, by definition.
+Clearly, this holds for $t=0$ since $\pmb{\ell}_{M_{\textsl{WL}}}^{(0)}=\pmb{\ell}_M^{(0)}:=\pmb{\nu}$, by definition.
 We assume next that the induction hypothesis holds up to round $t-1$ and consider round $t$.
 Let $v$ and $w$ be two vertices such that 
 $(\pmb{\ell}_{M_{\textsl{WL}}}^{(t)})_v=(\pmb{\ell}_{M_{\textsl{WL}}}^{(t)})_w$ holds.
@@ -36,7 +36,7 @@ $$
 \textsc{Upd}^{(t)}\left((\pmb{\ell}_{M}^{(t-1)})_v,(\pmb{\ell}_{M}^{(t-1)})_u\right)=
 \textsc{Upd}^{(t)}\left((\pmb{\ell}_{M}^{(t-1)})_w,(\pmb{\ell}_{M}^{(t-1)})_{u'}\right).
 $$
-and also
+Furthermore, this mapping between elements of $N_G(v)$ and $N_G(w)$ is a bijection so that we also have:
 $$
 \mathbf{m}^{(t)}_v=\sum_{u\in N_G(v)}\textsc{Upd}^{(t)}\left((\pmb{\ell}_{M}^{(t-1)})_v,(\pmb{\ell}_{M}^{(t-1)})_u\right)=\sum_{u'\in N_G(w)}\textsc{Upd}^{(t)}\left((\pmb{\ell}_{M}^{(t-1)})_w,(\pmb{\ell}_{M}^{(t-1)})_{u'}\right)=\mathbf{m}^{(t)}_w.
 $$
@@ -44,7 +44,7 @@ We may thus conclude that $$(\pmb{\ell}_{M}^{(t)})_v=\textsc{Upd}^{(t)}\left((\p
 $$
 as desired.
 %
-% This was shown in \cite{xhlj19} and \cite{grohewl} for  graph neural networks which, in round $t>1$, compute for each vertex $v$ a label $\pmb{\ell}^{(t)}_{v}$, as follows:
+% This was shown in \cite{xhlj19} and \cite{grohewl} for  graph neural networks which, in round $t \geq 1$, compute for each vertex $v$ a label $\pmb{\ell}^{(t)}_{v}$, as follows:
 % \begin{equation}
 % \pmb{\ell}^{(t)}_{v}:=
 % f_{\textsl{comb}}^{(t)}\Bigl(
@@ -69,15 +69,16 @@ as desired.
 It remains to show that $\architectureWL$ is weaker than $\architectureano$. For this, it suffices to recall that $M_{\textsl{WL}}$ is an element of $\architectureano$.
 \end{proof}
 
-We remark that the proofs in \cite{xhlj19} and \cite{grohewl} relate to  graph neural networks which, in round $t>1$, compute for each vertex $v$ a label $\pmb{\ell}^{(t)}_{v}$, as follows:
+We remark that the proofs in \cite{xhlj19} and \cite{grohewl} relate to  graph neural networks which, in round $t\geq 1$, compute for each vertex $v$ a label $\pmb{\ell}^{(t)}_{v}$, as follows:
 \begin{equation}
 \pmb{\ell}^{(t)}_{v}:=
-f_{\textsl{comb}}^{(t)}\Bigl(
-\pmb{\ell}_{v}^{(t-1)},f_{\textsl{aggr}}^{(t)}\bigl(\ldbl \pmb{\ell}^{(t-1)}_{u} \mid u \in N_G(v) \rdbl\bigr)
-\Bigr), \label{eq:combaggr}
+f_{\textsl{comb}}^{(t)}\left(
+\pmb{\ell}_{v}^{(t-1)},f_{\textsl{aggr}}^{(t)}\left(\ldbl \pmb{\ell}^{(t-1)}_{u} \mid u \in N_G(v) \rdbl\right)
+\right), \label{eq:combaggr}
 \end{equation}
 where $f_{\textsl{comb}}^{(t)}$ and  $f_{\textsl{aggr}}^{(t)}$ are general (computable) combination and aggregation functions which we assume to assign labels in $\mathbb{A}^s$. Furthermore, $\pmb{\ell}^{(0)}:=\pmb{\nu}$, just as before. Every graph neural network of the form~(\ref{eq:combaggr}) is readily cast as an aMPNN. Indeed,
-it suffices to observe, just as we did in Example~\ref{ex:WL}, that the aggregation functions $f_{\textsl{aggr}}^{(t)}\bigl(\ldbl \pmb{\ell}^{(t-1)}_{u} \mid u \in N_G(v) \rdbl\bigr)$ can be written in the form $g^{(t)}\bigl(\sum_{u\in N_G(v)} h^{(t)}(\pmb{\ell}^{(t-1)}_{u})\bigr)$. This was already observed in Lemma 5 in~\cite{xhlj19}, based on Theorem 2 in~\cite{ZaheerKRPSS17}.
+it suffices to observe, just as we did in Example~\ref{ex:WL}, that the aggregation functions $f_{\textsl{aggr}}^{(t)}\bigl(\ldbl \pmb{\ell}^{(t-1)}_{u} \mid u \in N_G(v) \rdbl\bigr)$ can be written in the form $g^{(t)}\bigl(\sum_{u\in N_G(v)} h^{(t)}(\pmb{\ell}^{(t-1)}_{u})\bigr)$. 
+%This was already observed in Lemma 5 in~\cite{xhlj19}, based on Theorem 2 in~\cite{ZaheerKRPSS17}.
 
 Suppose that
 $\pmb{\nu}:V\to\mathbb{A}^s$. It now suffices to define for every $\mathbf{x}$ and $\mathbf{y}$ in $\mathbb{A}^s$, every $v\in V$ and $u\in N_G(u)$, and every $t\geq 1$:
@@ -89,20 +90,20 @@ Lemma 5 in~\cite{xhlj19} crucially relies on the assumption that labels come fro
 and that the size of multisets is bounded. These conditions are satisfied because $\mathbb{A}^s$ is a countable set and there are at most $|V|$ neighbours (elements in the multiset) for every vertex in $V$.
 
 The aMPNNs that we consider in this paper are slightly more general than those defined by
-(\ref{eq:combaggrtoaMPNN}). Indeed, we consider message functions that can also depend on the previous labelling $\pmb{\ell}_v^{(t-1)}$. We remark that the message functions in~(\ref{eq:combaggrtoaMPNN}) only depend on $\mathbf{y}$, which corresponds to the previous labelling of neighbours $u\in N_G(v)$. Let $\architecture{}^{-}_{\textsl{ano}}$ be the class of aMPNNs whose message functions only
+(\ref{eq:combaggrtoaMPNN}). Indeed, we consider message functions that can also depend on the previous labelling $\pmb{\ell}_v^{(t-1)}$. In contrast, the message functions in~(\ref{eq:combaggrtoaMPNN}) only depend on $\mathbf{y}$, which corresponds to the previous labelling of neighbours $u\in N_G(v)$. Let $\architecture{}^{-}_{\textsl{anon}}$ denote the class of aMPNNs whose message functions only
 depend on the previous labels of neighbours. It now suffices to observe that
- $M_{\textsl{WL}}\in \architecture{}^{-}_{\textsl{ano}}$ to infer,  combined with Theorem~\ref{thm:eqstrongWL}, that:
+ $M_{\textsl{WL}}\in \architecture{}^{-}_{\textsl{anon}}$ to infer,  combined with Theorem~\ref{thm:eqstrongWL}, that:
  \begin{corollary}
-	 The classes $\architecture{}^{-}_{\textsl{ano}}$, $\architectureano$ and $\architectureWL$ are all equally strong.
+	 The classes $\architecture{}^{-}_{\textsl{anon}}$, $\architectureano$ and $\architectureWL$ are all equally strong.
  \end{corollary}
-We observe, however, that this does not imply that for every aMPNN $M$ in $\architectureano$ there exists an aMPNN $M'$ in $\architecture{}^{-}_{\textsl{ano}}$
+We observe, however, that this does not imply that for every aMPNN $M$ in $\architectureano$ there exists an aMPNN $M'$ in $\architecture{}^{-}_{\textsl{anon}}$
 such that $\pmb{\ell}_{M}^{(t)}\equiv \pmb{\ell}_{M'}^{(t)}$ for all $t\geq 0$.
-Indeed, the corollary implies that for every $M$ in $\architectureano$ there exists an aMPNN $M'$ in $\architecture{}^{-}_{\textsl{ano}}$ such that $M'\preceq M$, and there exists an $M''$ in $\architectureano$, possibly different from $M$, such that $M''\preceq M'$. In fact, the aMPNN $M''$ in this case is $M_{\textsl{WL}}$.
+Indeed, the corollary implies that for every $M$ in $\architectureano$ there exists an aMPNN $M'$ in $\architecture{}^{-}_{\textsl{anon}}$ such that $M'\preceq M$, and there exists an $M''$ in $\architectureano$, possibly different from $M$, such that $M''\preceq M'$. In fact, the aMPNN $M''$ in this case is $M_{\textsl{WL}}$.
 % What it does imply, however, is that there exists an aMPNN $M$
-% in $\architecture{}^{-}_{\textsl{ano}}$ such that $M\equiv M_{\textsl{WL}}$.
+% in $\architecture{}^{-}_{\textsl{anon}}$ such that $M\equiv M_{\textsl{WL}}$.
 \openprob{I actually don't know what is the precise relationship between the aMPNNs coming from combine/aggregate and our aMPNNs.}
 \floris{Optional: say something about universal version of equally strong...}
-
+\todo{G: read up until here}
 \subsection{GNN-based aMPNNs}
 More practical examples of aMPNNs, related to the graph neural networks, were considered in~\cite{grohewl}.
 In that paper, the authors consider graph neural networks of the form
@@ -120,122 +121,192 @@ We start by stating a direct consequence of Theorem~\ref{thm:eqstrongWL}. It fol
 that $\architecture_{\textsl{GNN}}$ is sub-class of 
 $\architectureano$.
 \begin{corollary}
+	The class 
 $\architecture_{\textsl{GNN}}$ is weaker than $\architectureano$ and is thus also weaker than $\architectureWL$.
 \end{corollary}
 
 More challenging is to show that $\architecture_{\textsl{GNN}}$ and $\architectureWL$, and thus also $\architecture_{\textsl{GNN}}$ and $\architectureano$, are equally strong. The following results are known. We denote
 by $\architecture_{\textsl{GNN}}^{\textsl{sign}}$
-and $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$ the classes of  aMPNNs in $\architecture_{\textsl{GNN}}$ whose update functions, as defined in~(\ref{eq:MPNN-GNN}), use the sign and ReLU activation function, respectively.
+and $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$ the classes of  aMPNNs in $\architecture_{\textsl{GNN}}$ whose update functions, as defined in~(\ref{eq:MPNN-GNN}), use the sign and ReLU as activation function $\sigma$, respectively.
 
 \begin{theorem}[\cite{grohewl}] \label{thm:grohe_lower}
 (i)~The classes $\architecture_{\textsl{GNN}}^{\textsl{sgn}}$ and  $\architectureWL$ are equally strong. (ii)~The class 
-$\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$ is weaker than $\architectureWL$, and
-$\architectureWL$ is weaker than $\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$, with a factor of two.
+$\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$ is weaker than $\architectureWL$, and
+$\architectureWL$ is weaker than $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$, with a factor of two.
 \end{theorem}
 
 % In the proof of this Theorem~\cite{grohewl}, an explicit construction is given of an aMPNN $M_1$ in $\architecture_{\textsl{GNN}}^{\textsl{sgn}}$
-% and an aMPNN $M_2$ in $\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$
+% and an aMPNN $M_2$ in $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$
 % such that $M_1\preceq M_{\textsl{WL}}$
 % and $M_2\preceq_g M_{\textsl{WL}}$ with $g:\mathbb{N}\to \mathbb{N}:t\mapsto 2t$.
-The reason for the factor of two  is due to a simulation of the sign activation function by means of a two-fold application of the ReLu function. We next show that this factor of two can be avoided. As a side effect, we obtain a simpler aMPNN $M$ in $\architecture_{\textsl{GNN}}$ such that $M\preceq M_{\textsl{WL}}$ than the one constructed in \cite{grohewl}. The proof strategy is similar to that of~\cite{grohewl}.
-Crucial is the notion of \textit{row independent modulo equality}.
+The reason for the factor of two  is due to a simulation of the sign activation function by means of a two-fold application of the ReLu function. We next show that this factor of two can be avoided. As a side effect, we obtain a simpler aMPNN $M$ in $\architecture_{\textsl{GNN}}$, satisfying $M\preceq M_{\textsl{WL}}$, than the one constructed in \cite{grohewl}. The proof strategy is inspired by the strategy used in~\cite{grohewl}. Crucial in the proof the notion of \textit{row independent modulo equality}, which we define next.
 
 \begin{definition}[row independent modulo equality]\label{def:label2}\normalfont
 	A labelling $\pmb{\ell}:V\to\mathbb{A}^s$ is \textit{row-independent modulo equality} if the set of unique labels assigned by $\pmb{\ell}$ are linearly independent. \qed
 \end{definition}
-In what follows, we always assume that the labelling $\pmb{\nu}$ of $G$ is row-independent modulo equality. One can always ensure this by extending the labels.
+In what follows, we always assume that the labelling $\pmb{\nu}$ of $G$ is row-independent modulo equality. Furthermore, we further assume that for any vertex $v$, $\pmb{\nu}_v\neq\mathbf{0}\in\mathbb{A}^s$. One can always ensure this by extending the labels. 
 %
 % \begin{definition}[a good matrix]\label{def:label3}\normalfont
 % A matrix $\mathbf{F}$ is \textit{good relative to an other matrix} $\mathbf{F}'$ if $\mathbf{F}\equiv \mathbf{F}'$ and $\mathbf{F}$ is row-independent modulo equality.\qed
 % \end{definition}
 \begin{proposition}
-The classes $\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$ and  $\architectureWL$ are equally strong.
+The classes $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$ and  $\architectureWL$ are equally strong.
 \end{proposition}
 \begin{proof}
-We already know that $\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$ is weaker than $\architectureWL$. It remains to show that $\architectureWL$ is weaker than $\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$. That is, given $M_{\textsl{WL}}$, we need to construct an aMPNN $M$ in $\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$ such that 
-$\pmb{\ell}_{M}^{(t)}\sqsubseteq \pmb{\ell}_{M_{\textsl{WL}}}$. We will show a stronger claim, i.e., that $\pmb{\ell}_{M}^{(t)}\equiv \pmb{\ell}_{M_{\textsl{WL}}}$. The proof is by induction on the number of computation rounds.
-\floris{From here on: ongoing (mix of old and new)}
+We already know that $\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$ is weaker than $\architectureWL$. It remains to show that $\architectureWL$ is weaker than $\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$. That is, given the aMPNN $M_{\textsl{WL}}$, we need to construct an aMPNN $M$ in $\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$ such that 
+$\pmb{\ell}_{M}^{(t)}\sqsubseteq \pmb{\ell}_{M_{\textsl{WL}}}$. We observe that
+since $\pmb{\ell}_{M_{\textsl{WL}}}\sqsubseteq \pmb{\ell}_{M}^{(t)}$ for any $M$ in $\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$, this is equivalent to constructing an $M$ such that $\pmb{\ell}_{M}^{(t)}\equiv \pmb{\ell}_{M_{\textsl{WL}}}$. 
 
-We assume that $\mathbf{F}^{(0)}\equiv\pmb{\ell}$ and that  $\mathbf{F}^{(0)}$ is row-independent modulo equality. We define for $t>0$:
-	\begin{align*}
-	\mathbf{G}^{(t)}&:=(\mathbf{A}+p\mathbf{I})\mathbf{F}^{(t-1)}\\
-	\mathbf{F}^{(t)}&:=\sigma(\mathbf{G}^{(t)}\mathbf{W}^{(t-1)}+q\mathbf{J}).
-	\end{align*}
-We assume next that $\mathbf{F}^{(t-1)}$ is good for $\pmb{\ell}{}^{(t-1)}$. We first show that
-$\mathbf{G}^{(t)}\equiv\pmb{\ell}^{(t)}$, and then apply
-	Lemmas~\ref{lem:signlemma9} and
-	~\ref{lem:relulemma9} to find $\mathbf{W}^{(t-1)}$ and $q$ such that $\mathbf{F}^{(t)}$ is good for  $\pmb{\ell}{}^{(t)}$. We observe that these lemmas create a rank one matrix $\mathbf{W}^{(t-1)}$.
+The proof is by induction on the number of computation rounds. The MPNN $M$ that we will construct will use message and update functions of the form:
+\begin{equation}\textsc{Msg}^{(t)}\bigl(\mathbf{x},\mathbf{y},v,u):=\mathbf{y}\mathbf{W}^{(t)}
+\text{ and } 
+\textsc{Upd}^{(t)}(\mathbf{x},\mathbf{y}):=\sigma\left(p^{(t)}\mathbf{x}\mathbf{W}^{(t)}+\mathbf{y} + \mathbf{b}^{(t)}\right) \label{eq:MPNN-GNN-simple}
+\end{equation}
+for some values $p^{(t)}\in\mathbb{A}$, $0<p^{(t)}<1$, and weight matrix $\mathbf{W}^{(t)}\in\mathbb{A}^{s\times s}$. Note that in contrast to~(\ref{eq:MPNN-GNN}), we only have one weight matrix per round, instead of two, at the cost of introducing an extra parameter $p^{(t)}\in\mathbb{A}$.  Furthermore, the MPNN constructed in \cite{grohewl} uses two distinct weight matrices in $\mathbb{A}^{2s\times 2s}$ (see appendix for details) whereas our weight matrices are elements of $\mathbb{A}^{s\times s}$.
 
+The induction hypotheses are that (a)~$\pmb{\ell}^{(t)}_M\equiv \pmb{\ell}_{M_{\textsl{WL}}}$; (b)~$\pmb{\ell}^{(t)}_M$ is row-independent modulo equality; and (c) for any vertex $v$, $(\pmb{\ell}^{(t)}_M)_v\neq\mathbf{0}\in\mathbb{A}^s$.
 
-We observe that the upper bound proof of Theorem~\ref{thm:generalbound}  implies that  $\pmb{\ell}{}^{(t)}\sqsubseteq \mathbf{G}^{(t)}$. It thus suffices to show that $ \mathbf{G}^{(t)}\sqsubseteq \pmb{\ell}{}^{(t)}$. 
-$ \mathbf{G}^{(t)}\sqsubseteq \pmb{\ell}{}^{(t)}$
+For $t=0$, we have that for any $M\in \architecture_{\textsl{GNN}}^{\textsl{ReLu}}$, $\pmb{\ell}_M^{(0)}=\pmb{\ell}_{M_{\textsl{WL}}}^{(0)}:=\pmb{\nu}$, by definition.
+Moreover, $\pmb{\ell}_M^{(0)}$ is row-independent modulo equality because $\pmb{\nu}$ is so, by assumption. Also by assumption, the labelling $\pmb{\nu}$, and thus also 
+$\pmb{\ell}_M^{(0)}$, does not assign label $\mathbf{0}\in\mathbb{A}^s$.
 
-Suppose, for the sake of contradiction, that there exists two vertices $v,w\in V$ such that 
+We next assume that up to round $t-1$, we have found weight matrices and bias vectors for $M$ such that 
+$\pmb{\ell}_M^{(t-1)}$ satisfies conditions (a),(b) and (c) from the induction hypotheses. We next consider round $t$ and show that we can find a weight matrix $\mathbf{W}^{(t)}\in\mathbb{A}^{s\times s }$ such that also
+$\pmb{\ell}_M^{(t)}$ satisfies these conditions.
+
+We show this in two steps.
+\begin{description}
+	\item [\textit{Step 1.}] First, we show that the intermediate labelling $\pmb{\mu}_M^{(t)}:V\to\mathbb{A}^s$, defined by
+\begin{equation}\pmb{\mu}_v^{(t)}:=p^{(t)}(\pmb{\ell}_M^{(t-1)})_v+\sum_{u\in N_G(v)}(\pmb{\ell}_M^{(t-1)})_u, \label{eq:mu}
+\end{equation}
+for every $v\in V$, satisfies conditions (a), (b) and (c). 
+\item  [\textit{Step 2.}]
+Second, we show the existence of a weight matrix $\mathbf{W}^{(t)}$ and a bias vector
+$\mathbf{b}^{(t)}$ such that the labelling defined by
+$$
+v\mapsto \sigma\left((\pmb{\mu}_M^{(t)})_v\mathbf{W}^{(t)}+ \mathbf{b}^{(t)}\right),
+$$
+which corresponds to $(\pmb{\ell}_M^{(t)})_v$, satisfies the  three desired conditions.
+\end{description}
+It is in the first step that we need that $\pmb{\ell}_M^{(t-1)}$ is row-independent modulo equality. We observe that we only need to show that $\pmb{\mu}_M^{(t)}\sqsubseteq \pmb{\ell}_{M_{\textsl{WL}}}^{(t)}$, to conclude that $\pmb{\mu}_M^{(t)}\equiv \pmb{\ell}_{M_{\textsl{WL}}}^{(t)}$. Of course, we also need to verify conditions (b) and (c).
+
+\smallskip
+\noindent
+\textbf{Step 1.\,}The labelling \textit{$\pmb{\mu}_M^{(t)}$ satisfies the induction hypotheses.}
+We first verify condition (a), i.e.,
+we show that $\pmb{\mu}_M^{(t)}\sqsubseteq \pmb{\ell}_{M_{\textsl{WL}}}^{(t)}$. Suppose, for the sake of contradiction, that there exists two vertices $v,w\in V$ such that 
 	\begin{equation}
-	\pmb{\ell}{}^{(t)}_v\neq\pmb{\ell}{}^{(t)}_w \text{ and }
-	\mathbf{G}^{(t)}_{v\bullet}=\mathbf{G}^{(t)}_{w\bullet}. \label{eq:contra}
-	\end{equation} 
-We show that this is impossible for $p$ such that $0<p<1$. We distinguish between the following two cases. If $\pmb{\ell}{}^{(t)}_v\neq\pmb{\ell}{}^{(t)}_w$ then either
-(i)~$\pmb{\ell}{}^{(t-1)}_v\neq\pmb{\ell}{}^{(t-1)}_w$; or 
-(ii)~$\pmb{\ell}{}^{(t-1)}_v=\pmb{\ell}{}^{(t-1)}_w$ and
-	$$
-	\ldbl \pmb{\ell}{}^{(t-1)}_{u} \st u \in N_G(v) \rdbl\neq
-	\ldbl \pmb{\ell}{}^{(t-1)}_{u} \st u \in N_G(w) \rdbl.
-	$$
-By assumption $\mathbf{F}^{(t-1)}$ is good for $\pmb{\ell}{}^{(t-1)}$.
-In particular, if we consider the unique row vectors in  $\mathbf{F}^{(t-1)}$, then these are linearly independent. Let us denote the unique row vectors in $\mathbf{F}^{(t-1)}$ by $\mathbf{F}_1,\ldots,\mathbf{F}_s$ for some $s$.
+		(\pmb{\mu}_M^{(t)})_{v}=(\pmb{\mu}_M^{(t)})_{w} \text{ and } (\pmb{\ell}_{M_{\textsl{WL}}}^{(t)})_v\neq(\pmb{\ell}_{M_{\textsl{WL}}}^{(t)})_w \label{eq:contra}
+	\end{equation}
+	hold.
+We show that this is impossible for any value $p^{(t)}$ satisfying $0<p^{(t)}<1$. 
 
+We distinguish between the following two cases. If $ (\pmb{\ell}_{M_{\textsl{WL}}}^{(t)})_v\neq(\pmb{\ell}_{M_{\textsl{WL}}}^{(t)})_w$ then either
+(i)~$(\pmb{\ell}_{M_{\textsl{WL}}}^{(t-1)})_v\neq(\pmb{\ell}_{M_{\textsl{WL}}}^{(t-1)})_w$; or 
+(ii)~$(\pmb{\ell}_{M_{\textsl{WL}}}^{(t-1)})_v=(\pmb{\ell}_{M_{\textsl{WL}}}^{(t-1)})_w$
+but
+	$$
+	\ldbl (\pmb{\ell}_{M_{\textsl{WL}}}^{(t-1)})_u \st u \in N_G(v) \rdbl\neq
+	\ldbl(\pmb{\ell}_{M_{\textsl{WL}}}^{(t-1)})_u \st u \in N_G(w) \rdbl.
+	$$
+We recall that, by the induction hypothesis, $\pmb{\ell}^{(t-1)}_M$ is row-independent modulo equality. Let us denote by $\mathbf{a}_1,\ldots,\mathbf{a}_d \in \mathbb{A}^s$ the unique labels
+in $\pmb{\ell}^{(t-1)}_M$, which are thus linearly independent.
+%
+% good for $\pmb{\ell}{}^{(t-1)}$.
+% In particular, if we consider the unique row vectors in  $\mathbf{F}^{(t-1)}$, then these are linearly independent. Let us denote the unique row vectors in $\mathbf{F}^{(t-1)}$ by $\mathbf{F}_1,\ldots,\mathbf{F}_s$ for some $s$.
 
-Suppose that we are in case (i). Then,  $\pmb{\ell}{}^{(t-1)}_v\neq\pmb{\ell}{}^{(t-1)}_w$ implies that
-	$\mathbf{F}^{(t-1)}_{v\bullet}\neq \mathbf{F}^{(t-1)}_{w\bullet}$. We can assume, wlog, that $\mathbf{F}^{(t-1)}_{v\bullet}=\mathbf{F_1}$ and
-	$\mathbf{F}^{(t-1)}_{w\bullet}=\mathbf{F_2}$. It should be clear from the definition of $\mathbf{G}^{(t)}$ that every of its rows is a linear combination of 
-	the unique row vectors $\mathbf{F}_1,\ldots,\mathbf{F}_s$. More specifically:
+We first consider case (i). In this case, $(\pmb{\ell}_{M_{\textsl{WL}}}^{(t-1)})_v\neq(\pmb{\ell}_{M_{\textsl{WL}}}^{(t-1)})_w$ implies that
+	$(\pmb{\ell}^{(t-1)}_M)_{v}\neq (\pmb{\ell}_M^{(t-1)})_w$. After all,
+	$\pmb{\ell}^{(t-1)}_M\equiv \pmb{\ell}_{M_{\textsl{WL}}}^{(t-1)}$ by the induction hypothesis. We can assume, without loss of generality,  that $(\pmb{\ell}^{(t-1)}_M)_{v}=\mathbf{a}_1$ and
+	$(\pmb{\ell}^{(t-1)}_M)_{w}=\mathbf{a}_2$. The labels $(\pmb{\mu}_M^{(t)})_v$ and 
+	$(\pmb{\mu}_M^{(t)})_w$ defined in~(\ref{eq:mu}) are linear combinations of the unique rows
+	$\mathbf{a}_1,\ldots,\mathbf{a}_d$. That is,
 	\begin{align*}
-	\mathbf{G}^{(t)}_{v\bullet}&:=(\alpha_1+p)\mathbf{F}_1+ \alpha_2\mathbf{F}_2+ \sum_{i=3}^s \alpha_i\mathbf{F}_i\\
+	(\pmb{\mu}_M^{(t)})_v&=(\alpha_1+p^{(t)})\mathbf{a}_1+ \alpha_2\mathbf{a}_2+ \sum_{i=3}^d \alpha_i\mathbf{a}_i, \text{ and}\\
 	%\intertext{and similarly,} 
-	\mathbf{G}^{(t)}_{w\bullet}&=\beta_1\mathbf{F}_1+ (\beta_2+p)\mathbf{F}_2+ \sum_{i=3}^s \beta_i\mathbf{F}_i,
+	(\pmb{\mu}_M^{(t)})_w&=\beta_1\mathbf{a}_1+ (\beta_2+p^{(t)})\mathbf{a}_2+ \sum_{i=3}^d \beta_i\mathbf{a}_i,
 	\end{align*}
-	for some non-negative natural numbers $\alpha_i$ and $\beta_i$, for $i\in[1,s]$.
-We recall, however, that the vertices $v$ and $w$ are such that $\mathbf{G}^{(t)}_{v\bullet}=\mathbf{G}^{(t)}_{w\bullet}$. This in turn implies that
+	for some non-negative natural numbers $\alpha_i$ and $\beta_i$, for $i\in[1,d]$.
+We recall, however, that the vertices $v$ and $w$ are such that
+$(\pmb{\mu}_M^{(t)})_{v}=(\pmb{\mu}_M^{(t)})_{w}$. This in turn implies that
 	$$
-	(\alpha_1+p-\beta_1)\mathbf{F}_1 + (\alpha_2-\beta_2-p)\mathbf{F}_2 +\sum_{i=3}^s (\alpha_i-\beta_i)\mathbf{F}_s=0.
+	(\alpha_1+p^{(t)}-\beta_1)\mathbf{a}_1 + (\alpha_2-\beta_2-p^{(t)})\mathbf{a}_2 +\sum_{i=3}^d (\alpha_i-\beta_i)\mathbf{a}_i=0.
 	$$
-	So, unless all these coefficients are zero, we have that $\mathbf{F}_1,\ldots,\mathbf{F}_s$
-	are not linearly independent. It is now clear that $\alpha_1+p=\beta_1$ and
-	$\alpha_2=\beta_2+p$ cannot hold for any $p$, $0<p<1$. Indeed, $\alpha_i-\beta_j$
-	is always an integer number. Hence, case (i) cannot occur.
+	So, unless all these coefficients are zero, we have that $\mathbf{a}_1,\ldots,\mathbf{a}_d$
+	are linearly independent. It is now clear that $\alpha_1+p^{(t)}=\beta_1$ and
+	$\alpha_2=\beta_2+p^{(t)}$ cannot hold for any $p^{(t)}$, $0<p^{(t)}<1$. Indeed, $\alpha_i-\beta_j$
+	is always an integer number. We may thus conclude that case (i) cannot occur.
 	
 
-Suppose next that we are in case (ii). Recall that for case (ii), we have $\pmb{\ell}{}^{(t-1)}_v=\pmb{\ell}{}^{(t-1)}_w$.
-	Using the same notation as above, we may assume that $\mathbf{F}^{(t-1)}_{v\bullet}=\mathbf{F_1}=\mathbf{F}^{(t-1)}_{w\bullet}$. In case (ii), however, we have that
+Suppose next that we are in case (ii). Recall that for case (ii), we have that
+$(\pmb{\ell}{}_{M_{\textsl{WL}}}^{(t-1)})_v=(\pmb{\ell}{}_{M_{\textsl{WL}}}^{(t-1)})_w$ and thus also  $(\pmb{\ell}{}_M^{(t-1)})_v=(\pmb{\ell}{}_M^{(t-1)})_w$.
+	Using the same notation as above, we may assume that $(\pmb{\ell}{}_M^{(t-1)})_v=(\pmb{\ell}{}_M^{(t-1)})_w=\mathbf{a}_1$. In case (ii), however, we have that
 	$
-	\ldbl \pmb{\ell}{}^{(t-1)}_{u} \st u \in N_G(v) \rdbl\neq
-	\ldbl \pmb{\ell}{}^{(t-1)}_{u} \st u \in N_G(w) \rdbl
+	\ldbl (\pmb{\ell}{}_{M_{\textsl{WL}}}^{(t-1)})_{u} \st u \in N_G(v) \rdbl\neq
+	\ldbl (\pmb{\ell}{}_{M_{\textsl{WL}}}^{(t-1)})_{u} \st u \in N_G(w) \rdbl
+	$ and thus also 
+	$
+	\ldbl (\pmb{\ell}{}_{M}^{(t-1)})_{u} \st u \in N_G(v) \rdbl\neq
+	\ldbl (\pmb{\ell}{}_{M}^{(t-1)})_{u} \st u \in N_G(w) \rdbl
 	$.
-	That is, there must exist a label assigned by $\pmb{\ell}{}^{(t-1)}$ that does not occurs the same number of times in the neighborhoods of $v$ and $w$, respectively. Recall that $\mathbf{F}^{(t-1)}\equiv \pmb{\ell}{}^{(t-1)}$. We assume that $\mathbf{F}_2$ corresponds to the label witnessing the difference in the neighborhood labels. (As a special case, this label may also correspond to $\mathbf{F}_1$ but the same argument as below applies.)
-
-We develop $\mathbf{G}^{(t)}_{v\bullet}$ and $\mathbf{G}^{(t)}_{w\bullet}$ again as linear combinations of $\mathbf{F}_1,\ldots,\mathbf{F}_s$. That is,
+	That is, there must exist a label assigned by $\pmb{\ell}{}_M^{(t-1)}$ that does not occurs the same number of times in the neighborhoods of $v$ and $w$, respectively. Suppose that this label is $\mathbf{a}_2$. The case when this label is $\mathbf{a}_1$ can be treated similarly. As before we can write
 	\begin{align*}
-	\mathbf{G}^{(t)}_{v\bullet}&:=(\alpha_1+p)\mathbf{F}_1+ \alpha_2\mathbf{F}_2+ \sum_{i=3}^s \alpha_i\mathbf{F}_i\\
+	(\pmb{\mu}_M^{(t)})_v&=(\alpha_1+p^{(t)})\mathbf{a}_1+ \alpha_2\mathbf{a}_2+ \sum_{i=3}^d \alpha_i\mathbf{a}_i, \text{ and}\\
 	%\intertext{and similarly,} 
-	\mathbf{G}^{(t)}_{w\bullet}&=(\beta_1+p)\mathbf{F}_1+ \beta_2\mathbf{F}_2+ \sum_{i=3}^s \beta_i\mathbf{F}_i.
+	(\pmb{\mu}_M^{(t)})_w&=(\beta_1+p^{(t)})\mathbf{a}_1+ \beta_2\mathbf{a}_2+ \sum_{i=3}^d \beta_i\mathbf{a}_i.
 	\end{align*}
-	Our assumption (also in case (ii)) is still that $\mathbf{G}^{(t)}_{v\bullet}=\mathbf{G}^{(t)}_{w\bullet}$. Using the same argument as before, based on linear independence of $\mathbf{F}_1,\ldots,\mathbf{F}_s$, we must have that 
-	$\alpha_i=\beta_i$ for all $i\in [1,s]$.
+	Our assumption (also in case (ii)) is still that $(\pmb{\mu}_M^{(t)})_v=(\pmb{\mu}_M^{(t)})_w$. Using the same argument as before, based on  the linear independence of $\mathbf{a}_1,\ldots,\mathbf{a}_d$, we must have that 
+	$\alpha_i=\beta_i$ for all $i\in [1,d]$.
 This cannot be true, however. Indeed,
- $\alpha_2$ and $\beta_2$, corresponding to $\mathbf{F}_2$, correspond to the number of time the label corresponding to $\mathbf{F}_2$ occurs in $N_G(u)$ and $N_G(w)$, respectively. By assumption, these numbers are different. So again, case (ii) cannot occur either. Hence, $\mathbf{G}^{(t)}\sqsubseteq \pmb{\ell}^{(t)}$, as desired.
+ $\alpha_2$ and $\beta_2$, correspond to the number of time the label $\mathbf{a}_2$  occurs in $N_G(u)$ and $N_G(w)$, respectively. By assumption, these numbers are different. So again, case (ii) cannot occur either. Hence, our assumption~(\ref{eq:contra}) cannot be true and hence, $\pmb{\mu}_M^{(t)}\sqsubseteq \pmb{\ell}_{M_{\textsl{WL}}}^{(t)}$, as desired. We note that is also implies that $\pmb{\mu}_M^{(t)}\equiv \pmb{\ell}_{M_{\textsl{WL}}}^{(t)}$. 
+ 
+In fact, we may also conclude that $\pmb{\mu}_M^{(t)}$ is row-independent modulo equality. Indeed, if two distinct labels would be dependent, then one can again infer that $\mathbf{a}_1,\ldots,\mathbf{a}_d$ must be linearly dependent.
+ 
+\smallskip
+\noindent
+\textbf{Step 2.\, }\textit{Construct weight matrix and bias vector.}
+Let $\mathbf{M}^{(t)}\in\mathbb{A}^{n\times s}$ the matrix consisting of rows $(\pmb{\mu}_M^{(t)})_v$, for $v\in V$.
+Moreover, we denote by $\mathsf{uniq}(\mathbf{M}^{(t)})$ the $u\times s$-matrix consisting of the unique rows in $\mathbf{M}$. We know from step 1 that
+$\mathsf{uniq}(\mathbf{M}^{(t)})$ consist of $u$ linear independent labels in $\mathbb{A}^s$. Following the same argument as in~\cite{grohewl} this implies that there exists a $s\times u$-matrix $\mathbf{U}^{(t)}$ such that $\mathsf{uniq}(\mathbf{M}^{(t)})\mathbf{U}^{(t-1)}=\mathbf{I}_{u\times u}$. 
 
 
 
-	
+By induction $\mathbf{F}^{(t-1)}\equiv\hat{\pmb{\ell}}{}^{(t-1)}$. Let $\Sigma^{(t-1)}$ be the set of  labels assigned by $\hat{\pmb{\ell}}{}^{(t-1)}$ to vertices $v\in V$. 
+For any $v\in V$ and $c\in\Sigma^{(t-1)}$, we denote by $\mathbf{F}^{(t-1)}_{v\bullet}\sim c$ that
+$\hat{\pmb{\ell}}{}^{(t)}_v=c$.
+Then for each $v\in V$ and $c\in \Sigma^{(t-1)}$ we have:
+\begin{align*}
+(\mathbf{A}\mathbf{F}^{(t-1)}\mathbf{M}^{(t-1)})_{vc}&=|\{u\in N_G(v)\mid \mathbf{F}^{(t-1)}_{u\bullet}\sim c\}|.
+\intertext{Furthermore,} 
+p\mathbf{I}(\mathbf{F}^{(t-1)}\mathbf{M}^{(t-1)})_{vc}&=p\delta_{vc},
+\end{align*}
+with $\delta_{vc}=1$ if $\mathbf{F}^{(t-1)}_{v\bullet}\sim c$ and $\delta_{vc}=0$ otherwise.
+
+
+From the definition of $\pmb{\mu}$ it follows that $\mathbf{M}$ (and thus also $\mathsf{uniq}(\mathbf{M})$) does not contain rows consisting entirely out of zero. Furthermore, 
+  
+\begin{lemma}\label{lem:ReLUlemma9}
+  Let
+  $\mathbf{B}\in \Nb^{p\times q}$ be a matrix in which all
+  rows are pairwise disjoint and such that no row consists entirely
+  out of zeroes\footnote{Compared to Lemma 9 in from~\cite{grohewl},
+ we additionally require non-zero rows. This can be guaranteed provided that there are no isolated vertices}.
+%  \footnote{I believe that this can be
+%  guaranteed in 1-WL}).\todo{G: with our extended features we actually guarantee this for free by adding the 1 column; also, t as dimension is a bad choice\ldots}
+  Then there exists a matrix $\mathbf{X}$ and a constant $m$
+  such that $\text{\normalfont ReLU}(\mathbf{BX}-m\mathbf{J})$ is
+  non-singular.
+\end{lemma}
+
+We now know that $\pmb{\ell}_v^{(t)}\sqsubseteq \pmb{\ell}_{M_{\textsl{WL}}}^{(t)}$.
 \end{proof}
 It suffices to show that  $\architectureWL$
-is weaker than $\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$.
+is weaker than $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$.
 % Instead of simulating the sign function by means of ReLU, one can directly
 % use ReLU by means of a minor modification of the proof given in~\cite{grohewl}. 
 % As a consequence, we avoid the factor $2$ in the correspondence between the 1-WL
 % vertex labelling and the labelling induced by the feature vectors.
-An inspection of the proof given in~\cite{grohewl} shows that it suffices to re-establish Lemma 9 from~\cite{grohewl} for the ReLU function. \begin{lemma}\label{lem:relulemma9}
+An inspection of the proof given in~\cite{grohewl} shows that it suffices to re-establish Lemma 9 from~\cite{grohewl} for the ReLU function. \begin{lemma}\label{lem:ReLUlemma9}
   Let
   $\mathbf{B}\in \Nb^{p\times q}$ be a matrix in which all
   rows are pairwise disjoint and such that no row consists entirely
@@ -289,7 +360,7 @@ we have that $\text{ReLU}(\mathbf{B}\mathbf{X}-m\mathbf{J})$ is non-singular, as
 \end{proof}
 
 % \begin{proof}
-% We only need to show that $\architectureWL$ is weaker than $\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$. More specifically, we need to show that $M_{\textsl{WL}}\preceq M$ for some $M\in\architecture_{\textsl{GNN}}^{\textsl{ReLu}}$. 
+% We only need to show that $\architectureWL$ is weaker than $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$. More specifically, we need to show that $M_{\textsl{WL}}\preceq M$ for some $M\in\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$. 
 
 % The proof of Theorem~\ref{thm:grohe_lower}~(i) consists of an explicit construction of $M \in \architecture_{\textsl{GNN}}^{\textsl{sgn}}$. The use of the sgn function
 % \end{proof}
@@ -349,7 +420,7 @@ This section is organised as follows. We first define how two classes of MPNNs c
 % The following definition states when one class of MPNNs is weaker (in terms of distinguishing power) than another class of MPNNs. Intuitively, one class $\architecture$ will be weaker than other class $\architecture'$ if any MPNN $M\in\architecture$ cannot distinguish more vertices than some MPNN $M'\in\architecture'$.
 
 % \begin{definition}\label{def:comparing}\normalfont
-% Consider two classes $\architecture$ and $\architecture'$ of MPNNs. We say that $\architecture$ is weaker than $\architecture'$ (or equivalently that $\architecture'$ is stronger than $\architecture$) if there exists a function $g:\mathbb{N}\to \mathbb{N}$ such that for every $M \in \architecture$ there exists an $M'\in \architecture'$ satisfying $\pmb{\ell}_{M'}^{(g(t))}\sqsubseteq \pmb{\ell}_{M}^{(t)}$, for all $t\geq 0$ and for any labeled graph $\langle G,\pmb{\nu},\pmb{\eta})$. This is denoted by $\architecture \sqsubseteq \architecture'$.
+% Consider two classes $\architecture$ and $\architecture'$ of MPNNs. We say that $\architecture$ is weaker than $\architecture'$ (or equivalently that $\architecture'$ is stronger than $\architecture$) if there exists a function $g:\mathbb{N}\to \mathbb{N}$ such that for every $M \in \architecture$ there exists an $M'\in \architecture'$ satisfying $\pmb{\ell}_{M'}^{(g(t))}\sqsubseteq \pmb{\ell}_{M}^{(t)}$, for all $t\geq 0$ and for any labeled graph $( G,\pmb{\nu},\pmb{\eta})$. This is denoted by $\architecture \sqsubseteq \architecture'$.
 % % with $d$ layers 
 % % and every labelling $\labl$ compatible with $g$ there exists $g' \in \architecture'$ with $m'$ layers such that $g'(\labl) \sqsubseteq g(\labl)$.
 % % This is denoted by $\architecture' \sqsubseteq \architecture$.
@@ -378,7 +449,7 @@ This section is organised as follows. We first define how two classes of MPNNs c
 
 
 It has been recently shown by~\cite{Loukas2019} that MPNNs are Turing complete, i.e., they can compute any (computable) graph function. The proof uses an equivalence between MPNNs and a well-known distributed computation model, LOCAL, which is known to be Turing complete~\cite{Angluin}. We refer to~\cite{Loukas2019} for more details. The completeness result crucially relies on the dependence of the message functions on $v$ and $w$, i.e., on knowing which vertices are being considered. 
-% Indeed, after $\delta=\text{diam}(G)$ rounds each vertex has complete information about the graph $\langle G,\pmb{\nu},\pmb{\eta})$
+% Indeed, after $\delta=\text{diam}(G)$ rounds each vertex has complete information about the graph $( G,\pmb{\nu},\pmb{\eta})$
 % and once can use $\textsc{Upd}^{(\delta+1)}$ to compute the desired graph function.
 
 \paragraph{Anonymous MPNNs.} In contrast, when the message functions 
@@ -414,7 +485,7 @@ $\textsc{Msg}^{(t)}$ in MPNNs only depend on $\pmb{\ell}_v^{(t-1)}$, $\pmb{\ell}
 % % An anonymous MPNN (aMPNN) is an MPNN in which the message functions
 % % $\textsc{Msg}^{(t)}$ only depend on $\pmb{\ell}_v^{(t-1)}$ and $\pmb{\ell}_w^{(t-1)}$~\citep{Loukas2019}.
 
-% More precisely, we show that aMPNNs are bounded by WL in terms of their distinguishing power. In other words, for every $t\geq 0$, $\mathbf{w}\pmb{\ell}^{(t)}\sqsubseteq \pmb{\ell}^{(t)}$. This was already shown  by \cite{XuHLJ19} and~\cite{grohewl} for undirected graphs and in which the edge labeling $\pmb{\eta}$ is absent. The generalisation to labeled directed graphs $\langle G,\pmb{\nu},\pmb{\eta}\rangle$ simply requires the use of the WL-algorithm on such graphs~\citep{}.
+% More precisely, we show that aMPNNs are bounded by WL in terms of their distinguishing power. In other words, for every $t\geq 0$, $\mathbf{w}\pmb{\ell}^{(t)}\sqsubseteq \pmb{\ell}^{(t)}$. This was already shown  by \cite{XuHLJ19} and~\cite{grohewl} for undirected graphs and in which the edge labeling $\pmb{\eta}$ is absent. The generalisation to labeled directed graphs $( G,\pmb{\nu},\pmb{\eta})$ simply requires the use of the WL-algorithm on such graphs~\citep{}.
 % % the following proposition is
 % % \citet{Jaume2019} recently showed the following:
 % % \smallskip

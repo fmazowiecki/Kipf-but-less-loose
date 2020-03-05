@@ -1,11 +1,13 @@
 %!TEX root =main.tex
 \section{Preliminaries}
-Let $\mathbb{N}$ denote the set of all natural numbers including zero, i.e.
-$\mathbb{N} = \{0,1,2,\dots\}$, and $\mathbb{N}^+ = \mathbb{N} \setminus
-\{0\}$.
+Let $\mathbb{A}$ denote the set of all algebraic numbers; $\mathbb{Q}$, the set of all rational numbers; $\mathbb{N}$, the set of all natural numbers including zero, i.e.
+$\mathbb{N} = \{0,1,2,\dots\}$; and $\mathbb{N}^+$, the set $\mathbb{N} \setminus
+\{0\}$ of all positive natural numbers.
+
 We use $\{\!\}$ and $\ldbl\! \rdbl$ to indicate sets and multisets,
 respectively, and write $[n]$ for the set $\{1,2,\ldots,n\}$.
 
+\paragraph{Labelled graphs.}
 Let $G=(V,E)$ be an undirected graph consisting of $n$ vertices. Without loss
 of generality we assume that $V=[n]$ for some $n\in\Nb$. Given a vertex $v\in
 V$, we denote by $N_G(v)$ its set of neighbors, i.e., $N_G(v):=\{u\st
@@ -86,9 +88,9 @@ where $\textsc{Hash}$ bijectively maps the multi-set $\ldbl
 to a label in $\Sigma$ which has not been used in previous iterations. 
 
 \floris{WWL is strange: it does not seem to produces refinements.}
-\todo{G: so we do not define the WWL labelling, because the above procedure
-may not terminate! so we consider all intermediate labellings to compare
-with?}
+\todo{G: we do not define the WWL labelling because the above procedure
+may not terminate! let us make this clear later and reference it from here
+}
 %
 %\todo{G: read until here}
 %

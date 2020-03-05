@@ -17,11 +17,10 @@ In the literature one also finds classes of GNNs in which the features of the ve
 
 Finally, in proving our results we refine some of the tools presented in~\cite{grohewl}. In particular, the simulation result of the WL-algorithm depends on the chosen activation function. In~\cite{grohewl}, the sign and ReLU functions were considered. The simulation of the WL algorithm by GNNs using the ReLU activation function was shown by leveraging their simulation of the WL algorithm by GNNs using the sign function. This, however, induces a doubling of the number of layers. We provide a direct simulation of the WL algorithm by GNNs using the ReLU activation function, hereby avoiding the doubling of layers.
 Furthermore, as part of our simulation proof we obtain a very simple form of GNNs that only needs a linear number of parameters (linear in the number of vertices in the graph). By contrast, standard GNNs require a quadratic number of parameters in each layer. These simple forms of GNNs may be of independent interest.
-\todo{G: up to here it reads quite nice!}
 
 \paragraph{Related work.}
 We refer to~\cite{Zhou2018,Zonghan2019} for recent surveys on GNNs and GCNs and instead focus on related work on the distinguishing power of graph neural networks and its connections to the WL-algorithm. As already mentioned,~\cite{xhlj19} and~\cite{grohewl}
-were the first to formally establish this connection. Earlier, the WL algorithm already served as inspiration for the design of WL-kernels~\cite{Shrvashidze2011} and the GraphSAGE GNN framework~\cite{Hamilton2017a}. 
+were the first to formally establish this connection. Earlier, the WL algorithm already served as inspiration for the design of WL-kernels~\cite{Shrvashidze2011} and the GraphSAGE GNN framework~\cite{hyl17}. 
 
 The distinguishing power of the WL algorithm itself is well understood
 \cite{CaiFI92,KieferSS15,ArvindKRV17}. Connections with logic (chileans).
