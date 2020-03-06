@@ -7,6 +7,8 @@ $$
 as already described and phrased a dMPNN in Example~\ref{ex:KipfasMPNN}. In fact, many commonly used graph neural networks use degree information. We list a couple of such networks in Table~\ref{tab:dMPNNs}. It is easily verified that these can all be cast as dMPNNs along the same lines as Example~\ref{ex:KipfasMPNN}.
 
 \begin{table}[]
+\hrule
+\hspace*{1ex}
  \caption{Various graph neural network formalisms which correspond to degree-aware MPNNs. All formalisms can be extended with a bias matrix $\mathbf{B}^{(t)}$ consisting of copies of the same row $\mathbf{b}^{(t)}$.}
     \label{tab:dMPNNs}
     \centering
@@ -24,7 +26,8 @@ $
 $& \cite{kipf-loose} \\
 $\mathbf{L}^{(t)}:=\sigma\left((r\mathbf{I}+(1-r)\tilde{\mathbf{D}})^{-1/2}(\mathbf{A}+p\mathbf{I})(r\mathbf{I}+(1-r)\mathbf{D})^{-1/2}\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$ & \cite{DBLP:journals/corr/abs-1905-03046} 
     \end{tabular}
-   
+\hspace*{1ex}
+\hrule
 \end{table}
 
 % \begin{enumerate}

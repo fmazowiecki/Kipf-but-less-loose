@@ -14,7 +14,9 @@ The classes $\architectureano$ and  $\architectureWL$ are equally strong.
 
 
 \begin{proof}
-We first argue that $\architectureano$ is weaker than $\architectureWL$. The proof is a trivial adaptation of the proofs of Lemma 2 in~\cite{xhlj19} and Theorem 5 in~\cite{grohewl}. We show, by induction on the number of rounds of computation, that  $\pmb{\ell}_{M_{\textsl{WL}}}^{(t)}\sqsubseteq \pmb{\ell}_M^{(t)}$ for all $M \in \architectureano$ and every $t\geq 0$.
+First, we prove that $\architectureWL$ is weaker than $\architectureano$. It suffices to recall that $M_{\textsl{WL}}$ is an element of $\architectureano$.
+
+It remains to argue that $\architectureano$ is weaker than $\architectureWL$. The proof is a trivial adaptation of the proofs of Lemma 2 in~\cite{xhlj19} and Theorem 5 in~\cite{grohewl}. We show, by induction on the number of rounds of computation, that  $\pmb{\ell}_{M_{\textsl{WL}}}^{(t)}\sqsubseteq \pmb{\ell}_M^{(t)}$ for all $M \in \architectureano$ and every $t\geq 0$.
 
 Clearly, this holds for $t=0$ since $\pmb{\ell}_{M_{\textsl{WL}}}^{(0)}=\pmb{\ell}_M^{(0)}:=\pmb{\nu}$, by definition.
 We assume next that the induction hypothesis holds up to round $t-1$ and consider round $t$.
@@ -65,8 +67,6 @@ as desired.
 % This is clearly an aMPNN which computes the same labelling as~(\ref{eq:combaggr}). We remark that
 % Lemma 5 in~\cite{xhlj19} crucially relies on the assumption that labels come from a countable domain
 % and that the size of multisets is bounded. These conditions are satisfied because $\mathbb{A}^s$ is a countable set and there are at most $|V|$ neighbours (elements in the multiset) for every vertex in $V$.
-
-It remains to show that $\architectureWL$ is weaker than $\architectureano$. For this, it suffices to recall that $M_{\textsl{WL}}$ is an element of $\architectureano$.
 \end{proof}
 
 We remark that the proofs in \cite{xhlj19} and \cite{grohewl} relate to  graph neural networks which, in round $t\geq 1$, compute for each vertex $v$ a label $\pmb{\ell}^{(t)}_{v}$, as follows:
