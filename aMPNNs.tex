@@ -423,7 +423,7 @@ $$
 and thus these suffices to modelling WL.
 
 In contrast, if one inspects the proof in
-~\cite{grohewl} for the sign activation function, the miniaml
+~\cite{grohewl} for the sign activation function, the minimal form of graph neural networks needed to model WL is given by a more complicate form:
 $$
 [\mathbf{L}^{(0)},\mathbf{L}^{(t)}]:=\sigma\left([\mathbf{L}^{(0)},\mathbf{L}^{(t-1)}]\begin{pmatrix}
 \mathbf{I}_{s\times s} & \mathbf{O}_{s\times s}\\
@@ -437,3 +437,4 @@ $$
 \mathbf{O}_{s\times s} & \mathbf{J}_{s\times s}\end{pmatrix}
 \right).
 $$
+We thus have obtained a simple class of aMPNNs, $\architecture_{\textsl{GNN}^-}$, which is equally strong as $\architectureWL$. We will see in the next section that the use of the parameter $p$, $0<p<1$, plays an important role for degree-aware aMPNNs.
