@@ -1,108 +1,154 @@
+\section{The distinguishing power of degree-aware MPNNs}\label{sec:dMPNNs}
+We next turn our attention to degree-aware MPNNs, i.e., MPNNs whose message functions depend on the previous labels \textit{and} the degrees of the vertices involved.
 
+One of the example graph neural architectures that was cast as an MPNN by \citet{GilmerSRVD17}
+was the GCN architecture by~\citet{KipfW16}. In that architecture~\footnote{We note that we here identify the vertex labeling $\pmb{\ell}^{(t)}$ with its vector in $\mathbb{A}^s$.}, for each round $t=1,2,\ldots,d$,
+\begin{equation}
+\pmb{\ell}^{(t)}:=\sigma\Bigl(\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} (\mathbf{A}+\mathbf{I})\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} \pmb{\ell}^{(t-1)}\mathbf{W}\Bigr), \label{GNN:Kipf}
+\end{equation}
+where $\mathbf{A}$ denotes the adjacency matrix of the input graph, $\mathbf{D}$ is the diagonal matrix holding the degree of the vertices on its diagonal, and $\mathbf{I}$ is the identity matrix. Finally, $\sigma$ is a non-linear activation function such as sign or ReLU. To capture this architecture we  introduce \textit{degree-aware} MPNNs, of dMPNNs for short. These are MPNNs
+whose message functions $\textsc{Msg}^{(t)}$ depend on the intermediate features $\pmb{\ell}^{(t-1)}_v$ and $\pmb{\ell}^{(t-1)}_w$, and furthermore on $d_v$ and $d_w$. They are not allowed to depend on  $v$ and $w$.
 
-% We now know that $\pmb{\ell}_v^{(t)}\sqsubseteq \pmb{\ell}_{M_{\textsl{WL}}}^{(t)}$.
-% \end{proof}
-% It suffices to show that  $\architectureWL$
-% is weaker than $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$.
-% % Instead of simulating the sign function by means of ReLU, one can directly
-% % use ReLU by means of a minor modification of the proof given in~\cite{grohewl}. 
-% % As a consequence, we avoid the factor $2$ in the correspondence between the 1-WL
-% % vertex labelling and the labelling induced by the feature vectors.
-% An inspection of the proof given in~\cite{grohewl} shows that it suffices to  \begin{lemma}\label{lem:ReLUlemma9}
-%   Let
-%   $\mathbf{B}\in \Nb^{p\times q}$ be a matrix in which all
-%   rows are pairwise disjoint and such that no row consists entirely
-%   out of zeroes\footnote{Compared to Lemma 9 in from~\cite{grohewl},
-%  we additionally require non-zero rows. This can be guaranteed provided that there are no isolated vertices}.
-% %  \footnote{I believe that this can be
-% %  guaranteed in 1-WL}).\todo{G: with our extended features we actually guarantee this for free by adding the 1 column; also, t as dimension is a bad choice\ldots}
-%   Then there exists a matrix $\mathbf{X}$ and a constant $m$
-%   such that $\text{\normalfont ReLU}(\mathbf{BX}-m\mathbf{J})$ is
-%   non-singular.
-% \end{lemma}
+It is readily observed that we can see architectures of the form~(\ref{GNN:Kipf}) as a dMPNNs by defining for each $(w,v)\in E^*$
+\begin{align*}
+\mathbf{m}_{v\gets w}^{(t)}&:=	
+\textsc{Msg}(\pmb{\ell}^{(t-1)}_v,\pmb{\ell}^{(t-1)}_w,d_v,d_w)=
+	\left(\frac{1}{\sqrt{1+d_v}}\right)	\left(\frac{1}{\sqrt{1+d_w}}\right)((\pmb{\ell}^{(t-1)}_w)^{\textsc{t}}\mathbf{W})^{\textsc{t}}\\
+\pmb{\ell}_v^{(t)}&:=\textsc{Upd}\left(\sum_{w\in N_G^*(v)} \mathbf{m}_{v\gets w}^{(t)}\right)=
+\sigma\left(\sum_{w\in N_G^*(v)} \mathbf{m}_{v\gets w}^{(t)})\right).
+\end{align*}
+We remark, however, that the resulting MPNN is not an anonymous MPNN, and thus Proposition~\ref{prop:WL} does not apply. To understand the distinguishing power of dMPNNs we make the following observation. 
 
-% \begin{proof}
-% We only need to show that $\architectureWL$ is weaker than $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$. More specifically, we need to show that $M_{\textsl{WL}}\preceq M$ for some $M\in\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$. 
+\begin{lemma}
+	The degrees of all vertices can be obtained in one round of computation of an anonymous MPNN. Furthermore, this degree information can be encoded together with the initial labeling $\pmb{\nu}$.
+	\end{lemma}
+\begin{proof}
+Let $\pmb{\ell}^{(0)}:=\left[\begin{smallmatrix}0\\\pmb{\nu}\end{smallmatrix}\right]\in\mathbf{Q}^{s+1}$. Then, for round $t=1$, we first define for each $(w,v)\in E^*$, 
+$$\mathbf{m}^{(1)}_{v\gets w}=\textsc{Msg}(\pmb{\ell}^{(0)}_v,\pmb{\ell}^{(0)}_{w},\pmb{\eta}_{(w,v)}):=\left[\begin{smallmatrix}1\\\pmb{\nu}\end{smallmatrix}\right]\in\mathbf{Q}^{s+1}.$$ Then, for any
+$\left[\begin{smallmatrix} a\\\mathbf{b}\end{smallmatrix}\right]\in \mathbb{A}^{s+1}$ with $a\neq 0$, we 
+let 
+$$\textsc{Upd}\left(\begin{bmatrix} a\\\mathbf{b}\end{bmatrix}\right):=\begin{bmatrix} a\\\frac{1}{a}\mathbf{b}\end{bmatrix}.
+$$
+It is now clear that $\textsc{Upd}\left(\sum_{w\in N_G^*(v)}\mathbf{m}_{v\gets w}^{(t)}\right)=\left[\begin{smallmatrix} d_v\\\pmb{\nu}\end{smallmatrix}\right]\in \mathbb{A}^{s+1}$.
+\end{proof}
 
-% The proof of Theorem~\ref{thm:grohe_lower}~(i) consists of an explicit construction of $M \in \architecture_{\textsl{GNN}}^{\textsl{sgn}}$. The use of the sgn function
-% \end{proof}
+As an immediate consequence is that every dMPNN corresponds to an aMPNN satisfying the following property.
+\begin{proposition}\label{prop:onestep}
+Consider a dMPNN which computes labelings $\pmb{\ell}^{(t)}$, for $t=1,2,\ldots,d$. Then there exists a corresponding aMPNN which computes labeling $\hat{\pmb{\ell}}{}^{(t)}$ such that $\pmb{\ell}^{(t)}=\hat{\pmb{\ell}}^{(t+1)}$.
+\end{proposition}
+\begin{proof}
+	The desired aMPNN consists of a one round computation to obtain all degree information, followed by a modified aMPNN simulating the given dMPNN.
+\end{proof}
 
-% \subsection{Simple classes of aMPNNs which are equally strong as $\architectureWL$}
-% $\sigma(\mathbf{F}^{(0)})=\mathbf{F}^{(0)}$.}
-% $$
-% [\mathbf{F}^{(0)},\mathbf{F}^{(t)}]:=\sigma\left([\mathbf{F}^{(0)},\mathbf{F}^{(t-1)}]\begin{pmatrix}
-% \mathbf{I}_{n\times n} & \mathbf{O}_{n\times n}\\
-% \mathbf{O}_{n\times n} & \mathbf{O}_{n\times n}\end{pmatrix}
-% +\mathbf{A}[\mathbf{F}^{(0)},\mathbf{F}^{(t-1)}]
-% \begin{pmatrix}
-% \mathbf{O}_{n\times n} & \mathbf{O}_{n\times n}\\
-% \mathbf{O}_{n\times n} & \mathbf{W}_{n\times n}^{(t-1)}\end{pmatrix}-
-% q\begin{pmatrix}
-% \mathbf{O}_{n\times n} & \mathbf{J}_{n\times n}\\
-% \mathbf{O}_{n\times n} & \mathbf{J}_{n\times n}\end{pmatrix}
-% \right),
-% $$
-% where $\mathbf{W}^{(t-1)}$ is the matrix constructed in Grohe's lower bound proof.
+As an immediate corollary of Propositions~\ref{prop:WL} and~\ref{prop:onestep},  we obtain:
+\begin{corollary}
+	The distinguish power of dMPNNs is bounded by WL, with a factor of one.
+\end{corollary}
 
+% As a consequence, we cannot rely on Proposition~\ref{prop:WL} to  upper bound
+% the distinguishing power of graph neural networks whose propagation rules rely on the degrees
+% (such the GCNs by ~\citep{KipfW16}). In the literature, however, it is often mentioned that
+% GCNs by ~\citep{KipfW16} are bounded by WL, hereby referring to \citep{XuHLJ19,grohewl}.
+% This is, strictly speaking, not correct.
+%
+% To provide a correct upper bound, we  We denote dMPNNs the class of degree-aware MPNNs.
+% In the next section, we study dMPNNs in more detail.
 
+% \section{The distinguishing power of dMPNNs}
+%
+%
+%
+% We show that dMPNNs are still bounded by WL, but are in general on step ahead. This may explain the success of such architectures for graph related classification tasks.
+%
+% \begin{proposition}
+% 	Degree-aware MPNNs are bounded by WL, with a factor of one.
+% \end{proposition}
+%
+% As check, let us model the GCNs by \citep{KipfW16} as dMPNNs. We recall from \citet{KipfW16}
+% that features are obtained as:
+% $$\mathbf{F}^{(t)}:=\sigma(\tilde{D}{}^{-1/2}\tilde{\mathbf{A}}\tilde{\mathbf{D}}{}^{-1}\mathbf{F}^{(t-1)}\mathbf{W}).$$
+% It is readily observed that we can see this as a dMPNNs by defining for each $(w,v)\in E^*$
+% \begin{align*}
+% \mathbf{m}_v^{(t)}&:=
+% \textsc{Msg}(\mathbf{F}_{v\bullet}^{(t-1)},\mathbf{F}_{v\bullet}^{(t-1)},d_v,d_w)=
+% 	\left(\frac{1}{\sqrt{1+d_v}}\right)	\left(\frac{1}{\sqrt{1+d_w}}\right)\mathbf{F}_{w\bullet}^{(t-1)}\mathbf{W}\\
+% \mathbf{F}_v^{(t)}&:=\textsc{Upd}(\sum_{w\in N_G^*(v)} \mathbf{m}_w^{(t)})=
+% \sigma\left(\sum_{w\in N_G^*(v)} \mathbf{m}_w^{(t)})\right).
+% \end{align*}
 
-
-
-\section{The distinguishing power of degree-aware MPNNs}
-
-
-
-
-
-We have seen two restricted classes of MPNNs in the previous section: Anonymous MPNNs and degree-aware MPNNs. Together, these classes suffice to capture many common graph neural network architectures. In this section we study their distinguishing power. The take-away message from this section is that degree-aware MPNNs (such as those originating from the GCN architecture by~\cite{kipf-loose}, see Example~\ref{ex:KipfasMPNN}) have a slightly stronger distinguishing power than anonymous MPNNs. This may explain the experimental success of graph neural networks such as the GCNs by~\cite{kipf-loose}. Despite being based on a simple observation, the difference between anonymous and degree-aware MPNNs has, to our knowledge, not been reported in the literature before. In fact, one often finds statements indicating that existing results for anonymous MPNNs \cite{xhlj19,grohewl} carry over verbatim for, say the GCN architecture
-by~\cite{kipf-loose}. As we will see, this is not precisely true.
-\looseness=-1
-
-This section is organised as follows. We first define how two classes of MPNNs can be compared relative to  their distinguishing power (Section~\ref{subsec:compare}). We then recall known results for anonymous MPNNs (Section~\ref{subsec:aMPNNs}). We conclude by establishing the distinguishing power of degree-aware MPNNs (Section~\ref{subsec:dMPNNs}).
-
-
-
-% These notions can be generalised to classes of MPNNs, just as we did in Definition~\ref{def:classesweak}. 
-% \begin{definition}\normalfont
-% Consider two classes $\architecture_1$ and $\architecture_2$ of MPNNs.
-% Then, $\architecture_1$ is said to be weaker than $\architecture_2$, but may be $c$ steps ahead, if for every $M_1\in \architecture_1$
-% there exists an $M_2\in\architecture_2$ such that $M_1$ is weaker than $M_2$, but may be $c$ steps ahead. Similarly,
-%  $\architecture_1$ is said to be weaker than $\architecture_2$, possibly up to a linear factor $c'$ and $c$ steps ahead, if for every $M_1\in \architecture_1$
-% there exists an $M_2\in\architecture_2$ such that $M_1$ is weaker than $M_2$, possibly up to a linear factor $c'$ and  $c$ steps ahead. 
-% \qed
-% \end{definition}
-
-% 
-% The following observation follows immediately from the definitions. Consider two classes $\architecture_1$ and $\architecture_2$ of MPNNs. Let $c$ and $c'$ be arbitrary
-% constants.
-% If $\architecture_1$ is weaker than $\architecture_2$, then $\architecture_1$ is weaker than $\architecture_2$, but may be $c$ steps ahead. If $\architecture_1$ is weaker than $\architecture_2$, but may be $c$ steps ahead, then $\architecture_1$ is weaker than $\architecture_2$, possibly up to a linear factor $c'$  and $c$ steps ahead. We will see that the reverse implication do not necessarily hold later in the paper.
-
-% We finally observe that when 
-
-% The following definition states when one class of MPNNs is weaker (in terms of distinguishing power) than another class of MPNNs. Intuitively, one class $\architecture$ will be weaker than other class $\architecture'$ if any MPNN $M\in\architecture$ cannot distinguish more vertices than some MPNN $M'\in\architecture'$.
-
-% \begin{definition}\label{def:comparing}\normalfont
-% Consider two classes $\architecture$ and $\architecture'$ of MPNNs. We say that $\architecture$ is weaker than $\architecture'$ (or equivalently that $\architecture'$ is stronger than $\architecture$) if there exists a function $g:\mathbb{N}\to \mathbb{N}$ such that for every $M \in \architecture$ there exists an $M'\in \architecture'$ satisfying $\pmb{\ell}_{M'}^{(g(t))}\sqsubseteq \pmb{\ell}_{M}^{(t)}$, for all $t\geq 0$ and for any labeled graph $( G,\pmb{\nu},\pmb{\eta})$. This is denoted by $\architecture \sqsubseteq \architecture'$.
-% % with $d$ layers 
-% % and every labelling $\labl$ compatible with $g$ there exists $g' \in \architecture'$ with $m'$ layers such that $g'(\labl) \sqsubseteq g(\labl)$.
-% % This is denoted by $\architecture' \sqsubseteq \architecture$.
-% We write $\architecture \not \sqsubseteq \architecture'$ if the above property does not hold. 
-% If we additionally require that the function $g:\mathbb{N}\to\mathbb{N}$ satisfies 
-% $g(t)\le t +c$ for some constant $c$, then we write that $\architecture \sqsubseteq \architecture'$ up to a constant factor $c$. In the particular case when this holds for $c = 0$ we write that $\architecture \sqsubseteq \architecture'$ with no factor. Similarly, if there exist constants $c, c'$ such that $g(t) \le ct + c'$ we write that $\architecture \sqsubseteq \architecture'$ up to a linear factor $c$.
-% \end{definition}
+\begin{corollary}
+	The GCNs by \citet{KipfW16} are bounded by WL, but with a factor of one.
+\end{corollary}
+This corollary more correctly states the relationship between these GCNs and WL.
 
 
 
 
-% Of particular interest will be the class of MPNNs corresponding to the WL algorithm. 
-% \floris{Ok, add aMPNN description of WL. Note that I added the description of the WL algorithm on undirected graphs but with each labels to the prelims. }
-% We will denote this class by $\architectureWL$ and it is defined as MPNNs in which the message 
-% We say that an architecture $\architecture$ is \emph{bounded by WL} if $\architecture\sqsubseteq \architectureWL$. We also say that an architecture $\architecture$ is \emph{WL-strong} if $\architectureWL \sqsubseteq \architecture$. The definitions of bounded by WL and WL-strong up to linear and constant factors carry on in the obvious way.
+\smallskip
+\noindent
+\leftpointright
+One possible additional insight is that dMPNNS can be defined such that
+the message functions  only depend on $d_w$ and the features. That is, we 
+can eliminate the dependency on $d_v$.
+Indeed, to see this, one just adds one extra entry with value $1$ to $\mathbf{m}_v^{(t)}$ by adjusting the definition of $\textsc{Msg}$. Then, when summing over
+$w\in N_G^*(v)$, these values add up to $d_v$, and $\textsc{Upd}$ can be defined such that it takes $d_v$ into account when aggregating the features. 
+As a consequence, when GNN architectures use degree information, but only use $d_v$, then the dMPPNs is in fact an aMPNN and the WL bound holds. This basically corresponds to our current understanding between the asymmetry of $\mathbf{L}$ and $\mathbf{R}$. 
 
-\subsection{Anonymous MPNNs}\label{subsec:aMPNNs}
 
 
-% Following the work by~\cite{xhlj19} and~\cite{grohewl}, which relates to anonymous MPNNs, we study the distinguishing power of degree-aware MPNNs. We will see that degree-aware MPNNs (such as those originating from the GCN architecture by~\cite{kipf-loose}, see Example~\ref{ex:KipfasMPNN}) have a slightly stronger distinguishing power than anonymous MPNNs.
-% More precisely, any labeling computed by $d$ rounds of a degree-aware MPNNs can be computed by $d+1$ rounds of an anonymous MPNN. This may explain the experimental success of graph neural networks such as the GCNs by~\cite{kipf-loose}. We note that in the literature one often does not distinguish between anonymous and degree-aware MPNNs
-% and 
-% Before showing this, we first define how two classes of MPNNs can be compared relative to
+
+
+
+
+% We have seen two restricted classes of MPNNs in the previous section: Anonymous MPNNs and degree-aware MPNNs. Together, these classes suffice to capture many common graph neural network architectures. In this section we study their distinguishing power. The take-away message from this section is that degree-aware MPNNs (such as those originating from the GCN architecture by~\cite{kipf-loose}, see Example~\ref{ex:KipfasMPNN}) have a slightly stronger distinguishing power than anonymous MPNNs. This may explain the experimental success of graph neural networks such as the GCNs by~\cite{kipf-loose}. Despite being based on a simple observation, the difference between anonymous and degree-aware MPNNs has, to our knowledge, not been reported in the literature before. In fact, one often finds statements indicating that existing results for anonymous MPNNs \cite{xhlj19,grohewl} carry over verbatim for, say the GCN architecture
+% by~\cite{kipf-loose}. As we will see, this is not precisely true.
+% \looseness=-1
+
+% This section is organised as follows. We first define how two classes of MPNNs can be compared relative to  their distinguishing power (Section~\ref{subsec:compare}). We then recall known results for anonymous MPNNs (Section~\ref{subsec:aMPNNs}). We conclude by establishing the distinguishing power of degree-aware MPNNs (Section~\ref{subsec:dMPNNs}).
+
+
+
+% % These notions can be generalised to classes of MPNNs, just as we did in Definition~\ref{def:classesweak}. 
+% % \begin{definition}\normalfont
+% % Consider two classes $\architecture_1$ and $\architecture_2$ of MPNNs.
+% % Then, $\architecture_1$ is said to be weaker than $\architecture_2$, but may be $c$ steps ahead, if for every $M_1\in \architecture_1$
+% % there exists an $M_2\in\architecture_2$ such that $M_1$ is weaker than $M_2$, but may be $c$ steps ahead. Similarly,
+% %  $\architecture_1$ is said to be weaker than $\architecture_2$, possibly up to a linear factor $c'$ and $c$ steps ahead, if for every $M_1\in \architecture_1$
+% % there exists an $M_2\in\architecture_2$ such that $M_1$ is weaker than $M_2$, possibly up to a linear factor $c'$ and  $c$ steps ahead. 
+% % \qed
+% % \end{definition}
+
+% % 
+% % The following observation follows immediately from the definitions. Consider two classes $\architecture_1$ and $\architecture_2$ of MPNNs. Let $c$ and $c'$ be arbitrary
+% % constants.
+% % If $\architecture_1$ is weaker than $\architecture_2$, then $\architecture_1$ is weaker than $\architecture_2$, but may be $c$ steps ahead. If $\architecture_1$ is weaker than $\architecture_2$, but may be $c$ steps ahead, then $\architecture_1$ is weaker than $\architecture_2$, possibly up to a linear factor $c'$  and $c$ steps ahead. We will see that the reverse implication do not necessarily hold later in the paper.
+
+% % We finally observe that when 
+
+% % The following definition states when one class of MPNNs is weaker (in terms of distinguishing power) than another class of MPNNs. Intuitively, one class $\architecture$ will be weaker than other class $\architecture'$ if any MPNN $M\in\architecture$ cannot distinguish more vertices than some MPNN $M'\in\architecture'$.
+
+% % \begin{definition}\label{def:comparing}\normalfont
+% % Consider two classes $\architecture$ and $\architecture'$ of MPNNs. We say that $\architecture$ is weaker than $\architecture'$ (or equivalently that $\architecture'$ is stronger than $\architecture$) if there exists a function $g:\mathbb{N}\to \mathbb{N}$ such that for every $M \in \architecture$ there exists an $M'\in \architecture'$ satisfying $\pmb{\ell}_{M'}^{(g(t))}\sqsubseteq \pmb{\ell}_{M}^{(t)}$, for all $t\geq 0$ and for any labeled graph $( G,\pmb{\nu},\pmb{\eta})$. This is denoted by $\architecture \sqsubseteq \architecture'$.
+% % % with $d$ layers 
+% % % and every labelling $\labl$ compatible with $g$ there exists $g' \in \architecture'$ with $m'$ layers such that $g'(\labl) \sqsubseteq g(\labl)$.
+% % % This is denoted by $\architecture' \sqsubseteq \architecture$.
+% % We write $\architecture \not \sqsubseteq \architecture'$ if the above property does not hold. 
+% % If we additionally require that the function $g:\mathbb{N}\to\mathbb{N}$ satisfies 
+% % $g(t)\le t +c$ for some constant $c$, then we write that $\architecture \sqsubseteq \architecture'$ up to a constant factor $c$. In the particular case when this holds for $c = 0$ we write that $\architecture \sqsubseteq \architecture'$ with no factor. Similarly, if there exist constants $c, c'$ such that $g(t) \le ct + c'$ we write that $\architecture \sqsubseteq \architecture'$ up to a linear factor $c$.
+% % \end{definition}
+
+
+
+
+% % Of particular interest will be the class of MPNNs corresponding to the WL algorithm. 
+% % \floris{Ok, add aMPNN description of WL. Note that I added the description of the WL algorithm on undirected graphs but with each labels to the prelims. }
+% % We will denote this class by $\architectureWL$ and it is defined as MPNNs in which the message 
+% % We say that an architecture $\architecture$ is \emph{bounded by WL} if $\architecture\sqsubseteq \architectureWL$. We also say that an architecture $\architecture$ is \emph{WL-strong} if $\architectureWL \sqsubseteq \architecture$. The definitions of bounded by WL and WL-strong up to linear and constant factors carry on in the obvious way.
+
+% \subsection{Anonymous MPNNs}\label{subsec:aMPNNs}
+
+
+% % Following the work by~\cite{xhlj19} and~\cite{grohewl}, which relates to anonymous MPNNs, we study the distinguishing power of degree-aware MPNNs. We will see that degree-aware MPNNs (such as those originating from the GCN architecture by~\cite{kipf-loose}, see Example~\ref{ex:KipfasMPNN}) have a slightly stronger distinguishing power than anonymous MPNNs.
+% % More precisely, any labeling computed by $d$ rounds of a degree-aware MPNNs can be computed by $d+1$ rounds of an anonymous MPNN. This may explain the experimental success of graph neural networks such as the GCNs by~\cite{kipf-loose}. We note that in the literature one often does not distinguish between anonymous and degree-aware MPNNs
+% % and 
+% % Before showing this, we first define how two classes of MPNNs can be compared relative to

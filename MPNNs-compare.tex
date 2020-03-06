@@ -9,7 +9,7 @@ $\pmb{\ell}_M^{(t)}$ the vertex labelling computed by $M$ after $t$ rounds. We f
 % The \textit{distinguishing power} of an MPNN $M$ relates to its ability to distinguish vertices by means of the labelings $\pmb{\ell}_M^{(t)}$, for $t\geq 0$. 
 
 \begin{definition}\label{def:mpnnweak}\normalfont
-Consider two MPNNs $M_1$ and $M_2$ with the same number of layers $T$. Let $\pmb{\ell}_{M_1}^{(t)}$ and $\pmb{\ell}_{M_2}^{(t)}$  be their corresponding labellings on an input graph $( G,\pmb{\nu})$ obtained after $t$ rounds of computation for every $0 \le t le T$. Then
+Consider two MPNNs $M_1$ and $M_2$ with the same number of layers $T$. Let $\pmb{\ell}_{M_1}^{(t)}$ and $\pmb{\ell}_{M_2}^{(t)}$  be their corresponding labellings on an input graph $( G,\pmb{\nu})$ obtained after $t$ rounds of computation for every $0 \le t \le T$. Then
 $M_1$ is said to be \textit{weaker} than $M_2$, denoted by $M_1\preceq M_2$, if $M_1$ cannot distinguish more vertices  than $M_2$ in every round of computation. More formally, $M_1\preceq M_2$ if $\pmb{\ell}_{M_2}^{(t)}\sqsubseteq
 \pmb{\ell}_{M_1}^{(t)}$ for every $t\geq 0$. We also say that $M_2$ is \textit{stronger} than $M_1$. \qed
 \end{definition}
@@ -26,7 +26,11 @@ there exists an $M_2\in\architecture_2$ which is stronger than $M_1$. \qed
 % In particular, $\architecture_1\sqsubseteq \architecture_2$ and $\architecture_2\sqsubseteq \architecture_1$ does not necessarily implies that
 % $\architecture_1=\architecture_2$
 
-We will also need a generalisation of the previous definitions in which the MPNNs involved may run a different number of rounds.  More specifically, we consider the case when the distinguishing power of $M_1$ is weaker than that of $M_2$, provided that $M_2$ can run for a possibly different number of rounds. This is formalised as follows.
+\filip{No way. I agree that for $\sqsubseteq$ it is confusing to have a stronger thing on the left, but we cannot use the same notation with two meanings (for labellings we have the same notation but with the opposite meaning for weaker)}
+
+We will also need a generalisation of the previous definitions in which we compare labellings in MPNNs from different layers. 
+More specifically, we consider the case when the distinguishing power of $M_1$ is weaker than that of $M_2$, provided that $M_2$ can run for a possibly different number of rounds.
+This is formalised as follows.
 
 \begin{definition}\normalfont
 Consider two MPNNs $M_1$ and $M_2$ and let $\pmb{\ell}_{M_1}^{(t)}$ and $\pmb{\ell}_{M_2}^{(t)}$  be their corresponding labellings on an input graph $( G,\pmb{\nu})$ obtained after $t$ rounds of computation. Let $g:\mathbb{N}\to \mathbb{N}$ be a function. We say that $M_1$ is \textit{$g$-weaker} than $M_2$, denoted by $M_1\preceq_{g} M_2$, if 
