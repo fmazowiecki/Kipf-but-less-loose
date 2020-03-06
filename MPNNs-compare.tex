@@ -5,11 +5,11 @@ mean by such a comparison.
 %how to compare classes of MPNNs.
 
 For a given labelled graph $( G,\pmb{\nu})$ and MPNN $M$, we denote by 
-$\pmb{\ell}_M^{(t)}$ the vertex labelling computed by $M$ after $t$ rounds. We will fix the input graph in what follows, so we do not need to include the dependency on the graph in the notation of labellings.
+$\pmb{\ell}_M^{(t)}$ the vertex labelling computed by $M$ after $t$ rounds. We fix the input graph in what follows, so we do not need to include the dependency on the graph in the notation of labellings.
 % The \textit{distinguishing power} of an MPNN $M$ relates to its ability to distinguish vertices by means of the labelings $\pmb{\ell}_M^{(t)}$, for $t\geq 0$. 
 
 \begin{definition}\label{def:mpnnweak}\normalfont
-Consider two MPNNs $M_1$ and $M_2$ and let $\pmb{\ell}_{M_1}^{(t)}$ and $\pmb{\ell}_{M_2}^{(t)}$  be their corresponding labellings on an input graph $( G,\pmb{\nu})$ obtained after $t$ rounds of computation. Then,
+Consider two MPNNs $M_1$ and $M_2$ with the same number of layers $T$. Let $\pmb{\ell}_{M_1}^{(t)}$ and $\pmb{\ell}_{M_2}^{(t)}$  be their corresponding labellings on an input graph $( G,\pmb{\nu})$ obtained after $t$ rounds of computation for every $0 \le t le T$. Then
 $M_1$ is said to be \textit{weaker} than $M_2$, denoted by $M_1\preceq M_2$, if $M_1$ cannot distinguish more vertices  than $M_2$ in every round of computation. More formally, $M_1\preceq M_2$ if $\pmb{\ell}_{M_2}^{(t)}\sqsubseteq
 \pmb{\ell}_{M_1}^{(t)}$ for every $t\geq 0$. We also say that $M_2$ is \textit{stronger} than $M_1$. \qed
 \end{definition}

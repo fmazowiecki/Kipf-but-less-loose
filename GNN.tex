@@ -139,6 +139,7 @@ $\pmb{\ell}^{(t-1)}_u$, and the degrees $d_v$ and $d_u$ of the vertices $v$ and 
  \todo{G: what do we mean by Turing completeness? It seems not to be that we
    encode the tape of a TM into a labelled graph and then compute the original
  function on that\dots}
+ \floris{This is a bit loosely interpreted. I just meant that if you give me a TM which computes on input labeled graph a function f assigning labels to the vertices, then we can obtain f(G) by means of an MPNN. It is not TM completeness as I would normally mean. Perhaps Loukas clarifies this a bit more?}
 \begin{example}[Turing complete MPNN]
 	Let $( G,\pmb{\nu})$ be a connected labelled graph with $\pmb{\nu}:V\to\mathbb{A}^r$ and let $\mathbf{f}_G:V\to\mathbb{A}$ be a labelling 
 	obtained from a computable function on input 	$( G,\pmb{\nu})$. To compute $\mathbf{f}_G$ by means of an MPNN we first use a number $d$ of rounds to ensure that $\pmb{\ell}^{(d)}_v$ represents $( G,\pmb{\nu})$. In other words, after $d$ rounds, each vertex has the entire input labelled graph as label. An update function simulating $\mathbf{f}_G$ then suffices to compute $\mathbf{f}_G$.
