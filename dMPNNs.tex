@@ -6,6 +6,102 @@ $$
 $$
 as already described and phrased a dMPNN in Example~\ref{ex:KipfasMPNN}. In fact, many commonly used graph neural networks use degree information. We list a couple of such networks in Table~\ref{tab:dMPNNs}. It is easily verified that these can all be cast as dMPNNs along the same lines as Example~\ref{ex:KipfasMPNN}.
 
+We denote by $\architecture_{\textsl{deg}}$ the class of degree-aware MPNNs. Our first observation is that
+$\architecture_{\textsl{deg}}$ are not weaker than $\architectureWL$. This somewhat contradicts claims made about, e.g., the GCNs by~\cite{kipf-loose}, in the literature.
+\begin{proposition}
+The class $\architecture_{\textsl{deg}}$ is not weaker than $\architectureWL$. As a consequence,  $\architecture_{\textsl{deg}}$ and  $\architectureano$ are not equally expressive.
+\end{proposition}
+\begin{proof}
+It suffices to provide a dMPNN $M$ and labelled graph $\langle G,\pmb{\nu}\rangle$ such that there exists a $t\geq 0$ such that $\pmb{\ell}_{M_{\textsl{WL}}}^{(t)}\not\sqsubseteq \pmb{\ell}_M^{(t)}$. We construct an $M$ originating
+from a GCN~\cite{kipf-loose}.
+Consider the labelled graph $\langle G,\pmb{\nu})$ (\raisebox{-2ex}{\includegraphics[height=1cm]{graph1}}) with 
+vertex labelling  $\pmb{\nu}_{v_1}=\pmb{\nu}_{v_2}=[1,0,0]$,
+$\pmb{\nu}_{v_3}=\pmb{\nu}_{v_6}=[0,1,0]$ and $\pmb{\nu}_{v_4}=\pmb{\nu}_{v_5}=[0,0,1]$. 
+% The corresponding adjacency and degree matrices are given by:
+% $$
+% \mathbf{A}=\begin{bmatrix}
+% 0 & 0 & 1 & 0 & 0 & 0\\
+% 0 & 0 & 1 & 0 & 0 & 0\\
+% 1 & 1 & 0 & 1 & 0 & 0\\
+% 0 & 0 & 1 & 0 & 1 & 0\\
+% 0 & 0 & 0 & 1 & 0 & 1\\
+% 0 & 0 & 0 & 0 & 1 & 0
+% \end{bmatrix}\text{ and } 
+% \mathbf{D}=
+% \begin{bmatrix}
+% 1 & 0 & 0 & 0 & 0 & 0\\
+% 0 & 1 & 0 & 0 & 0 & 0\\
+% 0 & 0 & 3 & 0 & 0 & 0\\
+% 0 & 0 & 0 & 2 & 0 & 0\\
+% 0 & 0 & 0 & 0 & 2 & 0\\
+% 0 & 0 & 0 & 0 & 0 & 1
+% \end{bmatrix}.
+% $$
+We define $M$ such that for round $t=1$ and $\mathbf{x},\mathbf{y}\in\mathbb{A}^3$:
+\begin{align*}
+\textsc{Msg}^{(1)}\left(\mathbf{x},\mathbf{y},v,u\right)&:=
+\frac{1}{d_v}\left(\frac{1}{1+d_v}\right)\mathbf{x}\left[\begin{smallmatrix}
+1 & 0 & 0\\
+0 & 1 & 0\\
+0 & 0 & 1
+\end{smallmatrix}\right]+
+\left(\frac{1}{\sqrt{1+d_v}}\right)\left(\frac{1}{\sqrt{1+d_u}}\right)\mathbf{y}\left[\begin{smallmatrix}
+1 & 0 & 0\\
+0 & 1 & 0\\
+0 & 0 & 1
+\end{smallmatrix}\right]
+\intertext{and} \textsc{Upd}^{(1)}(\mathbf{x},\mathbf{y})&:=\text{ReLU}(\mathbf{y}).
+\end{align*}
+% We consider $\mathbf{F}^{(1)}:=\sigma(\tilde{\mathbf{D}}^{-1/2}(\mathbf{A}+\mathbf{I})\tilde{\mathbf{D}}^{-1/2}\mathbf{F}^{(0)}\mathbf{W}^{(0)})$ with  $
+% \mathbf{F}^{(0)}=
+% \left[\begin{smallmatrix}
+% 1 & 0 & 0\\
+% 1 & 0 & 0\\
+% 0 & 1 & 0\\
+% 0 & 0 & 1\\
+% 0 & 0 & 1\\
+% 0 & 1 & 0\\
+% \end{smallmatrix}\right]
+% $ and choose $\mathbf{W}^{(0)}=\left[\begin{smallmatrix}
+% 1 & 0 & 0\\
+% 0 & 1 & 0\\
+% 0 & 0 & 1
+% \end{smallmatrix}\right]$. 
+% We remark that $\pmb{\ell}^{(0)}:=\pmb{\ell}\equiv \mathbf{F}^{(0)}$.
+It can be verified that 
+$$
+\pmb{\ell}_M^{(1)}=\sigma\left(\begin{bmatrix}
+\frac{1}{2} & \frac{1}{2\sqrt{2}}& 0\\
+\frac{1}{2} & \frac{1}{2\sqrt{2}}& 0\\
+\frac{1}{2\sqrt{2}} & \frac{1}{4}& \frac{1}{
+2\sqrt{3}}\\
+0 & \frac{1}{2\sqrt{3}}& \frac{2}{
+3}\\
+0 & \frac{1}{\sqrt{6}}& \frac{2}{
+3}\\
+0 & \frac{1}{2}& \frac{1}{
+\sqrt{6}}
+\end{bmatrix}\right).
+$$
+We observe that 
+$(\pmb{\ell}_M^{(1)})_{v_4}\neq (\pmb{\ell}_M^{(1)})_{v_5}$. 
+We note, however, that $$
+(\pmb{\ell}_{M_\textsl{WL}}^{(1)})_{v_4}=\textsc{Hash}((0,0,1),\ldbl(0,0,1),(0,1,0\rdbl)=(\pmb{\ell}_{M_\textsl{WL}}^{(1)})_{v_5}.$$
+Hence, 
+$\pmb{\ell}_{M_{\textsl{WL}}}^{(1)}\not\sqsubseteq \pmb{\ell}_M^{(1)}$.
+% $\pmb{\ell}^{(1)}\not\sqsubseteq \mathbf{F}^{(1)}$ and this architecture is not bounded by WL, without the additional constant factor $1$.
+% In accordance with Proposition~\ref{prop:boundnonconstantR}, one can verify
+% that $\pmb{\ell}^{(2)}\sqsubseteq \mathbf{F}^{(1)}$.
+%  % We know, however, that it is bounded by WL on $(G,\pmb{\ell}{}^{(1)})$.
+% \qed
+% % It can, however, be verified that $\pmb{\ell}^{(2)}\sqsubseteq \mathbf{F}^{(1)}$.
+% % \todo{The latter inclusion needs to be verified}\qed
+
+The claim that $\architecture_{\textsl{deg}}$ and  $\architectureano$ are not equally expressive, now follows easily. Indeed, suppose that 
+
+\end{proof}
+We remark that this also implies that 
+
 \begin{table}[]
 \hrule
 \hspace*{1ex}

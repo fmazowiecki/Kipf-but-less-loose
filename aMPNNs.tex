@@ -33,12 +33,12 @@ $$
 \ldbl (\pmb{\ell}_{M}^{(t-1)})_u\mid u\in N_G(v) \rdbl=
 \ldbl (\pmb{\ell}_{M}^{(t-1)})_u\mid u\in N_G(w) \rdbl.
 $$
-As a consequence, for every vertex $u\in N_G(v)$ there exists a (unique) vertex $u'\in N_G(w)$ such that $(\pmb{\ell}_{M}^{(t-1)})_u=(\pmb{\ell}_{M}^{(t-1)})_{u'}$. Hence,
+As a consequence, there is a bijection between $N_G(v)$ and $N_G(w)$ such that to every vertex $u\in N_G(v)$ we can assign a unique vertex $u'\in N_G(w)$ such that $(\pmb{\ell}_{M}^{(t-1)})_u=(\pmb{\ell}_{M}^{(t-1)})_{u'}$. Hence,
 $$
 \textsc{Upd}^{(t)}\left((\pmb{\ell}_{M}^{(t-1)})_v,(\pmb{\ell}_{M}^{(t-1)})_u\right)=
 \textsc{Upd}^{(t)}\left((\pmb{\ell}_{M}^{(t-1)})_w,(\pmb{\ell}_{M}^{(t-1)})_{u'}\right).
 $$
-Furthermore, this mapping between elements of $N_G(v)$ and $N_G(w)$ is a bijection so that we also have:
+Since this mapping between $N_G(v)$ and $N_G(w)$ is a bijection we also have:
 $$
 \mathbf{m}^{(t)}_v=\sum_{u\in N_G(v)}\textsc{Upd}^{(t)}\left((\pmb{\ell}_{M}^{(t-1)})_v,(\pmb{\ell}_{M}^{(t-1)})_u\right)=\sum_{u'\in N_G(w)}\textsc{Upd}^{(t)}\left((\pmb{\ell}_{M}^{(t-1)})_w,(\pmb{\ell}_{M}^{(t-1)})_{u'}\right)=\mathbf{m}^{(t)}_w.
 $$
