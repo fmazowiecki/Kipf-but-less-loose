@@ -72,34 +72,31 @@ We recall that WL computes, in round $t \geq 1$, for each vertex $v\in V$ the la
 $$
 \pmb{\ell}^{(t)}_v:=\textsc{Hash}\left(\pmb{\ell}^{(t-1)}_v,\ldbl \pmb{\ell}_u^{(t-1)} \st u \in N_G(v) \rdbl\right).
 $$
-In fact, any injective function $f$ can replace $\textsc{Hash}(\cdot,\cdot)$
-above We thus cast the WL procedure as an anonymous MPNN by using an injection
-$h^{(t)} : \mathbb{A}^s \to \mathbb{Q}$.  What follows is in fact an
+We cast the WL procedure as an anonymous MPNN by using an injection
+$h : \mathbb{A}^s \to \mathbb{Q}$. What follows is in fact an
 adaptation of Lemma 5 from~\cite{xhlj19} itself based on~\cite[Theorem
 2]{ZaheerKRPSS17}.
 
-Let $\tau : \mathbb{A}^s \to \mathbb{N}^+$ be a computable injective function
-such as, for instance, the Cantor tuple function.
-We now define $h^{(t)}$, for all $t \in \mathbb{N}$, as the mapping
-$\mathbf{x} \mapsto (n+1)^{-\tau(\mathbf{x})}$. Note that $h^{(t)}$ is indeed
-injective and that it can be seen as a one-hot $(n+1)$-ary representation of
-vectors from $\mathbb{A}^s$ --- that is, a single $(n+1)$-ary digit is set to
-the nonzero value $n$.
-Crucially, for all $t$, it satisfies that $0 < n \cdot h^{(t)}(\mathbf{x})
-< 1$. It follows that the function mapping a multiset $S$ of elements of
-$\mathbb{A}^s$ to $\sum_{\mathbf{x} \in S} h^{(t)}(\mathbf{x})$ is a
-bijection, for any $t$. To conclude, we set 
+Let $\tau : \mathbb{A}^s \to \mathbb{N}^+$ be a computable bijection function
+such as, for instance, the Cantor tuple function. We now define $h$ as the
+mapping $\mathbf{x} \mapsto (n+1)^{-\tau(\mathbf{x})}$. Note that $h$ is
+indeed bijective and that $h(\mathbf{x})$ can be seen as a number whose
+$(n+1)$-ary representation has a single nonzero digit. Hence, it satisfies
+that $0 < n \cdot h(\mathbf{x}) < 1$. It follows that the function $\phi$
+mapping a multiset $S$ of elements of $\mathbb{A}^s$ to $\sum_{\mathbf{x} \in
+S} h(\mathbf{x})$ is a bijection. Furthermore, since the summands can be
+recovered by looking at the $(n+1)$-ary representation of the the sum, the
+inverse of $\phi$ is computable. To conclude, we set 
 \[
 \textsc{Msg}^{(t)}(\mathbf{x},\mathbf{y},v,u) :=
 (h^{(t)}(\mathbf{y}),\mathbf{0}) \text{ and }
-\textsc{Upd}^{(t)}(\mathbf{x},\mathbf{y}) := \left(t +
-\frac{h^{(t)}(\mathbf{x})}{2} + \frac{h^{(t)}(\mathbf{y})}{2},
-\mathbf{0}\right).
+\textsc{Upd}^{(t)}(\mathbf{x},(y_0,\dots)) :=
+\textsc{Hash}(\mathbf{x},\phi^{-1}(y_0)).
 \]
 We observe that the message functions functions indeed do not depend on $v$
-and $u$ and that, together with the update functions, precisely implement the
-specified $\textsc{Hash}$ function.
+and $u$.
 \floris{I don't understand it yet ;-)}
+\todo{G: what about now?}
 \qed
  \end{example}
 
@@ -134,16 +131,18 @@ $\pmb{\ell}^{(t-1)}_u$, and the degrees $d_v$ and $d_u$ of the vertices $v$ and 
 \end{example}
 
 
-\paragraph{Turing complete MPNNs.}
- As a final example, we show how an MPNN can compute any computable function when the message functions may use knowledge of which vertices are under consideration. 
- \todo{G: what do we mean by Turing completeness? It seems not to be that we
-   encode the tape of a TM into a labelled graph and then compute the original
- function on that\dots}
- \floris{This is a bit loosely interpreted. I just meant that if you give me a TM which computes on input labeled graph a function f assigning labels to the vertices, then we can obtain f(G) by means of an MPNN. It is not TM completeness as I would normally mean. Perhaps Loukas clarifies this a bit more?}
-\begin{example}[Turing complete MPNN]
+\paragraph{Turing universal MPNNs.}
+ As a final example, we show how an MPNN can compute any computable function
+ of an $n$-sized graph when the message functions may use knowledge of which
+ vertices are under consideration. 
+\begin{example}[Turing universal MPNN]
 	Let $( G,\pmb{\nu})$ be a connected labelled graph with $\pmb{\nu}:V\to\mathbb{A}^r$ and let $\mathbf{f}_G:V\to\mathbb{A}$ be a labelling 
-	obtained from a computable function on input 	$( G,\pmb{\nu})$. To compute $\mathbf{f}_G$ by means of an MPNN we first use a number $d$ of rounds to ensure that $\pmb{\ell}^{(d)}_v$ represents $( G,\pmb{\nu})$. In other words, after $d$ rounds, each vertex has the entire input labelled graph as label. An update function simulating $\mathbf{f}_G$ then suffices to compute $\mathbf{f}_G$.
-	%We assume that $V=[n]$ and use $i\in[n]$ to denoted the $i$th vertex in $V$.
+  obtained from a computable function on input $(G,\pmb{\nu})$. To compute
+  $\mathbf{f}_G$ by means of an MPNN we first use a number $d$ of rounds to
+  ensure that $\pmb{\ell}^{(d)}_v$ represents $( G,\pmb{\nu})$. In other
+  words, after $d$ rounds, each vertex has the entire input labelled graph as
+  label. An update function simulating $\mathbf{f}_G$ then suffices to compute
+  $\mathbf{f}_G$.
 	
 To encode $( G,\pmb{\nu})$ in the labels of vertices we use labels in $\mathbb{A}^s$ with 
 $s=r+1+n(r+2)+n^2$. The aim it to ensure that for each vertex $i$, the final label $\pmb{\ell}_i^{(d)}$ is of the form
@@ -157,7 +156,7 @@ this information has been passed on), for each $i\in[n]$, position
 $i(r+2)$ holds the vertex id `$i$', positions $i(r+2)+1$ up to $(i+1)(r+2)-2$
 hold the label $\pmb{\nu}_i$, and position $(i+1)(r+2)-1$ holds again a counter.
 The remaining $n^2$ positions hold a vectorised representation of the adjacency matrix $\mathbf{A}$ obtained by concatenating its rows denoted by $\textsc{Vect}(\mathbf{A})$. Clearly, one can extract 
-$(G,\pmb{\nu})$ from the label~(\ref{eq:graphinlabel}). We now show how this label can be obtained.
+$(G,\pmb{\nu})$ from the label~\eqref{eq:graphinlabel}. We now show how this label can be obtained.
 
 For convenience, we initially extend $\pmb{\nu}$
 to a labelling $V\to\mathbb{A}^s$ by padding each $\pmb{\nu}_i$ with $s-r$ zeroes. We abuse notation and also refer to this initial labelling by $\pmb{\nu}$.
@@ -190,9 +189,13 @@ i_n,\frac{1}{c_n}\mathbf{y}_n,\delta(c_n),\delta(a_{11}),\ldots,\delta(a_{nn})\r
 \]
 where, for convenience, we let $\frac{1}{0}=0$ and
 set $\delta(x)=1$ if $x\neq 0$ and $\delta(x)=0$ otherwise. It is easily verified that after $d$ rounds, where $d$ is the diameter of $G$, each vertex will carry
-the desired label~(\ref{eq:graphinlabel}). It now suffices to incorporate $\mathbf{f}_G$ in the last update function to ensure that $\pmb{\ell}_i^{(t)}:=(\mathbf{f}_G(i),\mathbf{0})\in\mathbb{A}^s$.\qed
+the desired label~\eqref{eq:graphinlabel}. It now suffices to incorporate $\mathbf{f}_G$ in the last update function to ensure that $\pmb{\ell}_i^{(t)}:=(\mathbf{f}_G(i),\mathbf{0})\in\mathbb{A}^s$.\qed
 \end{example}
-We remark that the Turing-completeness of MPNNs, whose message functions can access  the vertices themselves, was recently shown by~\cite{Loukas2019}  using close connections with the LOCAL model for distributed graph computations of~\cite{Angluin}, which is known to be complete. The previous example provides a direct proof.
+We remark that Turing universality of MPNNs whose message functions can access
+the vertices themselves was recently shown~\cite{Loukas2019} using close
+connections with the LOCAL model for distributed graph computations
+of~\cite{Angluin}. The previous example just recalls intuition given 
+in~\cite{linial92} of why that is the case.
 
 In the next section we recall results concerning the distinguishing power of anonymous MPNNs and establish an upper bound on the distinguishing power of degree-aware MPNNs.
 

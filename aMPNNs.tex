@@ -85,9 +85,10 @@ $\pmb{\nu}:V\to\mathbb{A}^s$. It now suffices to define for every $\mathbf{x}$ a
 \begin{equation}
 \textsc{Msg}^{(t)}(\mathbf{x},\mathbf{y},v,u):=h^{(t)}(\mathbf{y}) \text{ and } \textsc{Upd}^{(t)}(\mathbf{x},\mathbf{y}):=f_{\textsl{comb}}^{(t)}\left(\mathbf{x},g^{(t)}\left(\mathbf{y}\right)\right).\label{eq:combaggrtoaMPNN}
 \end{equation}
-This is clearly an aMPNN which computes the same labelling as~(\ref{eq:combaggr}). We remark that
-Lemma 5 in~\cite{xhlj19} crucially relies on the assumption that labels come from a countable domain
-and that the size of multisets is bounded. These conditions are satisfied because $\mathbb{A}^s$ is a countable set and there are at most $|V|$ neighbours (elements in the multiset) for every vertex in $V$.
+This is clearly an aMPNN which computes the same labelling as~(\ref{eq:combaggr}).
+%We remark that
+%Lemma 5 in~\cite{xhlj19} crucially relies on the assumption that labels come from a countable domain
+%and that the size of multisets is bounded. These conditions are satisfied because $\mathbb{A}^s$ is a countable set and there are at most $|V|$ neighbours (elements in the multiset) for every vertex in $V$.
 
 The aMPNNs that we consider in this paper are slightly more general than those defined by
 (\ref{eq:combaggrtoaMPNN}). Indeed, we consider message functions that can also depend on the previous labelling $\pmb{\ell}_v^{(t-1)}$. In contrast, the message functions in~(\ref{eq:combaggrtoaMPNN}) only depend on $\mathbf{y}$, which corresponds to the previous labelling of neighbours $u\in N_G(v)$. Let $\architecture{}^{-}_{\textsl{anon}}$ denote the class of aMPNNs whose message functions only
@@ -103,9 +104,8 @@ Indeed, the corollary implies that for every $M$ in $\architectureano$ there exi
 % in $\architecture{}^{-}_{\textsl{anon}}$ such that $M\equiv M_{\textsl{WL}}$.
 \openprob{I actually don't know what is the precise relationship between the aMPNNs coming from combine/aggregate and our aMPNNs.}
 \floris{Optional: say something about universal version of equally strong...}
-\todo{G: read up until here}
 \subsection{GNN-based aMPNNs}
-More practical examples of aMPNNs, related to the graph neural networks, were considered in~\cite{grohewl}.
+More practical examples of aMPNNs, related to graph neural networks, were considered in~\cite{grohewl}.
 In that paper, the authors consider graph neural networks of the form
 $$
 \mathbf{L}^{(t)}:=\sigma\left(\mathbf{L}^{(t-1)}\mathbf{W}_1^{(t)}+\mathbf{A}_G\mathbf{L}^{(t-1)}\mathbf{W}_2^{(t)}+\mathbf{B}^{(t)}\right), $$
@@ -118,7 +118,7 @@ Let us denote by $\architecture_{\textsl{GNN}}$ the class of aMPNNs with message
 for any $\mathbf{W}_1^{(t)}\in\mathbb{A}^{s\times s}$,$\mathbf{W}_2^{(t)}\in\mathbb{A}^{s\times s}$, and $\mathbf{B}^{(t)}\in\mathbb{A}^{n\times s}$ consisting of $n$ copies of a row $\mathbf{b}^{(t)}\in\mathbb{A}^{s}$. 
 
 We start by stating a direct consequence of Theorem~\ref{thm:eqstrongWL}. It follows by observing
-that $\architecture_{\textsl{GNN}}$ is sub-class of 
+that $\architecture_{\textsl{GNN}}$ is a sub-class of 
 $\architectureano$.
 \begin{corollary}
 	The class 
@@ -127,7 +127,9 @@ $\architecture_{\textsl{GNN}}$ is weaker than $\architectureano$ and is thus als
 
 More challenging is to show that $\architecture_{\textsl{GNN}}$ and $\architectureWL$, and thus also $\architecture_{\textsl{GNN}}$ and $\architectureano$, are equally strong. The following results are known. We denote
 by $\architecture_{\textsl{GNN}}^{\textsl{sign}}$
-and $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$ the classes of  aMPNNs in $\architecture_{\textsl{GNN}}$ whose update functions, as defined in~(\ref{eq:MPNN-GNN}), use the sign and ReLU as activation function $\sigma$, respectively.
+and $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$ the classes of  aMPNNs in
+$\architecture_{\textsl{GNN}}$ whose update functions, as defined
+in~(\ref{eq:MPNN-GNN}), use the sign and ReLU activation functions $\sigma$, respectively.
 
 \begin{theorem}[\cite{grohewl}] \label{thm:grohe_lower}
 (i)~The classes $\architecture_{\textsl{GNN}}^{\textsl{sign}}$ and  $\architectureWL$ are equally strong. (ii)~The class 
@@ -139,14 +141,22 @@ $\architectureWL$ is weaker than $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$,
 % and an aMPNN $M_2$ in $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$
 % such that $M_1\preceq M_{\textsl{WL}}$
 % and $M_2\preceq_g M_{\textsl{WL}}$ with $g:\mathbb{N}\to \mathbb{N}:t\mapsto 2t$.
-The reason for the factor of two in (ii) in this Theorem is due to a simulation of the sign activation function by means of a two-fold application of the ReLu function. We next show that this factor of two can be avoided. As a side effect, we obtain a simpler aMPNN $M$ in $\architecture_{\textsl{GNN}}$, satisfying $M\preceq M_{\textsl{WL}}$, than the one constructed in \cite{grohewl}. The proof strategy is inspired by that of~\cite{grohewl}. Crucial in the proof the notion of \textit{row-independence modulo equality}, which we define next.
+The reason for the factor of two in (ii) in this Theorem is due to a
+simulation of the sign activation function by means of a two-fold application
+of the ReLU function. We next show that this factor of two can be avoided. As
+a side effect, we obtain a simpler aMPNN $M$ in
+$\architecture_{\textsl{GNN}}$, satisfying $M\preceq M_{\textsl{WL}}$, than
+the one constructed in \cite{grohewl}. The proof strategy is inspired by that
+of~\cite{grohewl}. Crucial in the proof is the notion of \textit{row-independence modulo equality}, which we define next.
 
-\begin{definition}[row-independence modulo equality]\label{def:label2}\normalfont
-	A labelling $\pmb{\ell}:V\to\mathbb{A}^s$ is \textit{row-independent modulo equality} if the set of unique labels assigned by $\pmb{\ell}$ are linearly independent. \qed
+\begin{definition}[Row-independence modulo equality]\label{def:label2}\
+	A labelling $\pmb{\ell}:V\to\mathbb{A}^s$ is \textit{row-independent modulo
+  equality} if the set of unique labels assigned by $\pmb{\ell}$ is linearly independent. \qed
 \end{definition}
+\todo{G: read up until here}
 In what follows, we always assume that the labelling $\pmb{\nu}$ of $G$ is row-independent modulo equality. One can always ensure this by extending the labels. 
 %
-% \begin{definition}[a good matrix]\label{def:label3}\normalfont
+% \begin{definition}[a good matrix]\label{def:label3}\
 % A matrix $\mathbf{F}$ is \textit{good relative to an other matrix} $\mathbf{F}'$ if $\mathbf{F}\equiv \mathbf{F}'$ and $\mathbf{F}$ is row-independent modulo equality.\qed
 % \end{definition}
 \begin{proposition}\label{prop:equalstrong}
@@ -154,7 +164,7 @@ The classes $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$ and  $\architectureWL
 \end{proposition}
 \begin{proof}
 We already know that $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$ is weaker than $\architectureWL$ (Theorem~\ref{thm:grohe_lower}). It remains to show that $\architectureWL$ is weaker than $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$. That is, given the aMPNN $M_{\textsl{WL}}$, we need to construct an aMPNN $M$ in $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$ such that 
-$\pmb{\ell}_{M}^{(t)}\sqsubseteq \pmb{\ell}_{M_{\textsl{WL}}}^{(t)$, for all $t\geq 0$. We observe that
+$\pmb{\ell}_{M}^{(t)}\sqsubseteq \pmb{\ell}_{M_{\textsl{WL}}}^{(t)}$, for all $t\geq 0$. We observe that
 since $\pmb{\ell}_{M_{\textsl{WL}}}^{(t)}\sqsubseteq \pmb{\ell}_{M}^{(t)}$ for any $M$ in $\architecture_{\textsl{GNN}}^{\textsl{ReLU}}$, this is equivalent to constructing an $M$ such that $\pmb{\ell}_{M}^{(t)}\equiv \pmb{\ell}_{M_{\textsl{WL}}}^{(t)}$. 
 
 The proof is by induction on the number of computation rounds. The MPNN $M$ in 
@@ -168,7 +178,7 @@ for some value $p\in\mathbb{A}$, $0<p<1$, weight matrix $\mathbf{W}^{(t)}\in\mat
 
 The induction hypothesis is that $\pmb{\ell}^{(t)}_M\equiv \pmb{\ell}_{M_{\textsl{WL}}}^{(t)}$ and that $\pmb{\ell}^{(t)}_M$ is row-independent modulo equality.
 
-For $t=0$, we have that for any $M\in \architecture_{\textsl{GNN}}^{\textsl{ReLu}}$, $\pmb{\ell}_M^{(0)}=\pmb{\ell}_{M_{\textsl{WL}}}^{(0)}:=\pmb{\nu}$, by definition.
+For $t=0$, we have that for any $M\in \architecture_{\textsl{GNN}}^{\textsl{ReLU}}$, $\pmb{\ell}_M^{(0)}=\pmb{\ell}_{M_{\textsl{WL}}}^{(0)}:=\pmb{\nu}$, by definition.
 Moreover, $\pmb{\ell}_M^{(0)}$ is row-independent modulo equality because $\pmb{\nu}$ is so, by assumption. 
 
 We next assume that up to round $t-1$, we have found weight matrices and bias vectors for $M$ such that 
@@ -379,8 +389,7 @@ $$
 \floris{There is minor mismatch here. We assumed so far that labelling take values in $\mathbf{A}^s$. Here, we create a labelling in $\mathbf{A}^u$. We may want to padd with zeroes...}
 From the non-singularity of $\text{ReLU}\left(\mathsf{uniq}(\mathbf{M}^{(t)})\mathbf{X}^{(t)}-m^{(t)}\mathbf{J}\right)$ we can immediately infer that $\pmb{\ell}_M^{(t)}$ is row-independent modulo equality. It remains to argue that 
 $\pmb{\ell}_M^{(t)}\equiv\pmb{\ell}_{M_{\textsl{WL}}}^{(t)}$. This now follows from the fact that $\pmb{\mu}^{(t)}\equiv \pmb{\ell}_{M_{\textsl{WL}}}^{(t)}$
-and each of the $u$ unique labels assigned by $\pmb{\mu}^{(t)}$ uniquely corresponds to a row in $\mathsf{uniq}(\mathbf{M}^{(t)})$, which in turn can be mapped bijectively to a row in $\text{ReLU}\left(\mathsf{uniq}(\mathbf{M}^{(t)})\mathbf{X}^{(t)}-m^{(t)}\mathbf{J}_{u\times u
-\right)$. We conclude by observing that the desired weight matrices and bias vector are now given by
+and each of the $u$ unique labels assigned by $\pmb{\mu}^{(t)}$ uniquely corresponds to a row in $\mathsf{uniq}(\mathbf{M}^{(t)})$, which in turn can be mapped bijectively to a row in $\text{ReLU}\left(\mathsf{uniq}(\mathbf{M}^{(t)})\mathbf{X}^{(t)}-m^{(t)}\mathbf{J}_{u\times u} \right)$. We conclude by observing that the desired weight matrices and bias vector are now given by
 $\mathbf{W}^{(t)}:=\mathbf{U}^{(t)}\mathbf{X}^{(t)}$ 
 and $\mathbf{b}^{(t)}:=-m^{(t)}\mathbf{1}$. This concludes the proof of the theorem.\end{proof}
 

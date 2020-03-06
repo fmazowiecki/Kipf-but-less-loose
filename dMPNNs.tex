@@ -232,9 +232,28 @@ The class $\architecture_{\textsl{deg}}$ is weaker than
 $\architectureano$, with $1$ step ahead.
 \end{proposition}
 \begin{proof}
-As in the previous lemma we assume that the labelling
-$\pmb{\nu}$ of $G$ is such that $\pmb{\nu}:V\to\mathbb{A}^{s+1}$ with its last entries equal to $0$. Take an arbitrary 
+Let $\langle G,\pmb{\nu}\rangle$ be a labelled graph with $\pmb{\nu}:V\to\mathbb{A}^s$. Take an arbitrary dMPNN $M_1$ such that
+for every $\mathbf{x},\mathbf{y}\in\mathbf{A}^{s}$, every vertex $v$ and $u\in N_G(v)$, and $t$:
+$$
+\textsc{Msg}_{M_1}^{(t)}(\mathbf{x},\mathbf{y},v,w)=f^{(t)}(\mathbf{x},\mathbf{y},d_v,d_w)$$
+for some function $f^{(t)}$. We denote the update functions of $M_1$ by
+$\textsc{Upd}_{M_1}^{(t)}$. 
+
+We construct an aMPNN $M_2$ such that $\pmb{\ell}_{M_2}^{(t+1)}\subseteq \pmb{\ell}_{M_1}^{(t)}$
+holds, as follows. We denote the message and update functions of $M_2$
+by $\textsc{Upd}_{M_2}^{(t)}$ and $\textsc{Upd}_{M_2}^{(t)}$, respectively. For $M_2$ we assume that $G$ is labelled with
+$\pmb{\nu}':V\to\mathbb{A}^{s+1}:v\mapsto(\pmb{\nu}_v,0)$.
+
+For $t=1$, we let $\textsc{Upd}_{M_2}^{(1)}$ and $\textsc{Upd}_{M_2}^{(1)}$, consist of functions used in the aMPNN $M_d$, constructed in the previous lemma. As a consequence, $(\pmb{\ell}_{M_2}^{(1)})_v=(\pmb{\mu}_v,d_v)$ for every vertex $v$. 
+We clearly have that $\pmb{\ell}_{M_2}^{(1)}\subseteq \pmb{\ell}_{M_1}^{(0)}$. Indeed, note that $(\pmb{\ell}_{M_1}^{(0)})_v=(\pmb{\mu}_v,0)$. For $t\geq 2$, we define the message and update functions of $M_2$ as follows. For every $\mathbf{x}=(\mathbf{x}',x)$ and $\mathbf{y}=(\mathbf{y}',y)$ in $\mathbf{A}^{(s+1)}$, every vertex $v$ and $u\in N_G(v)$, and $t$:
+$$
+\textsc{Msg}_{M_2}^{(t)}(\mathbf{x},\mathbf{y},v,w):=\left(f^{(t-1)}(\mathbf{x}',\mathbf{y}',x,y),0\right)
+\text{ and } \textsc{Upd}_{M_2}^{(t)}(\mathbf{x},\mathbf{y}):=\left(\textsc{Upd}_{M_1}^{(t-1)}(\mathbf{x}',\mathbf{y'}),x\right).
+$$
+In other words, for each $t$, $M_2$ extracts the degrees from the last entries in the labels and simulates round $t-1$ of $M_1$. It is readily verified that $\pmb{\ell}_{M_2}^{(t)}\subseteq \pmb{\ell}_{M_1}^{(t-1)}$ for every $t$, as desired.
 \end{proof}
+
+
 
 % As an immediate corollary of Propositions~\ref{prop:WL} and~\ref{prop:onestep},  we obtain:
 % \begin{corollary}
@@ -272,17 +291,27 @@ $\pmb{\nu}$ of $G$ is such that $\pmb{\nu}:V\to\mathbb{A}^{s+1}$ with its last e
 % \sigma\left(\sum_{w\in N_G^*(v)} \mathbf{m}_w^{(t)})\right).
 % \end{align*}
 
+WL+1 define  (monontone)
+
+
+
+
+Follows from:
+
 \begin{corollary}
-	The GCNs by \citet{KipfW16} are bounded by WL, but with a factor of one.
+The class $\architecture_{\textsl{deg}}$ is weaker than 
+$\architectureWL$, with $1$ step ahead.
 \end{corollary}
-This corollary more correctly states the relationship between these GCNs and WL.
+
+\begin{example}
+The example, lower bounded by WL 2.
+\end{example}
 
 
 
 
 \smallskip
 \noindent
-\leftpointright
 One possible additional insight is that dMPNNS can be defined such that
 the message functions  only depend on $d_w$ and the features. That is, we 
 can eliminate the dependency on $d_v$.
