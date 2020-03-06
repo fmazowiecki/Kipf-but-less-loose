@@ -117,22 +117,22 @@ $\pmb{\eta}((v,w))$. For convenience we identify $V$ with $[n]$ so that each $i\
 We start by describing message passing neural networks (MPNNs), introduced by \citet{GilmerSRVD17} for deep learning on graphs. Roughly speaking, in MPNNs, vertex features are propagated through the graph according to its connectivity structure. We closely follow the exposition of MPNNs as given in~\citep{Loukas2019}. 
 
 % We next define \textit{message passing neural networks} (MPNNs). We here follow the exposition given in~\citet{Loukas2019}. MPNNs were originally proposed by \citet{GilmerSRVD17}. Intuitively,
-An MPNN computes a vertex labeling $\pmb{\ell}:V\to \mathbb{Q}^{s}$ for some $s\in\mathbb{N}^+$, by means of a number of rounds of computation, starting from the input labeled graph $\langle G,\pmb{\nu},\pmb{\eta}\rangle$.
+An MPNN computes a vertex labeling $\pmb{\ell}:V\to \mathbb{A}^{s}$ for some $s\in\mathbb{N}^+$, by means of a number of rounds of computation, starting from the input labeled graph $\langle G,\pmb{\nu},\pmb{\eta}\rangle$.
 Each such round of computation consists of a message passing phase along the edges in $G$, followed by an aggregation phase in which each vertex aggregates its received messages. The vertex labeling computed after round $t$ is denoted by $\pmb{\ell}^{(t)}$. We next detail how $\pmb{\ell}^{(t)}$ is computed.
 
-Initially, $\pmb{\ell}^{(0)}:=\pmb{v}$. Then, for round $t=1,2,\ldots,d$, we define $\pmb{\ell}^{(t)}:V\to\mathbb{Q}^{s}$, as follows\footnote{We can assume, without loss of generality, that every round assigns labels in $\mathbb{Q}^s$ for the same $s$. If not, one can include ``padding with zeroes'' in the message and update functions.}:
+Initially, $\pmb{\ell}^{(0)}:=\pmb{v}$. Then, for round $t=1,2,\ldots,d$, we define $\pmb{\ell}^{(t)}:V\to\mathbb{A}^{s}$, as follows\footnote{We can assume, without loss of generality, that every round assigns labels in $\mathbb{A}^s$ for the same $s$. If not, one can include ``padding with zeroes'' in the message and update functions.}:
 \begin{description}\setlength{\itemsep}{-0.4ex}
 \item  [Message passing.] For each edge $(w,v)\in E^*$, $v$ receives a message $\mathbf{m}_{v\gets w}^{(t)}$ from $w$:
 $$
-\mathbf{m}^{(t)}_{v\gets w}:=\textsc{Msg}^{(t)}\left(\pmb{\ell}^{(t-1)}_v,\pmb{\ell}^{(t-1)}_w,v,w,\pmb{\eta}_{(w,v)}\right)\in\mathbb{Q}^{s}.
+\mathbf{m}^{(t)}_{v\gets w}:=\textsc{Msg}^{(t)}\left(\pmb{\ell}^{(t-1)}_v,\pmb{\ell}^{(t-1)}_w,v,w,\pmb{\eta}_{(w,v)}\right)\in\mathbb{A}^{s}.
 $$
 \item [Aggregation.] For each vertex $v\in V$, all of its received messages are aggregated:
 $$
-\pmb{\ell}^{(t)}_v:=\textsc{Upd}^{(t)}\left(\sum_{w\in N_G^*(v)} \mathbf{m}_{v\gets w}^{(t)}\right)\in\mathbb{Q}^{s}.
+\pmb{\ell}^{(t)}_v:=\textsc{Upd}^{(t)}\left(\sum_{w\in N_G^*(v)} \mathbf{m}_{v\gets w}^{(t)}\right)\in\mathbb{A}^{s}.
 $$
 \end{description}
 Here, $\textsc{Msg}^{(t)}$ and $\textsc{Upd}^{(t)}$ are general (computable) functions.
-After round $d$, we define the final labeling $\pmb{\ell}:V\to\mathbb{Q}^{s}$ as  $\pmb{\ell}_v:=\pmb{\ell}^{(d)}_v$ for every $v\in V$. If further aggregation over the entire graph is needed, e.g., for graph classification, an additional readout function 
+After round $d$, we define the final labeling $\pmb{\ell}:V\to\mathbb{A}^{s}$ as  $\pmb{\ell}_v:=\pmb{\ell}^{(d)}_v$ for every $v\in V$. If further aggregation over the entire graph is needed, e.g., for graph classification, an additional readout function 
 $\textsc{Read}(\lmset \pmb{\ell}_v\mid v\in V\rmset)$ can be applied. We omit the readout function here since most of the computation happens during the rounds of an MPNN.
 
 We remark that formalisation of MPNNs given here differs slightly from the formalisation presented by \citet{GilmerSRVD17}. We show in the appendix (Section~\ref{subsec:relationship}) that the two formalisms are equivalent, provided that the message functions in \citet{GilmerSRVD17} are allowed to take vertices $v$ and $w$ as arguments. In fact, there is a certain ambiguity on what the message functions in the MPNNs of \citet{GilmerSRVD17} can depend. More precisely, in~\citep{GilmerSRVD17}, only $\pmb{\ell}_v^{(t-1)}$, $\pmb{\ell}_w^{(t-1)}$ and $\pmb{\eta}_{(w,v)}$ are specified as arguments. Nevertheless, the examples illustrating which graph neural network architectures can be captured by MPNNs use message functions that may depend on, e.g., the degree  of vertices. As we will see, this has an impact on the distinguishing power of MPNNs.
@@ -234,7 +234,7 @@ f_{\textsl{comb}}^{(t)}\Bigl(
 \pmb{\ell}_{v}^{(t-1)},f_{\textsl{aggr}}^{(t)}\bigl(\lmset \pmb{\ell}^{(t-1)}_{w} \mid w \in N_G(v) \rmset\bigr)
 \Bigr),
 $$
-where $f_{\textsl{comb}}^{(t)}$ and  $f_{\textsl{agg}}^{(t)}$ are general (computable) combination and aggregation functions. It is easily verified that such models are equivalent to aMPNNs. To see this, it suffices to observe that the aggregation functions $f_{\textsl{aggr}}^{(t)}\bigl(\lmset \pmb{\ell}^{(t-1)}_{w} \mid u \in N_G(v) \rmset\bigr)$ can be written in the form $g^{(t)}\bigl(\sum_{w\in N_G(v)} h^{(t)}(\pmb{\ell}^{(t-1)}_{w})\bigr)$ (this was observed in Lemma 5 in~\citep{XuHLJ19}, based on Theorem 2 in~\citep{ZaheerKRPSS17}). Crucial in all this is that feature values belong to a countable domain and that the size of multisets is bounded. These conditions are satisfied because our domain is $\mathbb{Q}$ and there are at most $|V|$ elements in a multiset. For completeness, we provide additional details in Section~\ref{subsec:aggr} in the appendix.
+where $f_{\textsl{comb}}^{(t)}$ and  $f_{\textsl{agg}}^{(t)}$ are general (computable) combination and aggregation functions. It is easily verified that such models are equivalent to aMPNNs. To see this, it suffices to observe that the aggregation functions $f_{\textsl{aggr}}^{(t)}\bigl(\lmset \pmb{\ell}^{(t-1)}_{w} \mid u \in N_G(v) \rmset\bigr)$ can be written in the form $g^{(t)}\bigl(\sum_{w\in N_G(v)} h^{(t)}(\pmb{\ell}^{(t-1)}_{w})\bigr)$ (this was observed in Lemma 5 in~\citep{XuHLJ19}, based on Theorem 2 in~\citep{ZaheerKRPSS17}). Crucial in all this is that feature values belong to a countable domain and that the size of multisets is bounded. These conditions are satisfied because our domain is $\mathbb{A}$ and there are at most $|V|$ elements in a multiset. For completeness, we provide additional details in Section~\ref{subsec:aggr} in the appendix.
 % % $f_{\textsl{agg}}^{(t)}$.
 % In~\citet{Loukas2019} there is an argument, based on Lemma 5 in~\citet{XuHLJ19}, which allows to convert any aggregation function to a summation followed by a function. It may need a bit more thought how to squeeze this into aMPNNs.
 
@@ -245,7 +245,7 @@ where $f_{\textsl{comb}}^{(t)}$ and  $f_{\textsl{agg}}^{(t)}$ are general (compu
 
 \paragraph{Degree-aware MPNNs.} 
 One of the example graph neural architectures that was cast as an MPNN by \citet{GilmerSRVD17}
-was the GCN architecture by~\citet{KipfW16}. In that architecture~\footnote{We note that we here identify the vertex labeling $\pmb{\ell}^{(t)}$ with its vector in $\mathbb{Q}^s$.}, for each round $t=1,2,\ldots,d$,
+was the GCN architecture by~\citet{KipfW16}. In that architecture~\footnote{We note that we here identify the vertex labeling $\pmb{\ell}^{(t)}$ with its vector in $\mathbb{A}^s$.}, for each round $t=1,2,\ldots,d$,
 \begin{equation}
 \pmb{\ell}^{(t)}:=\sigma\Bigl(\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} (\mathbf{A}+\mathbf{I})\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} \pmb{\ell}^{(t-1)}\mathbf{W}\Bigr), \label{GNN:Kipf}
 \end{equation}
@@ -268,11 +268,11 @@ We remark, however, that the resulting MPNN is not an anonymous MPNN, and thus P
 \begin{proof}
 Let $\pmb{\ell}^{(0)}:=\left[\begin{smallmatrix}0\\\pmb{\nu}\end{smallmatrix}\right]\in\mathbf{Q}^{s+1}$. Then, for round $t=1$, we first define for each $(w,v)\in E^*$, 
 $$\mathbf{m}^{(1)}_{v\gets w}=\textsc{Msg}(\pmb{\ell}^{(0)}_v,\pmb{\ell}^{(0)}_{w},\pmb{\eta}_{(w,v)}):=\left[\begin{smallmatrix}1\\\pmb{\nu}\end{smallmatrix}\right]\in\mathbf{Q}^{s+1}.$$ Then, for any
-$\left[\begin{smallmatrix} a\\\mathbf{b}\end{smallmatrix}\right]\in \mathbb{Q}^{s+1}$ with $a\neq 0$, we 
+$\left[\begin{smallmatrix} a\\\mathbf{b}\end{smallmatrix}\right]\in \mathbb{A}^{s+1}$ with $a\neq 0$, we 
 let 
 $$\textsc{Upd}\left(\begin{bmatrix} a\\\mathbf{b}\end{bmatrix}\right):=\begin{bmatrix} a\\\frac{1}{a}\mathbf{b}\end{bmatrix}.
 $$
-It is now clear that $\textsc{Upd}\left(\sum_{w\in N_G^*(v)}\mathbf{m}_{v\gets w}^{(t)}\right)=\left[\begin{smallmatrix} d_v\\\pmb{\nu}\end{smallmatrix}\right]\in \mathbb{Q}^{s+1}$.
+It is now clear that $\textsc{Upd}\left(\sum_{w\in N_G^*(v)}\mathbf{m}_{v\gets w}^{(t)}\right)=\left[\begin{smallmatrix} d_v\\\pmb{\nu}\end{smallmatrix}\right]\in \mathbb{A}^{s+1}$.
 \end{proof}
 
 As an immediate consequence is that every dMPNN corresponds to an aMPNN satisfying the following property.
@@ -366,22 +366,22 @@ Initially $\hat{\pmb{\ell}}{}^{(0)}:=\pmb{\nu}$ and in each round $t=1,2,\ldots,
 \begin{description}\setlength{\itemsep}{-0.4ex}
 \item [Message passing \& aggregation.] Each vertex $v\in V$ receives and aggregates labelings from its neighbours, i.e.,
 $$
-\hat{\mathbf{m}}^{(t)}_v:=\sum_{w\in N_G(v)}\widehat{\textsc{Msg}}{}^{(t)}\left(\hat{\pmb{\ell}}{}^{(t-1)}_v,\hat{\pmb{\ell}}{}^{(t-1)}_w,v,w,\pmb{\eta}_{(w,v)}\right)\in\mathbb{Q}^{s}.
+\hat{\mathbf{m}}^{(t)}_v:=\sum_{w\in N_G(v)}\widehat{\textsc{Msg}}{}^{(t)}\left(\hat{\pmb{\ell}}{}^{(t-1)}_v,\hat{\pmb{\ell}}{}^{(t-1)}_w,v,w,\pmb{\eta}_{(w,v)}\right)\in\mathbb{A}^{s}.
 $$
 We here assume that the message functions $\widehat{\textsc{Msg}}^{(t)}$ are allowed to use $v$ and $w$. There is certain ambiguity in \citep{GilmerSRVD17} on what precisely the arguments are of these functions.
 
 \item [Updating.] In each vertex $v\in V$ messages are further updated:
 $$
-\hat{\pmb{\ell}}{}^{(t)}_v:=\widehat{\textsc{Upd}}{}^{(t)}\left(\hat{\pmb{\ell}}^{(t-1)}_v, \hat{\mathbf{m}}_w^{(t)}\right)\in\mathbb{Q}^{s}.
+\hat{\pmb{\ell}}{}^{(t)}_v:=\widehat{\textsc{Upd}}{}^{(t)}\left(\hat{\pmb{\ell}}^{(t-1)}_v, \hat{\mathbf{m}}_w^{(t)}\right)\in\mathbb{A}^{s}.
 $$
 \end{description}
 Here, $\widehat{\textsc{Msg}}{}^{(t)}$ and $\widehat{\textsc{Upd}}^{(t)}$ are general (computable) functions. This can again be complemented with a readout function.
 
 
-The corresponding MPNN in the formalism of \citet{Loukas2019} now can be easily defined, as follows. For convenience, we identify labelings with their corresponding vector in $\mathbb{Q}^s$.
+The corresponding MPNN in the formalism of \citet{Loukas2019} now can be easily defined, as follows. For convenience, we identify labelings with their corresponding vector in $\mathbb{A}^s$.
 Initially, we let $\pmb{\ell}^{(0)}=\left[\begin{smallmatrix}
 	\mathbf{0} \\
-     \pmb{\nu}\end{smallmatrix}\right]\in\mathbb{Q}^{2s}$. Then,
+     \pmb{\nu}\end{smallmatrix}\right]\in\mathbb{A}^{2s}$. Then,
 for each $(w,v)\in E$ we define:
 $$
 \textsc{Msg}^{(t)}\left(\begin{bmatrix}
@@ -394,7 +394,7 @@ $$
 \begin{bmatrix}
 	\mathbf{0}\\
 \widehat{\textsc{Msg}}{}^{(t)}\left(\hat{\pmb{\ell}}{}^{(t-1)}_v,\hat{\pmb{\ell}}{}^{(t-1)}_w,v,w,\pmb{\eta}_{(w,v)}\right)
-\end{bmatrix}\in\mathbb{Q}^{2s},
+\end{bmatrix}\in\mathbb{A}^{2s},
 $$
 for $(v,v)$ (recall that  \citet{Loukas2019} uses $N_G^*(v)$)  we define:
 $$
@@ -408,12 +408,12 @@ $$
 \begin{bmatrix}
 	\pmb{\ell}^{(t-1)}_v \\
 	\pmb{0}
-\end{bmatrix}\in\mathbb{Q}^{2s},
+\end{bmatrix}\in\mathbb{A}^{2s},
 $$
-Finally, for each vertex $v\in V$ and any $\mathbf{a},\mathbf{b}\in\mathbb{Q}^{s}$, we define:
+Finally, for each vertex $v\in V$ and any $\mathbf{a},\mathbf{b}\in\mathbb{A}^{s}$, we define:
 $$\textsc{Upd}^{(t)}\left(\begin{bmatrix}\mathbf{a}\\
 \mathbf{b}\end{bmatrix}\right):=\begin{bmatrix} \mathbf{0}\\
-\widehat{\textsc{Upd}}^{(t)}(\mathbf{a},\mathbf{b})\end{bmatrix}\in\mathbb{Q}^{2s}.
+\widehat{\textsc{Upd}}^{(t)}(\mathbf{a},\mathbf{b})\end{bmatrix}\in\mathbb{A}^{2s}.
 $$
 It is clear that for every $v\in V$, $\pmb{\ell}^{(t)}_v=\left[\begin{smallmatrix}\mathbf{0}\\
 \hat{\pmb{\ell}}{}^{(t)}_v\end{smallmatrix}\right]$.
@@ -456,7 +456,7 @@ We have shown in the previous section that this can be cast as an MPNN in the fo
 % \pmb{\ell}_{v}^{(t-1)},f_{\textsl{aggr}}^{(t)}\bigl(\lmset \pmb{\ell}^{(t-1)}_{w} \mid w \in N_G(v) \rmset\bigr)
 % \Bigr),
 % $$
-% where $f_{\textsl{comb}}^{(t)}$ and  $f_{\textsl{agg}}^{(t)}$ are general (computable) combination and aggregation functions. To see this, it suffices to observe that the aggregation functions $f_{\textsl{aggr}}^{(t)}\bigl(\lmset \pmb{\ell}^{(t-1)}_{w} \mid u \in N_G(v) \rmset\bigr)$ can be written in the form $g^{(t)}\bigl(\sum_{w\in N_G(v)} h^{(t)}(\pmb{\ell}^{(t-1)}_{w})\bigr)$ (this was observed in Lemma 5 in~\citep{XuHLJ19}, based on Theorem 2 in~\citep{ZaheerKRPSS17}). Crucial in all this is that feature values belong to a countable domain and that the size of multisets is bounded. These conditions are satisfied because our domain is $\mathbb{Q}$ and there are at most $|V|$ elements in a multiset. For completeness, we detail in Section~\ref{subsec:aggr} in the appendix.
+% where $f_{\textsl{comb}}^{(t)}$ and  $f_{\textsl{agg}}^{(t)}$ are general (computable) combination and aggregation functions. To see this, it suffices to observe that the aggregation functions $f_{\textsl{aggr}}^{(t)}\bigl(\lmset \pmb{\ell}^{(t-1)}_{w} \mid u \in N_G(v) \rmset\bigr)$ can be written in the form $g^{(t)}\bigl(\sum_{w\in N_G(v)} h^{(t)}(\pmb{\ell}^{(t-1)}_{w})\bigr)$ (this was observed in Lemma 5 in~\citep{XuHLJ19}, based on Theorem 2 in~\citep{ZaheerKRPSS17}). Crucial in all this is that feature values belong to a countable domain and that the size of multisets is bounded. These conditions are satisfied because our domain is $\mathbb{A}$ and there are at most $|V|$ elements in a multiset. For completeness, we detail in Section~\ref{subsec:aggr} in the appendix.
 % % % $f_{\textsl{agg}}^{(t)}$.
 % In~\citet{Loukas2019} there is an argument, based on Lemma 5 in~\citet{XuHLJ19}, which allows to convert any aggregation function to a summation followed by a function. It may need a bit more thought how to squeeze this into aMPNNs.
 

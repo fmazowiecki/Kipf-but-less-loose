@@ -9,28 +9,28 @@ network architectures commonly used in practice.
 
 \subsection{Definition}
 Given a labelled graph $( G,\pmb{\nu})$, an MPNN computes a vertex
-labelling $\pmb{\ell}:V\to \mathbb{Q}^{s}$, for some $s\in\mathbb{N}^+$, by
+labelling $\pmb{\ell}:V\to \mathbb{A}^{s}$, for some $s\in\mathbb{N}^+$, by
 means of a number of rounds of computation, starting from the input labelling
-$\pmb{\nu}:V\to\mathbb{Q}^s$.
+$\pmb{\nu}:V\to\mathbb{A}^s$.
 
 The vertex labelling computed by an MPNN after round $t$ is denoted by $\pmb{\ell}^{(t)}$. We next detail how $\pmb{\ell}^{(t)}$ is computed.
 \begin{description}\setlength{\itemsep}{-0.4ex}
 \item [Initialisation.]  We let $\pmb{\ell}^{(0)}:=\pmb{\nu}$.
 \end{description}
-Then, for round $t=1,2,\ldots,d$, we define $\pmb{\ell}^{(t)}:V\to\mathbb{Q}^{s}$, as follows\footnote{We can assume, without loss of generality, that every round assigns labels in $\mathbb{Q}^s$ for the same $s$. If not, one can include ``padding with zeroes'' in the message and update functions.}:
+Then, for round $t=1,2,\ldots,d$, we define $\pmb{\ell}^{(t)}:V\to\mathbb{A}^{s}$, as follows\footnote{We can assume, without loss of generality, that every round assigns labels in $\mathbb{A}^s$ for the same $s$. If not, one can include ``padding with zeroes'' in the message and update functions.}:
 \begin{description}\setlength{\itemsep}{-0.4ex}
-\item [Message Passing.] Each vertex $v\in V$ receives messages from its neighbours which are subsequently aggregated. Formally, the function $\textsc{Msg}^{(t)}$ receives as input two vertices $v$ and $u$ with their corresponding labels from the previous iteration $\pmb{\ell}^{(t-1)}_v$ and $\pmb{\ell}^{(t-1)}_u$ and outputs a vector in $\mathbb{Q}^s$. Then, for every vertex $v$, we aggregate by summing all such vectors for every neighbour $u$.
+\item [Message Passing.] Each vertex $v\in V$ receives messages from its neighbours which are subsequently aggregated. Formally, the function $\textsc{Msg}^{(t)}$ receives as input two vertices $v$ and $u$ with their corresponding labels from the previous iteration $\pmb{\ell}^{(t-1)}_v$ and $\pmb{\ell}^{(t-1)}_u$ and outputs a vector in $\mathbb{A}^s$. Then, for every vertex $v$, we aggregate by summing all such vectors for every neighbour $u$.
 $$
-\mathbf{m}^{(t)}_{v}:=\sum_{u\in N_G(v)}\textsc{Msg}^{(t)}\left(\pmb{\ell}^{(t-1)}_v,\pmb{\ell}^{(t-1)}_u,v,u\right)\in\mathbb{Q}^{s}.
+\mathbf{m}^{(t)}_{v}:=\sum_{u\in N_G(v)}\textsc{Msg}^{(t)}\left(\pmb{\ell}^{(t-1)}_v,\pmb{\ell}^{(t-1)}_u,v,u\right)\in\mathbb{A}^{s}.
 $$
 \item [Updating.] Each vertex $v\in V$ further updates $\mathbf{m}^{(t)}_{v}$ possibly based on its current label $\pmb{\ell}^{(t-1)}_v$:
 $$
-\pmb{\ell}^{(t)}_v:=\textsc{Upd}^{(t)}\left(\pmb{\ell}^{(t-1)}_v,\mathbf{m}^{(t)}_{v}\right)\in\mathbb{Q}^{s}.
+\pmb{\ell}^{(t)}_v:=\textsc{Upd}^{(t)}\left(\pmb{\ell}^{(t-1)}_v,\mathbf{m}^{(t)}_{v}\right)\in\mathbb{A}^{s}.
 $$
 \end{description}
 Here, the message functions $\textsc{Msg}^{(t)}$ and update functions
 $\textsc{Upd}^{(t)}$ are general (computable) functions. After round $d$, we
-define the final labelling $\pmb{\ell}:V\to\mathbb{Q}^{s}$ as
+define the final labelling $\pmb{\ell}:V\to\mathbb{A}^{s}$ as
 $\pmb{\ell}_v:=\pmb{\ell}^{(d)}_v$ for every $v\in V$. If further aggregation
 over the entire graph is needed, e.g., for graph classification, an additional
 readout function $\textsc{ReadOut}(\ldbl\pmb{\ell}_v\mid v\in V\rdbl)$ can be
@@ -51,13 +51,13 @@ architectures~\cite{hyl17,grohewl} defined by:
 \begin{equation}
 \mathbf{L}^{(t)}:=\sigma\left(\mathbf{L}^{(t-1)}\mathbf{W}_1^{(t)}+\mathbf{A}\mathbf{L}^{(t-1)}\mathbf{W}_2^{(t)}+\mathbf{B}^{(t)}\right), \label{gnn:grohe}
 \end{equation}
-where $\mathbf{L}^{(t)}$ is the $n\times s$-matrix in $\mathbb{Q}^{n\times s}$ consisting of the $n$ rows $\pmb{\ell}^{(t)}_v$, for $v\in V$, $\mathbf{A}\in\mathbb{Q}^{n\times n}$ is the adjacency matrix of $G$, $\mathbf{W}_1^{(t)}$ and $\mathbf{W}_2^{(t)}$ are (learnable) weight matrices in $\mathbb{Q}^{s\times s}$,
-$\mathbf{B}^{(t)}$ is a bias matrix in $\mathbb{Q}^{n\times s}$ consisting of $n$ copies of the same row $\mathbf{b}^{(t)}\in \mathbb{Q}^s$, and $\sigma$ is a non-linear activation function. We can regard this architecture as an MPNN. Indeed,~(\ref{gnn:grohe}) can be equivalently phrased as the architecture which computes, in round $t$, for each vertex $v\in V$ the label defined by:
+where $\mathbf{L}^{(t)}$ is the $n\times s$-matrix in $\mathbb{A}^{n\times s}$ consisting of the $n$ rows $\pmb{\ell}^{(t)}_v$, for $v\in V$, $\mathbf{A}\in\mathbb{A}^{n\times n}$ is the adjacency matrix of $G$, $\mathbf{W}_1^{(t)}$ and $\mathbf{W}_2^{(t)}$ are (learnable) weight matrices in $\mathbb{A}^{s\times s}$,
+$\mathbf{B}^{(t)}$ is a bias matrix in $\mathbb{A}^{n\times s}$ consisting of $n$ copies of the same row $\mathbf{b}^{(t)}\in \mathbb{A}^s$, and $\sigma$ is a non-linear activation function. We can regard this architecture as an MPNN. Indeed,~(\ref{gnn:grohe}) can be equivalently phrased as the architecture which computes, in round $t$, for each vertex $v\in V$ the label defined by:
 \[
 \pmb{\ell}^{(t)}_v:=\sigma\Bigl(\pmb{\ell}^{(t-1)}_v\mathbf{W}_1^{(t)}+ \sum_{u\in N_G(v)}\pmb{\ell}^{(t-1)}_u\mathbf{W}_2^{(t)}+\mathbf{b}^{(t)} \Bigr),
 \]
-where we identified the labellings with their images, i.e., a row vector in $\mathbb{Q}^s$. 
-To phrase this as an MPNN, it suffices to define for each $\mathbf{x}$ and $\mathbf{y}$ in $\mathbb{Q}^s$, each $v\in V$ and $u\in N_G(v)$, and each $t\geq 1$:
+where we identified the labellings with their images, i.e., a row vector in $\mathbb{A}^s$. 
+To phrase this as an MPNN, it suffices to define for each $\mathbf{x}$ and $\mathbf{y}$ in $\mathbb{A}^s$, each $v\in V$ and $u\in N_G(v)$, and each $t\geq 1$:
 \begin{equation*}
 	\textsc{Msg}^{(t)}\bigl(\mathbf{x},\mathbf{y},v,u):=\mathbf{y}\mathbf{W}_2^{(t)}
 \text{ and } 
@@ -72,21 +72,34 @@ We recall that WL computes, in round $t \geq 1$, for each vertex $v\in V$ the la
 $$
 \pmb{\ell}^{(t)}_v:=\textsc{Hash}\left(\pmb{\ell}^{(t-1)}_v,\ldbl \pmb{\ell}_u^{(t-1)} \st u \in N_G(v) \rdbl\right).
 $$
-In fact, any injective function $f$ can
-replace $\textsc{Hash}(\cdot,\cdot)$ above
-We thus cast the WL procedure
-as an anonymous MPNN by defining such a function
-as the composition of
-\begin{itemize}
-    \item 
-\end{itemize}fixing
-some injective mapping from
-labels from $\mathbb{Q}^s$ to 
+In fact, any injective function $f$ can replace $\textsc{Hash}(\cdot,\cdot)$
+above We thus cast the WL procedure as an anonymous MPNN by using an injection
+$h^{(t)} : \mathbb{A}^s \to \mathbb{Q}$.  What follows is in fact an
+adaptation of Lemma 5 from~\cite{xhlj19} itself based on~\cite[Theorem
+2]{ZaheerKRPSS17}.
 
-using
-that the aggregation functions $f_{\textsl{aggr}}^{(t)}\bigl(\ldbl \pmb{\ell}^{(t-1)}_{u} \mid u \in N_G(v) \rdbl\bigr)$ can be written in the form $g^{(t)}\bigl(\sum_{u\in N_G(v)} h^{(t)}(\pmb{\ell}^{(t-1)}_{u})\bigr)$. This was already observed in Lemma 5 in~\cite{xhlj19}, based on Theorem 2 in~\cite{ZaheerKRPSS17}.
-\floris{Please complete.}
-\todo{G: Will take care of this}
+Let $\tau : \mathbb{A}^s \to \mathbb{N}^+$ be a computable injective function
+such as, for instance, the Cantor tuple function.
+We now define $h^{(t)}$, for all $t \in \mathbb{N}$, as the mapping
+$\mathbf{x} \mapsto (n+1)^{-\tau(\mathbf{x})}$. Note that $h^{(t)}$ is indeed
+injective and that it can be seen as a one-hot $(n+1)$-ary representation of
+vectors from $\mathbb{A}^s$ --- that is, a single $(n+1)$-ary digit is set to
+the nonzero value $n$.
+Crucially, for all $t$, it satisfies that $0 < n \cdot h^{(t)}(\mathbf{x})
+< 1$. It follows that the function mapping a multiset $S$ of elements of
+$\mathbb{A}^s$ to $\sum_{\mathbf{x} \in S} h^{(t)}(\mathbf{x})$ is a
+bijection, for any $t$. To conclude, we set 
+\[
+\textsc{Msg}^{(t)}(\mathbf{x},\mathbf{y},v,u) :=
+(h^{(t)}(\mathbf{y}),\mathbf{0}) \text{ and }
+\textsc{Upd}^{(t)}(\mathbf{x},\mathbf{y}) := \left(t +
+\frac{h^{(t)}(\mathbf{x})}{2} + \frac{h^{(t)}(\mathbf{y})}{2},
+\mathbf{0}\right).
+\]
+We observe that the message functions functions indeed do not depend on $v$
+and $u$ and that, together with the update functions, precisely implement the
+specified $\textsc{Hash}$ function.
+\floris{I don't understand it yet ;-)}
 \qed
  \end{example}
 
@@ -107,8 +120,8 @@ for each vertex $v\in V$ it computes the label:
 \begin{equation}
 \pmb{\ell}^{(t)}_v:=\sigma\left(\left(\frac{1}{1+d_v}\right)\pmb{\ell}_v^{(t-1)}\mathbf{W}^{(t)} + \sum_{u\in N_G(v)} \left(\frac{1}{\sqrt{1+d_v}}\right)\left(\frac{1}{\sqrt{1+d_u}}\right)\pmb{\ell}^{(t-1)}_u\mathbf{W}^{(t)}\right), \label{GNN:Kipf}
 \end{equation}
-where $\mathbf{W}$ is a learnable weight matrix in $\mathbb{Q}^{s\times s}$ and $\sigma$ is a non-linear activation function.
-We can regard this architecture again as an MPNN. Indeed, it suffices to define for each $\mathbf{x}$ and $\mathbf{y}$ in $\mathbb{Q}^s$, each $v\in V$ and $u\in N_G(v)$, and each $t\geq 1$:
+where $\mathbf{W}$ is a learnable weight matrix in $\mathbb{A}^{s\times s}$ and $\sigma$ is a non-linear activation function.
+We can regard this architecture again as an MPNN. Indeed, it suffices to define for each $\mathbf{x}$ and $\mathbf{y}$ in $\mathbb{A}^s$, each $v\in V$ and $u\in N_G(v)$, and each $t\geq 1$:
 \begin{align*}
 \textsc{Msg}^{(t)}\left(\mathbf{x},\mathbf{y},v,u\right)&:=
 \frac{1}{d_v}\left(\frac{1}{1+d_v}\right)\mathbf{x}\mathbf{W}^{(t)}+
@@ -123,13 +136,15 @@ $\pmb{\ell}^{(t-1)}_u$, and the degrees $d_v$ and $d_u$ of the vertices $v$ and 
 
 \paragraph{Turing complete MPNNs.}
  As a final example, we show how an MPNN can compute any computable function when the message functions may use knowledge of which vertices are under consideration. 
-
+ \todo{G: what do we mean by Turing completeness? It seems not to be that we
+   encode the tape of a TM into a labelled graph and then compute the original
+ function on that\dots}
 \begin{example}[Turing complete MPNN]
-	Let $( G,\pmb{\nu})$ be a connected labelled graph with $\pmb{\nu}:V\to\mathbb{Q}^r$ and let $\mathbf{f}_G:V\to\mathbb{Q}$ be a labelling 
+	Let $( G,\pmb{\nu})$ be a connected labelled graph with $\pmb{\nu}:V\to\mathbb{A}^r$ and let $\mathbf{f}_G:V\to\mathbb{A}$ be a labelling 
 	obtained from a computable function on input 	$( G,\pmb{\nu})$. To compute $\mathbf{f}_G$ by means of an MPNN we first use a number $d$ of rounds to ensure that $\pmb{\ell}^{(d)}_v$ represents $( G,\pmb{\nu})$. In other words, after $d$ rounds, each vertex has the entire input labelled graph as label. An update function simulating $\mathbf{f}_G$ then suffices to compute $\mathbf{f}_G$.
 	%We assume that $V=[n]$ and use $i\in[n]$ to denoted the $i$th vertex in $V$.
 	
-To encode $( G,\pmb{\nu})$ in the labels of vertices we use labels in $\mathbb{Q}^s$ with 
+To encode $( G,\pmb{\nu})$ in the labels of vertices we use labels in $\mathbb{A}^s$ with 
 $s=r+1+n(r+2)+n^2$. The aim it to ensure that for each vertex $i$, the final label $\pmb{\ell}_i^{(d)}$ is of the form
 \begin{equation}
 \left(\underbrace{\pmb{\nu}_i,1,}_{\text{initial label}}\underbrace{1,\pmb{\nu}_1,1,}_{\text{vertex $i$}}\ldots,\underbrace{n,\pmb{\nu}_n,1,}_{\text{vertex $n$}}\textsc{Vect}(\mathbf{A})\right), \label{eq:graphinlabel}
@@ -144,14 +159,16 @@ The remaining $n^2$ positions hold a vectorised representation of the adjacency 
 $(G,\pmb{\nu})$ from the label~(\ref{eq:graphinlabel}). We now show how this label can be obtained.
 
 For convenience, we initially extend $\pmb{\nu}$
-to a labelling $V\to\mathbb{Q}^s$ by padding each $\pmb{\nu}_i$ with $s-r$ zeroes. We abuse notation and also refer to this initial labelling by $\pmb{\nu}$.
+to a labelling $V\to\mathbb{A}^s$ by padding each $\pmb{\nu}_i$ with $s-r$ zeroes. We abuse notation and also refer to this initial labelling by $\pmb{\nu}$.
 
-For each round $t$, vertices $i$ and $j\in N_G(i)$, and $\mathbf{x},\mathbf{y}\in\mathbb{Q}^s$, we define
+For each round $t$, vertices $i$ and $j\in N_G(i)$, and $\mathbf{x},\mathbf{y}\in\mathbb{A}^s$, we define
 $
 \textsc{Msg}^{(t)}(\mathbf{x},\mathbf{y},i,j)
 $
-as the function which attaches\footnote{Technically, we add to the label $\textbf{x}$ a new vector encoding some new information} the initial labels of vertices $i$ and $j$, and adds edges $(i,j)$ and $(j,i)$ to the vectorised encoding of the adjacency matrix.
-More specifically, $
+as the function which attaches\footnote{Technically, we add to the label
+$\textbf{x}$ a new vector encoding some new information.} the initial labels of
+vertices $i$ and $j$, and adds edges $(i,j)$ and $(j,i)$ to the vectorised
+encoding of the adjacency matrix.  More specifically, $
 \textsc{Msg}^{(t)}(\mathbf{x},\mathbf{y},i,j)
 $ returns:
 \[
@@ -172,7 +189,7 @@ i_n,\frac{1}{c_n}\mathbf{y}_n,\delta(c_n),\delta(a_{11}),\ldots,\delta(a_{nn})\r
 \]
 where, for convenience, we let $\frac{1}{0}=0$ and
 set $\delta(x)=1$ if $x\neq 0$ and $\delta(x)=0$ otherwise. It is easily verified that after $d$ rounds, where $d$ is the diameter of $G$, each vertex will carry
-the desired label~(\ref{eq:graphinlabel}). It now suffices to incorporate $\mathbf{f}_G$ in the last update function to ensure that $\pmb{\ell}_i^{(t)}:=(\mathbf{f}_G(i),\mathbf{0})\in\mathbb{Q}^s$.\qed
+the desired label~(\ref{eq:graphinlabel}). It now suffices to incorporate $\mathbf{f}_G$ in the last update function to ensure that $\pmb{\ell}_i^{(t)}:=(\mathbf{f}_G(i),\mathbf{0})\in\mathbb{A}^s$.\qed
 \end{example}
 We remark that the Turing-completeness of MPNNs, whose message functions can access  the vertices themselves, was recently shown by~\cite{Loukas2019}  using close connections with the LOCAL model for distributed graph computations of~\cite{Angluin}, which is known to be complete. The previous example provides a direct proof.
 
