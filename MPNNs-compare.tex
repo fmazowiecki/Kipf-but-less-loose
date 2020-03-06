@@ -9,7 +9,7 @@ $\pmb{\ell}_M^{(t)}$ the vertex labelling computed by $M$ after $t$ rounds. We f
 % The \textit{distinguishing power} of an MPNN $M$ relates to its ability to distinguish vertices by means of the labelings $\pmb{\ell}_M^{(t)}$, for $t\geq 0$. 
 
 \begin{definition}\label{def:mpnnweak}\normalfont
-Consider two MPNNs $M_1$ and $M_2$ with the same number of layers $T$. Let $\pmb{\ell}_{M_1}^{(t)}$ and $\pmb{\ell}_{M_2}^{(t)}$  be their corresponding labellings on an input graph $( G,\pmb{\nu})$ obtained after $t$ rounds of computation for every $0 \le t \le T$. Then
+Consider two MPNNs $M_1$ and $M_2$ with the same number of rounds $T$. Let $\pmb{\ell}_{M_1}^{(t)}$ and $\pmb{\ell}_{M_2}^{(t)}$  be their corresponding labellings on an input graph $( G,\pmb{\nu})$ obtained after $t$ rounds of computation for every $0 \le t \le T$. Then
 $M_1$ is said to be \textit{weaker} than $M_2$, denoted by $M_1\preceq M_2$, if $M_1$ cannot distinguish more vertices  than $M_2$ in every round of computation. More formally, $M_1\preceq M_2$ if $\pmb{\ell}_{M_2}^{(t)}\sqsubseteq
 \pmb{\ell}_{M_1}^{(t)}$ for every $t\geq 0$. We also say that $M_2$ is \textit{stronger} than $M_1$. \qed
 \end{definition}
@@ -18,7 +18,7 @@ We can lift this notion to classes  $\architecture_1$ and $\architecture_2$ of M
 \begin{definition}\label{def:classesweak}\normalfont
 Consider two classes $\architecture_1$ and $\architecture_2$ of MPNNs.
 Then, $\architecture_1$ is said to be \textit{weaker} than $\architecture_2$, denoted by 
-$\architecture_1\sqsubseteq \architecture_2$, if for every $M_1\in \architecture_1$
+$\architecture_1\preceq \architecture_2$, if for every $M_1\in \architecture_1$
 there exists an $M_2\in\architecture_2$ which is stronger than $M_1$. \qed
 \end{definition}
 % We observe that when $\architecture_1$ and $\architecture_2$ consist of single MPNNs $M_1$ and $M_2$, respectively, then $\architecture_1\sqsubseteq \architecture_2$ if and only $M_1\preceq M_2$. We further remark that whereas $\preceq$ defines a partial order on MPNNs,
@@ -26,24 +26,24 @@ there exists an $M_2\in\architecture_2$ which is stronger than $M_1$. \qed
 % In particular, $\architecture_1\sqsubseteq \architecture_2$ and $\architecture_2\sqsubseteq \architecture_1$ does not necessarily implies that
 % $\architecture_1=\architecture_2$
 
-\filip{No way. I agree that for $\sqsubseteq$ it is confusing to have a stronger thing on the left, but we cannot use the same notation with two meanings (for labellings we have the same notation but with the opposite meaning for weaker)}
-
-We will also need a generalisation of the previous definitions in which we compare labellings in MPNNs from different layers. 
-More specifically, we consider the case when the distinguishing power of $M_1$ is weaker than that of $M_2$, provided that $M_2$ can run for a possibly different number of rounds.
+We will also need a generalisation of the previous definitions in which we compare labellings in MPNNs from different rounds. 
+%More specifically, we consider the case when the distinguishing power of $M_1$ is weaker than that of $M_2$, provided that $M_2$ can run for a possibly different number of rounds.
 This is formalised as follows.
 
 \begin{definition}\normalfont
-Consider two MPNNs $M_1$ and $M_2$ and let $\pmb{\ell}_{M_1}^{(t)}$ and $\pmb{\ell}_{M_2}^{(t)}$  be their corresponding labellings on an input graph $( G,\pmb{\nu})$ obtained after $t$ rounds of computation. Let $g:\mathbb{N}\to \mathbb{N}$ be a function. We say that $M_1$ is \textit{$g$-weaker} than $M_2$, denoted by $M_1\preceq_{g} M_2$, if 
+Consider two MPNNs $M_1$ and $M_2$ with $T_1$ and $T_2$ rounds. Let $\pmb{\ell}_{M_1}^{(t)}$ and $\pmb{\ell}_{M_2}^{(t)}$  be their corresponding labellings on an input graph $( G,\pmb{\nu})$ obtained after $t$ rounds of computation. Let $g:\mathbb{N}\to \mathbb{N}$ be a monotonic function such that $g(T_1) = T_2$. We say that $M_1$ is \textit{$g$-weaker} than $M_2$, denoted by $M_1\preceq_{g} M_2$, if 
 $\pmb{\ell}_{M_2}^{g(t)}\sqsubseteq
-\pmb{\ell}_{M_1}^{(t)}$ for every $t\geq 0$.\qed
+\pmb{\ell}_{M_1}^{(t)}$ for every $0 \le t\le T_1$.\qed
 \end{definition}
 
 Only the following special cases of this definition, depending on extra information on the function $g:\mathbb{N}\to\mathbb{N}$, will be relevant in this paper:
 \begin{itemize}
-    \item $g(t)=t$, for all $t\geq 0$. This case corresponds to Definition~\ref{def:mpnnweak}. If $M_1\preceq_{g} M_2$, then we simply say that $M_1$ is weaker than $M_2$, as before.
-    \item $g(t)\leq t+c$, for all $t\geq 0$ and some constant $c$. If $M_1\preceq_{g} M_2$, then we say that $M_1$ is weaker than $M_2$ \textit{but may be $c$ steps ahead};
-    \item $g(t)\leq c't+c$, for all $t\geq 0$ and some constants $c'$ and $c$. If $M_1\preceq_{g} M_2$, then we say that $M_1$ is weaker than $M_2$ \textit{possibly up to a linear factor of $c'$ and $c$ steps ahead}.
+    \item $g(t)=t$. This case corresponds to Definition~\ref{def:mpnnweak}. If $M_1\preceq_{g} M_2$, then we simply say that $M_1$ is weaker than $M_2$, as before.
+    \item $g(t)\leq t+c$ for some constant $c$. If $M_1\preceq_{g} M_2$, then we say that $M_1$ is weaker than $M_2$ \textit{with $c$ steps ahead};
+    \item $g(t)\leq c't+c$ for some constants $c'$ and $c$. If $M_1\preceq_{g} M_2$, then we say that $M_1$ is weaker than $M_2$ \textit{up to a linear factor of $c'$}.
 \end{itemize}
+
+\filip{I removed ' and $c$ steps ahead' in the last case I think it's too detailed}
 
 One can again lift these definitions to classes of MPNNs, just like in Definition~\ref{def:classesweak}.
 
@@ -51,9 +51,9 @@ We finally define when two classes of MPNNs are equally strong.
 \begin{definition}\normalfont
 Consider two classes $\architecture_1$ and $\architecture_2$ of MPNNs. We say that 
 $\architecture_1$ and $\architecture_2$ are \textit{equally strong}, denoted by $\architecture_1\equiv \architecture_2$, if 
-both  $\architecture_1\sqsubseteq \architecture_2$ 
-and  $\architecture_2\sqsubseteq \architecture_1$ hold.\qed\end{definition}
+both  $\architecture_1\preceq \architecture_2$ 
+and  $\architecture_2\preceq \architecture_1$ hold.\qed\end{definition}
 
-\paragraph{Remarks.} The previous definitions all assume the input labelled graph to be fixed. One could consider an alternative definition where the distinguishing power is compared with regards to all
+\paragraph{Remark.} The previous definitions all assume the input labelled graph to be fixed. One could consider an alternative definition where the distinguishing power is compared with regards to all
 input graphs. For example, an MPNN $M_1$ is said to be \textit{uniformly weaker} than an MPNN $M_2$ if $M_1\preceq M_2$ for \textit{any} input graph $( G,\pmb{\nu})$. A similar notion can be defined for classes of MPNNs. Being uniformly weaker clearly implies being weaker. The converse may not hold, however. We point out in the paper which results carry over for this stronger notion.
 

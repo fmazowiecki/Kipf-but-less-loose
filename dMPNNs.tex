@@ -1,22 +1,97 @@
 \section{The distinguishing power of degree-aware MPNNs}\label{sec:dMPNNs}
 We next turn our attention to degree-aware MPNNs, i.e., MPNNs whose message functions depend on the previous labels \textit{and} the degrees of the vertices involved.
+Quintessential examples of degree-aware MPNNs (or dMPNNs for short) are the graph convolutional networks, introduced by~\cite{kipf-loose}. These networks are of the form
+$$
+\mathbf{L}^{(t)}:=\sigma\Bigl(\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} (\mathbf{A}+\mathbf{I})\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} \mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\Bigr),
+$$
+as already described and phrased a dMPNN in Example~\ref{ex:KipfasMPNN}. In fact, many commonly used graph neural networks use degree information. We list a couple of such networks in Table~\ref{tab:dMPNNs}. It is easily verified that these can all be cast as dMPNNs along the same lines as Example~\ref{ex:KipfasMPNN}.
 
-One of the example graph neural architectures that was cast as an MPNN by \citet{GilmerSRVD17}
-was the GCN architecture by~\citet{KipfW16}. In that architecture~\footnote{We note that we here identify the vertex labeling $\pmb{\ell}^{(t)}$ with its vector in $\mathbb{A}^s$.}, for each round $t=1,2,\ldots,d$,
-\begin{equation}
-\pmb{\ell}^{(t)}:=\sigma\Bigl(\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} (\mathbf{A}+\mathbf{I})\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} \pmb{\ell}^{(t-1)}\mathbf{W}\Bigr), \label{GNN:Kipf}
-\end{equation}
-where $\mathbf{A}$ denotes the adjacency matrix of the input graph, $\mathbf{D}$ is the diagonal matrix holding the degree of the vertices on its diagonal, and $\mathbf{I}$ is the identity matrix. Finally, $\sigma$ is a non-linear activation function such as sign or ReLU. To capture this architecture we  introduce \textit{degree-aware} MPNNs, of dMPNNs for short. These are MPNNs
-whose message functions $\textsc{Msg}^{(t)}$ depend on the intermediate features $\pmb{\ell}^{(t-1)}_v$ and $\pmb{\ell}^{(t-1)}_w$, and furthermore on $d_v$ and $d_w$. They are not allowed to depend on  $v$ and $w$.
+\begin{table}[]
+ \caption{Various graph neural network formalisms which correspond to degree-aware MPNNs. All formalisms can be extended with a bias matrix $\mathbf{B}^{(t)}$ consisting of copies of the same row $\mathbf{b}^{(t)}$.}
+    \label{tab:dMPNNs}
+    \centering
+    \begin{tabular}{ll}
+ $\mathbf{L}^{(t)}:=\sigma\left(\mathbf{D}^{-1}\mathbf{A}\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$ &\cite{} \\
+$
+\mathbf{L}^{(t)}:=\sigma\left(\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$&\cite{} \\
+$
+\mathbf{L}^{(t)}:=\sigma\left((\mathbf{D}+\mathbf{I})^{-1}(\mathbf{A}+\mathbf{I})\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$&\cite{} \\
+$\mathbf{L}^{(t)}:=\sigma\left(\mathbf{L}^{(t-1)}\mathbf{W}_1^{(t)}+\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{L}^{(t-1)}\mathbf{W}_2^{(t)}\right)$&\cite{} \\
+$
+\mathbf{L}^{(t)}:=\sigma\left((\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}+\mathbf{I})\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$ &\cite{} \\
+$
+\mathbf{L}^{(t)}:=\sigma\Bigl(\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} (\mathbf{A}+p\mathbf{I})\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} \mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\Bigr)
+$& \cite{kipf-loose} \\
+$\mathbf{L}^{(t)}:=\sigma\left((r\mathbf{I}+(1-r)\tilde{\mathbf{D}})^{-1/2}(\mathbf{A}+p\mathbf{I})(r\mathbf{I}+(1-r)\mathbf{D})^{-1/2}\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$ & \cite{DBLP:journals/corr/abs-1905-03046} 
+    \end{tabular}
+   
+\end{table}
 
-It is readily observed that we can see architectures of the form~(\ref{GNN:Kipf}) as a dMPNNs by defining for each $(w,v)\in E^*$
-\begin{align*}
-\mathbf{m}_{v\gets w}^{(t)}&:=	
-\textsc{Msg}(\pmb{\ell}^{(t-1)}_v,\pmb{\ell}^{(t-1)}_w,d_v,d_w)=
-	\left(\frac{1}{\sqrt{1+d_v}}\right)	\left(\frac{1}{\sqrt{1+d_w}}\right)((\pmb{\ell}^{(t-1)}_w)^{\textsc{t}}\mathbf{W})^{\textsc{t}}\\
-\pmb{\ell}_v^{(t)}&:=\textsc{Upd}\left(\sum_{w\in N_G^*(v)} \mathbf{m}_{v\gets w}^{(t)}\right)=
-\sigma\left(\sum_{w\in N_G^*(v)} \mathbf{m}_{v\gets w}^{(t)})\right).
-\end{align*}
+% \begin{enumerate}
+% %  \item \emph{Neighbourhood only.} When $\bW_1^{(t)}$ is always the $0$ matrix. The examples we consider are
+% %  \begin{description}
+% % % \item[\textit{Adjacency}:]
+% % % % $\mathbf{L}=\mathbf{R}:=\mathbf{I}$, $p=q:=0$. Hence,
+% % % $
+% % % \mathbf{F}^{(t+1)}:=\sigma\left(\mathbf{A}\mathbf{F}^{(t)}\mathbf{W}^{(t)}\right)
+% % % $
+% % \item[\textit{Random walk (RW-GNN)}:] 
+% % % $\mathbf{L}:=\mathbf{D}^{-1}$ with $\mathbf{D}$ the degree matrix of $\mathbf{A}$, $\mathbf{R}:=\mathbf{I}$, $p=q:=0$. Hence,
+% % $$
+% % \mathbf{F}^{(t)}:=\sigma\left(\mathbf{D}^{-1}\mathbf{A}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right);$$
+% % \item[\textit{Augmented random walk (RW-GNN+)}:] 
+% % % $\mathbf{L}:=\tilde{\mathbf{D}}^{-1}$ with $\tilde{\mathbf{D}}$ the degree matrix of $\mathbf{A}+\mathbf{I}$, $\mathbf{R}:=\mathbf{I}$, $p:=1$, $q:=0$. Hence,
+% % $$
+% % \mathbf{F}^{(t)}:=\sigma\left(\tilde{\mathbf{D}}^{-1}(\mathbf{A}+\mathbf{I})\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right),$$
+% % with $\tilde{\mathbf{D}}$ the degree matrix of $\mathbf{A}+\mathbf{I}$;
+% % \item[\textit{Normalized adjacency (NA-GNN)}:] 
+% % % $\mathbf{L}=\mathbf{R}:=\mathbf{D}^{-1/2}$, $p=q:=0$. Hence,
+% % $$
+% % \mathbf{F}^{(t)}:=\sigma\left(\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right)
+% % ;$$
+% % \end{description}
+% % \item \emph{Degree normalised.} Without restrictions on $\bW_1^{(t)}$ but fixing $\bN = \mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}$. For example
+% % \begin{description}
+% % \item[\textit{$1$st Order GCN (1-GCN)}:]
+% % $$
+% % \mathbf{F}^{(t)}:=\sigma\left(\mathbf{F}^{(t-1)}\mathbf{W}_1^{(t-1)}+\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t-1)}\right);$$
+
+% % \item[\textit{Simplified $1$st Order GCN (1-GCNs)}:]
+% % $$
+% % \mathbf{F}^{(t)}:=\sigma\left((\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}+\mathbf{I})\mathbf{F}^{(t-1)}\mathbf{W}_2^{(t-1)}\right);$$
+% % \end{description}
+
+% % \item \emph{Normalised and optimised.} These are the remaining architectures.
+% % \begin{description}
+% % \item[\textit{Augmented adjacency (NA-GNN+)}~\cite{kipf-loose}:] % $\mathbf{L}=\mathbf{R}:=\tilde{\mathbf{D}}^{-1/2}$, $p:=1$, $q:=0$. Hence,
+% % $$
+% % \mathbf{F}^{(t)}:=\sigma\left(\tilde{\mathbf{D}}^{-1/2}(\mathbf{A}+\mathbf{I})\tilde{\mathbf{D}}^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right);
+% % $$
+% \item[\textit{Weighted augmented adjacency (NA-GNN++)}~\cite{DBLP:journals/corr/abs-1905-03046}:]
+% $$\mathbf{F}^{(t)}:=\sigma\left((r\mathbf{I}+(1-r)\tilde{\mathbf{D}})^{-1/2}(\mathbf{A}+p\mathbf{I})(r\mathbf{I}+(1-r)\mathbf{D})^{-1/2}\mathbf{F}^{(t-1)}\mathbf{W}^{(t-1)}\right),
+% $$
+% which underlies the PiNet architecture.
+% \end{description}
+% \end{enumerate}
+
+
+
+% One of the example graph neural architectures that was cast as an MPNN by \citet{GilmerSRVD17}
+% was the GCN architecture by~\citet{KipfW16}. In that architecture~\footnote{We note that we here identify the vertex labeling $\pmb{\ell}^{(t)}$ with its vector in $\mathbb{A}^s$.}, for each round $t=1,2,\ldots,d$,
+% \begin{equation}
+% \pmb{\ell}^{(t)}:=\sigma\Bigl(\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} (\mathbf{A}+\mathbf{I})\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} \pmb{\ell}^{(t-1)}\mathbf{W}\Bigr), \label{GNN:Kipf}
+% \end{equation}
+% where $\mathbf{A}$ denotes the adjacency matrix of the input graph, $\mathbf{D}$ is the diagonal matrix holding the degree of the vertices on its diagonal, and $\mathbf{I}$ is the identity matrix. Finally, $\sigma$ is a non-linear activation function such as sign or ReLU. To capture this architecture we  introduce \textit{degree-aware} MPNNs, of dMPNNs for short. These are MPNNs
+% whose message functions $\textsc{Msg}^{(t)}$ depend on the intermediate features $\pmb{\ell}^{(t-1)}_v$ and $\pmb{\ell}^{(t-1)}_w$, and furthermore on $d_v$ and $d_w$. They are not allowed to depend on  $v$ and $w$.
+
+% It is readily observed that we can see architectures of the form~(\ref{GNN:Kipf}) as a dMPNNs by defining for each $(w,v)\in E^*$
+% \begin{align*}
+% \mathbf{m}_{v\gets w}^{(t)}&:=	
+% \textsc{Msg}(\pmb{\ell}^{(t-1)}_v,\pmb{\ell}^{(t-1)}_w,d_v,d_w)=
+% 	\left(\frac{1}{\sqrt{1+d_v}}\right)	\left(\frac{1}{\sqrt{1+d_w}}\right)((\pmb{\ell}^{(t-1)}_w)^{\textsc{t}}\mathbf{W})^{\textsc{t}}\\
+% \pmb{\ell}_v^{(t)}&:=\textsc{Upd}\left(\sum_{w\in N_G^*(v)} \mathbf{m}_{v\gets w}^{(t)}\right)=
+% \sigma\left(\sum_{w\in N_G^*(v)} \mathbf{m}_{v\gets w}^{(t)})\right).
+% \end{align*}
 We remark, however, that the resulting MPNN is not an anonymous MPNN, and thus Proposition~\ref{prop:WL} does not apply. To understand the distinguishing power of dMPNNs we make the following observation. 
 
 \begin{lemma}
