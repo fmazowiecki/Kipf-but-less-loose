@@ -6,10 +6,33 @@ $$
 $$
 as already described and phrased a dMPNN in Example~\ref{ex:KipfasMPNN}. In fact, many commonly used graph neural networks use degree information. We list a couple of such networks in Table~\ref{tab:dMPNNs}. It is easily verified that these can all be cast as dMPNNs along the same lines as Example~\ref{ex:KipfasMPNN}.
 
+\begin{table}[]
+\hrule
+\hspace*{1ex}
+ \caption{Various graph neural network formalisms which correspond to degree-aware MPNNs. All formalisms can be extended with a bias matrix $\mathbf{B}^{(t)}$ consisting of copies of the same row $\mathbf{b}^{(t)}$.}
+    \label{tab:dMPNNs}
+    \centering
+    \begin{tabular}{ll}
+ $\mathbf{L}^{(t)}:=\sigma\left(\mathbf{D}^{-1}\mathbf{A}\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$ &\cite{} \\
+$
+\mathbf{L}^{(t)}:=\sigma\left(\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$&\cite{} \\
+$
+\mathbf{L}^{(t)}:=\sigma\left((\mathbf{D}+\mathbf{I})^{-1}(\mathbf{A}+\mathbf{I})\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$&\cite{} \\
+$\mathbf{L}^{(t)}:=\sigma\left(\mathbf{L}^{(t-1)}\mathbf{W}_1^{(t)}+\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{L}^{(t-1)}\mathbf{W}_2^{(t)}\right)$&\cite{} \\
+$
+\mathbf{L}^{(t)}:=\sigma\left((\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}+\mathbf{I})\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$ &\cite{} \\
+$
+\mathbf{L}^{(t)}:=\sigma\Bigl(\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} (\mathbf{A}+p\mathbf{I})\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} \mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\Bigr)
+$& \cite{kipf-loose} \\
+$\mathbf{L}^{(t)}:=\sigma\left((r\mathbf{I}+(1-r)\tilde{\mathbf{D}})^{-1/2}(\mathbf{A}+p\mathbf{I})(r\mathbf{I}+(1-r)\mathbf{D})^{-1/2}\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$ & \cite{DBLP:journals/corr/abs-1905-03046} 
+    \end{tabular}
+\hspace*{1ex}
+\hrule
+\end{table}
 We denote by $\architecture_{\textsl{deg}}$ the class of degree-aware MPNNs. Our first observation is that
 $\architecture_{\textsl{deg}}$ are not weaker than $\architectureWL$. This somewhat contradicts claims made about, e.g., the GCNs by~\cite{kipf-loose}, in the literature.
 \begin{proposition}
-The class $\architecture_{\textsl{deg}}$ is not weaker than $\architectureWL$. As a consequence,  $\architecture_{\textsl{deg}}$ and  $\architectureano$ are not equally expressive.
+The class $\architecture_{\textsl{deg}}$ is not weaker than $\architectureWL$. As a consequence,  $\architecture_{\textsl{deg}}$ and  $\architectureano$ are not equally strong.
 \end{proposition}
 \begin{proof}
 It suffices to provide a dMPNN $M$ and labelled graph $\langle G,\pmb{\nu}\rangle$ such that there exists a $t\geq 0$ such that $\pmb{\ell}_{M_{\textsl{WL}}}^{(t)}\not\sqsubseteq \pmb{\ell}_M^{(t)}$. We construct an $M$ originating
@@ -70,7 +93,7 @@ We define $M$ such that for round $t=1$ and $\mathbf{x},\mathbf{y}\in\mathbb{A}^
 % We remark that $\pmb{\ell}^{(0)}:=\pmb{\ell}\equiv \mathbf{F}^{(0)}$.
 It can be verified that 
 $$
-\pmb{\ell}_M^{(1)}=\sigma\left(\begin{bmatrix}
+\pmb{\ell}_M^{(1)}=\begin{bmatrix}
 \frac{1}{2} & \frac{1}{2\sqrt{2}}& 0\\
 \frac{1}{2} & \frac{1}{2\sqrt{2}}& 0\\
 \frac{1}{2\sqrt{2}} & \frac{1}{4}& \frac{1}{
@@ -81,7 +104,7 @@ $$
 3}\\
 0 & \frac{1}{2}& \frac{1}{
 \sqrt{6}}
-\end{bmatrix}\right).
+\end{bmatrix}.
 $$
 We observe that 
 $(\pmb{\ell}_M^{(1)})_{v_4}\neq (\pmb{\ell}_M^{(1)})_{v_5}$. 
@@ -97,34 +120,11 @@ $\pmb{\ell}_{M_{\textsl{WL}}}^{(1)}\not\sqsubseteq \pmb{\ell}_M^{(1)}$.
 % % It can, however, be verified that $\pmb{\ell}^{(2)}\sqsubseteq \mathbf{F}^{(1)}$.
 % % \todo{The latter inclusion needs to be verified}\qed
 
-The claim that $\architecture_{\textsl{deg}}$ and  $\architectureano$ are not equally expressive, now follows easily. Indeed, suppose that 
-
+The claim that $\architecture_{\textsl{deg}}$ and  $\architectureano$ are not equally strong, now follows easily. Indeed, if they were equally expressive
+then by Proposition~\ref{prop:equalstrong}, $\architecture_{\textsl{deg}}$ would be equally strong as
+$\architectureWL$. This contradicts with what we have shown above. Of course, $\architectureano$ is weaker than $\architecture_{\textsl{deg}}$, simply because any aMPNN is a dMPNN.
 \end{proof}
-We remark that this also implies that 
 
-\begin{table}[]
-\hrule
-\hspace*{1ex}
- \caption{Various graph neural network formalisms which correspond to degree-aware MPNNs. All formalisms can be extended with a bias matrix $\mathbf{B}^{(t)}$ consisting of copies of the same row $\mathbf{b}^{(t)}$.}
-    \label{tab:dMPNNs}
-    \centering
-    \begin{tabular}{ll}
- $\mathbf{L}^{(t)}:=\sigma\left(\mathbf{D}^{-1}\mathbf{A}\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$ &\cite{} \\
-$
-\mathbf{L}^{(t)}:=\sigma\left(\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$&\cite{} \\
-$
-\mathbf{L}^{(t)}:=\sigma\left((\mathbf{D}+\mathbf{I})^{-1}(\mathbf{A}+\mathbf{I})\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$&\cite{} \\
-$\mathbf{L}^{(t)}:=\sigma\left(\mathbf{L}^{(t-1)}\mathbf{W}_1^{(t)}+\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}\mathbf{L}^{(t-1)}\mathbf{W}_2^{(t)}\right)$&\cite{} \\
-$
-\mathbf{L}^{(t)}:=\sigma\left((\mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2}+\mathbf{I})\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$ &\cite{} \\
-$
-\mathbf{L}^{(t)}:=\sigma\Bigl(\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} (\mathbf{A}+p\mathbf{I})\bigl(\mathbf{D}+\mathbf{I}\bigr)^{-1/2} \mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\Bigr)
-$& \cite{kipf-loose} \\
-$\mathbf{L}^{(t)}:=\sigma\left((r\mathbf{I}+(1-r)\tilde{\mathbf{D}})^{-1/2}(\mathbf{A}+p\mathbf{I})(r\mathbf{I}+(1-r)\mathbf{D})^{-1/2}\mathbf{L}^{(t-1)}\mathbf{W}^{(t)}\right)$ & \cite{DBLP:journals/corr/abs-1905-03046} 
-    \end{tabular}
-\hspace*{1ex}
-\hrule
-\end{table}
 
 % \begin{enumerate}
 % %  \item \emph{Neighbourhood only.} When $\bW_1^{(t)}$ is always the $0$ matrix. The examples we consider are
@@ -191,33 +191,55 @@ $\mathbf{L}^{(t)}:=\sigma\left((r\mathbf{I}+(1-r)\tilde{\mathbf{D}})^{-1/2}(\mat
 % \pmb{\ell}_v^{(t)}&:=\textsc{Upd}\left(\sum_{w\in N_G^*(v)} \mathbf{m}_{v\gets w}^{(t)}\right)=
 % \sigma\left(\sum_{w\in N_G^*(v)} \mathbf{m}_{v\gets w}^{(t)})\right).
 % \end{align*}
-We remark, however, that the resulting MPNN is not an anonymous MPNN, and thus Proposition~\ref{prop:WL} does not apply. To understand the distinguishing power of dMPNNs we make the following observation. 
+
+The previous proposition begs the question how anonymous MPNNs and degree-aware MPNNs are related. To answer this question we observe that anonymous MPNNs can compute the degrees of vertices in one round of computation.
 
 \begin{lemma}
-	The degrees of all vertices can be obtained in one round of computation of an anonymous MPNN. Furthermore, this degree information can be encoded together with the initial labeling $\pmb{\nu}$.
+	The degrees of all vertices can be obtained in one round of computation of an anonymous MPNN. Furthermore, this degree information can be encoded together with the initial labelling $\pmb{\nu}$ of $G$.
 	\end{lemma}
 \begin{proof}
-Let $\pmb{\ell}^{(0)}:=\left[\begin{smallmatrix}0\\\pmb{\nu}\end{smallmatrix}\right]\in\mathbf{Q}^{s+1}$. Then, for round $t=1$, we first define for each $(w,v)\in E^*$, 
-$$\mathbf{m}^{(1)}_{v\gets w}=\textsc{Msg}(\pmb{\ell}^{(0)}_v,\pmb{\ell}^{(0)}_{w},\pmb{\eta}_{(w,v)}):=\left[\begin{smallmatrix}1\\\pmb{\nu}\end{smallmatrix}\right]\in\mathbf{Q}^{s+1}.$$ Then, for any
-$\left[\begin{smallmatrix} a\\\mathbf{b}\end{smallmatrix}\right]\in \mathbb{A}^{s+1}$ with $a\neq 0$, we 
-let 
-$$\textsc{Upd}\left(\begin{bmatrix} a\\\mathbf{b}\end{bmatrix}\right):=\begin{bmatrix} a\\\frac{1}{a}\mathbf{b}\end{bmatrix}.
+We can assume, without loss of generality, that the labelled graph $\langle G,\pmb{\nu}\rangle$ is such that
+$\pmb{\nu}:V\to\mathbb{A}^{s+1}$ and where the last entry in every label is equal to $0$.
+We then define the aMPNN
+$M_d$ with the following message and update functions.
+For each $\mathbf{x}=(\mathbf{x}',x)$ and $\mathbf{y}=(\mathbf{y}',y)$ in $\mathbb{A}^{s+1}$, vertices $v$ and $u\in N_G(v)$, and each $t\geq 1$:
 $$
-It is now clear that $\textsc{Upd}\left(\sum_{w\in N_G^*(v)}\mathbf{m}_{v\gets w}^{(t)}\right)=\left[\begin{smallmatrix} d_v\\\pmb{\nu}\end{smallmatrix}\right]\in \mathbb{A}^{s+1}$.
+\textsc{Msg}^{(t)}(\mathbf{x},\mathbf{y},v,w):=(\mathbf{x}',1)
+\text{ and } \textsc{Upd}^{(t)}(\mathbf{x},\mathbf{y}):=
+\begin{cases}
+\mathbf{x} & y=0\\
+(\frac{1}{y}\mathbf{y}',y) & y\neq 0
+\end{cases}.
+$$
+Then,
+$
+\mathbf{m}_v^{(1)}:=\sum_{u\in N_G(v)}(\mathbf{x}',1)=(d_v\mathbf{x}',d_v)
+$ and $\textsc{Upd}^{(1)}_v=(\mathbf{x}',d_v)$.
+In other words, after round $1$, each vertex knows its own degree, represented in its label. This implies that
+$(\pmb{\ell}_M^{(1)})_v=(\pmb{\mu}_v,d_v)$, as desired.
+% Then, for round $t=1$, we first define for each $(w,v)\in E^*$, 
+% $$\mathbf{m}^{(1)}_{v\gets w}=\textsc{Msg}(\pmb{\ell}^{(0)}_v,\pmb{\ell}^{(0)}_{w},\pmb{\eta}_{(w,v)}):=\left[\begin{smallmatrix}1\\\pmb{\nu}\end{smallmatrix}\right]\in\mathbf{Q}^{s+1}.$$ Then, for any
+% $\left[\begin{smallmatrix} a\\\mathbf{b}\end{smallmatrix}\right]\in \mathbb{A}^{s+1}$ with $a\neq 0$, we 
+% let 
+% $$\textsc{Upd}\left(\begin{bmatrix} a\\\mathbf{b}\end{bmatrix}\right):=\begin{bmatrix} a\\\frac{1}{a}\mathbf{b}\end{bmatrix}.
+% $$
+% It is now clear that $\textsc{Upd}\left(\sum_{w\in N_G^*(v)}\mathbf{m}_{v\gets w}^{(t)}\right)=\left[\begin{smallmatrix} d_v\\\pmb{\nu}\end{smallmatrix}\right]\in \mathbb{A}^{s+1}$.
 \end{proof}
 
-As an immediate consequence is that every dMPNN corresponds to an aMPNN satisfying the following property.
+The following proposition now follows almost immediately.
 \begin{proposition}\label{prop:onestep}
-Consider a dMPNN which computes labelings $\pmb{\ell}^{(t)}$, for $t=1,2,\ldots,d$. Then there exists a corresponding aMPNN which computes labeling $\hat{\pmb{\ell}}{}^{(t)}$ such that $\pmb{\ell}^{(t)}=\hat{\pmb{\ell}}^{(t+1)}$.
+The class $\architecture_{\textsl{deg}}$ is weaker than 
+$\architectureano$, with $1$ step ahead.
 \end{proposition}
 \begin{proof}
-	The desired aMPNN consists of a one round computation to obtain all degree information, followed by a modified aMPNN simulating the given dMPNN.
+As in the previous lemma we assume that the labelling
+$\pmb{\nu}$ of $G$ is such that $\pmb{\nu}:V\to\mathbb{A}^{s+1}$ with its last entries equal to $0$. Take an arbitrary 
 \end{proof}
 
-As an immediate corollary of Propositions~\ref{prop:WL} and~\ref{prop:onestep},  we obtain:
-\begin{corollary}
-	The distinguish power of dMPNNs is bounded by WL, with a factor of one.
-\end{corollary}
+% As an immediate corollary of Propositions~\ref{prop:WL} and~\ref{prop:onestep},  we obtain:
+% \begin{corollary}
+% 	The distinguish power of dMPNNs is bounded by WL, with a factor of one.
+% \end{corollary}
 
 % As a consequence, we cannot rely on Proposition~\ref{prop:WL} to  upper bound
 % the distinguishing power of graph neural networks whose propagation rules rely on the degrees
